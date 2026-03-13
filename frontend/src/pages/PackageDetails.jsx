@@ -61,6 +61,7 @@ const PackageDetails = () => {
         try {
             await customerService.addToCart(userId, role, pkg.id, 'PACKAGE', 1);
             toast.success(`${pkg.name} added to cart!`);
+            window.dispatchEvent(new Event('cartUpdated'));
         } catch (error) {
             console.error(error);
             toast.error("Failed to add to cart");
@@ -69,13 +70,23 @@ const PackageDetails = () => {
 
     const handleBuyNow = async () => {
         const userId = localStorage.getItem('userId');
+        const role = localStorage.getItem('role') || 'CUSTOMER';
         if (!userId) {
             toast.warning("Please login to place an order");
             window.dispatchEvent(new CustomEvent('openAuthModal', { detail: { modalType: 'signupSelect' } }));
             return;
         }
-        await handleAddToCart();
-        navigate('/checkout');
+        
+        try {
+            await customerService.addToCart(userId, role, pkg.id, 'PACKAGE', 1);
+            await customerService.placeOrder('COD');
+            toast.success("Order Placed Successfully!");
+            window.dispatchEvent(new Event('cartUpdated'));
+            navigate('/customer/orders');
+        } catch (error) {
+            console.error(error);
+            toast.error("Failed to place order.");
+        }
     };
 
     if (loading) return <PackageDetailsSkeleton />;

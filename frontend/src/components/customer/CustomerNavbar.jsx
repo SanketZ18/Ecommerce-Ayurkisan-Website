@@ -11,6 +11,8 @@ const CustomerNavbar = ({ onOpenProfileModal }) => {
     const navigate = useNavigate();
     const [isAccountMenuOpen, setAccountMenuOpen] = useState(false);
     const [customerName, setCustomerName] = useState('Customer');
+    const [cartCount, setCartCount] = useState(0);
+    const [wishlistCount, setWishlistCount] = useState(0);
 
     useEffect(() => {
         // Fetch the user's name to display a personalized welcome message
@@ -29,7 +31,37 @@ const CustomerNavbar = ({ onOpenProfileModal }) => {
             }
         };
 
+        const fetchCounts = async () => {
+            try {
+                const userId = localStorage.getItem('userId');
+                const role = localStorage.getItem('role') || 'CUSTOMER';
+                
+                // Get Wishlist from local storage
+                const wishlist = JSON.parse(localStorage.getItem('wishlist') || '[]');
+                setWishlistCount(wishlist.length);
+
+                // Get Cart from API
+                if (userId) {
+                    const cartRes = await customerService.getCart(userId, role);
+                    setCartCount(cartRes.data?.items?.length || 0);
+                }
+            } catch (error) {
+                console.error("Failed to fetch counts for navbar", error);
+            }
+        };
+
         fetchUserData();
+        fetchCounts();
+
+        // Listen for custom events to update counts dynamically
+        const handleCartUpdate = () => fetchCounts();
+        window.addEventListener('cartUpdated', handleCartUpdate);
+        window.addEventListener('wishlistUpdated', handleCartUpdate);
+
+        return () => {
+            window.removeEventListener('cartUpdated', handleCartUpdate);
+            window.removeEventListener('wishlistUpdated', handleCartUpdate);
+        };
     }, []);
 
     const handleLogout = () => {
@@ -131,7 +163,10 @@ const CustomerNavbar = ({ onOpenProfileModal }) => {
 
                 {/* Wishlist */}
                 <Link to="/customer/wishlist" style={{ ...navItemStyle, textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '5px' }}>
-                    <FaHeart size={24} color="#fff" />
+                    <div style={{ position: 'relative' }}>
+                        <FaHeart size={24} color="#fff" />
+                        {wishlistCount > 0 && <span style={cartBadgeStyle}>{wishlistCount}</span>}
+                    </div>
                     <span style={navMainTextStyle}>Wishlist</span>
                 </Link>
 
@@ -139,6 +174,7 @@ const CustomerNavbar = ({ onOpenProfileModal }) => {
                 <Link to="/cart" style={{ ...navItemStyle, textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '5px', position: 'relative' }}>
                     <div style={{ position: 'relative' }}>
                         <FaShoppingCart size={32} color="#fff" />
+                        {cartCount > 0 && <span style={cartBadgeStyle}>{cartCount}</span>}
                     </div>
                     <span style={{ ...navMainTextStyle, marginTop: '10px' }}>Cart</span>
                 </Link>
