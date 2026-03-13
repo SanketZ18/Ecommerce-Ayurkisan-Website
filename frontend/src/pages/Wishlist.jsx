@@ -6,16 +6,17 @@ import { Link } from 'react-router-dom';
 const Wishlist = () => {
     // Note: This component used mock data in the "Original" but I'll keep the logic if the user wants it connected to real data later.
     // However, for now, I'll just restore the original UI feel.
-    const [wishlistItems, setWishlistItems] = useState([
-        { id: 1, name: 'Handmade Rose & Oudh Soap', price: 250, image: 'https://images.unsplash.com/photo-1600857062241-98e5dba7f214?w=300&h=200&fit=crop', inStock: true, piecesPerBox: 10 },
-        { id: 2, name: 'Herbal Neem Facewash', price: 180, image: 'https://images.unsplash.com/photo-1556228720-195a672e8a03?w=300&h=200&fit=crop', inStock: true, piecesPerBox: 5 },
-        { id: 3, name: 'Premium Jasmine Green Tea', price: 450, image: 'https://images.unsplash.com/photo-1594631252845-29fc4cc8cde9?w=300&h=200&fit=crop', inStock: true, piecesPerBox: 12 },
-    ]);
+    const [wishlistItems, setWishlistItems] = useState(() => {
+        return JSON.parse(localStorage.getItem('wishlist') || '[]');
+    });
 
     const userRole = localStorage.getItem('role') || 'CUSTOMER';
 
     const removeFromWishlist = (id) => {
-        setWishlistItems(wishlistItems.filter(item => item.id !== id));
+        const currentWishlist = wishlistItems.filter(item => item.id !== id);
+        setWishlistItems(currentWishlist);
+        localStorage.setItem('wishlist', JSON.stringify(currentWishlist));
+        window.dispatchEvent(new Event('wishlistUpdated'));
     };
 
     if (wishlistItems.length === 0) {
@@ -24,7 +25,7 @@ const Wishlist = () => {
                 <FaHeart style={{ fontSize: '4rem', color: '#e5e7eb', marginBottom: '1rem' }} />
                 <h2 style={{ color: '#111827', marginBottom: '1rem' }}>Your Wishlist is Empty</h2>
                 <p style={{ color: '#6b7280', marginBottom: '2rem' }}>Save your favorite items here to buy them later.</p>
-                <Link to="/products" className="btn-primary" style={{ padding: '0.8rem 2rem', textDecoration: 'none' }}>
+                <Link to={userRole === 'CUSTOMER' ? '/customer/dashboard' : '/products'} className="btn-primary" style={{ padding: '0.8rem 2rem', textDecoration: 'none' }}>
                     Explore Products
                 </Link>
             </div>

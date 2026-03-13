@@ -42,13 +42,22 @@ const Packages = () => {
 
         try {
             await customerService.addToCart(userId, role, pkg.id, 'PACKAGE', 1);
-            toast.success(`${pkg.name} added to cart!`);
             if (action === 'BUY_NOW') {
-                navigate('/checkout');
+                await customerService.placeOrder('COD');
+                toast.success("Order Placed Successfully!");
+                window.dispatchEvent(new Event('cartUpdated'));
+                navigate('/customer/orders');
+            } else {
+                toast.success(`${pkg.name} added to cart!`);
+                window.dispatchEvent(new Event('cartUpdated'));
             }
         } catch (error) {
             console.error("Cart error:", error);
-            toast.error("Failed to add package to cart.");
+            if (action === 'BUY_NOW') {
+                toast.error("Failed to place order.");
+            } else {
+                toast.error("Failed to add package to cart.");
+            }
         }
     };
 

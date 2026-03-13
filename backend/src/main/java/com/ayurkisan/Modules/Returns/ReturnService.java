@@ -126,9 +126,12 @@ public class ReturnService {
             
             if ("ACCEPTED".equalsIgnoreCase(newStatus)) {
                 emailService.sendReturnAccepted(order.getContactEmail(), order);
+                orderService.updateOrderStatus(orderId, "RETURN_ACCEPTED");
             } else if ("REJECTED".equalsIgnoreCase(newStatus)) {
                 emailService.sendReturnRejected(order.getContactEmail(), order);
                 orderService.updateOrderStatus(orderId, "DELIVERED"); // Revert main status if rejected
+            } else if ("PICKED_UP".equalsIgnoreCase(newStatus)) {
+                orderService.updateOrderStatus(orderId, "RETURN_PICKUP");
             } else if ("REFUNDED".equalsIgnoreCase(newStatus)) {
                 emailService.sendReturnRefunded(order.getContactEmail(), order);
                 orderService.updateOrderStatus(orderId, "RETURNED"); // This handles stock restitution

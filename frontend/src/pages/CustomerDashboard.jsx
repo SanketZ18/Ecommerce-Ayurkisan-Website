@@ -9,6 +9,7 @@ import i114 from '../assets/images/114.jpg';
 import i115 from '../assets/images/115.jpg';
 import axios from 'axios';
 import customerService from '../utils/customerService';
+import { getDecodedToken } from '../utils/auth';
 import { toast } from 'react-toastify';
 
 const CustomerDashboard = () => {
@@ -22,6 +23,7 @@ const CustomerDashboard = () => {
     const [suggestionTab, setSuggestionTab] = useState('products');
     const [loading, setLoading] = useState(true);
     const [wishlistCount, setWishlistCount] = useState(0);
+    const [wishlistItems, setWishlistItems] = useState([]);
     const [cartCount, setCartCount] = useState(0);
     const [searchQuery, setSearchQuery] = useState('');
     const [sortBy, setSortBy] = useState('Default Sort');
@@ -59,12 +61,22 @@ const CustomerDashboard = () => {
 
                 setProfile(profileRes.data);
                 const orderData = Array.isArray(ordersRes.data) ? ordersRes.data : [];
-                setRecentOrders(orderData.map(order => ({
-                    ...order,
-                    orderId: order.id,
-                    orderDate: order.createdAt,
-                    displayItems: order.items?.map(item => item.productName).join(', ') || 'Unnamed Items'
-                })).slice(0, 5));
+                const top5Orders = orderData.slice(0, 5);
+                const trackingPromises = top5Orders.map(order => 
+                    customerService.trackShipment(order.id).catch(() => null)
+                );
+                const trackingResults = await Promise.all(trackingPromises);
+
+                setRecentOrders(top5Orders.map((order, index) => {
+                    const trackingData = trackingResults[index]?.data;
+                    return {
+                        ...order,
+                        orderId: order.id,
+                        orderDate: order.createdAt,
+                        displayItems: order.items?.map(item => item.productName).join(', ') || 'Unnamed Items',
+                        trackingStatus: trackingData?.status || order.orderStatus
+                    };
+                }));
 
                 // Process offers - filter only promotional types or use fallback if empty
                 const fetchedOffers = Array.isArray(offersRes.data) ? offersRes.data.filter(s => s.type === 'promotional') : [];
@@ -82,8 +94,23 @@ const CustomerDashboard = () => {
 
                 // Real counts
                 const wishlist = JSON.parse(localStorage.getItem('wishlist') || '[]');
+                setWishlistItems(wishlist);
                 setWishlistCount(wishlist.length);
-                setCartCount(cartRes.data?.items?.length || 0);
+                
+                const fetchCartCount = async () => {
+                    try {
+                        const res = await customerService.getCart(userId, role);
+                        setCartCount(res.data?.items?.length || 0);
+                    } catch (e) {
+                        setCartCount(0);
+                    }
+                };
+                
+                await fetchCartCount();
+                
+                const handleCartUpdated = () => fetchCartCount();
+                window.addEventListener('cartUpdated', handleCartUpdated);
+                return () => window.removeEventListener('cartUpdated', handleCartUpdated);
             }
         } catch (error) {
             console.error("Dashboard fetch error:", error);
@@ -243,7 +270,7 @@ const CustomerDashboard = () => {
                                         </div>
                                         <div style={{ textAlign: 'right' }}>
                                             <div style={{ color: '#10b981', fontWeight: '800' }}>₹{order.totalDiscountedPrice}</div>
-                                            <div style={{ fontSize: '0.75rem', fontWeight: '700', color: isDarkMode ? '#94a3b8' : '#64748b' }}>{order.orderStatus}</div>
+                                            <div style={{ fontSize: '0.75rem', fontWeight: '700', color: isDarkMode ? '#94a3b8' : '#64748b' }}>{order.trackingStatus || order.orderStatus}</div>
                                         </div>
                                     </div>
                                 )) : (
@@ -392,7 +419,44 @@ const CustomerDashboard = () => {
 
                                 return (
                                     <div key={idx} style={{ ...productCardSmallStyle, backgroundColor: isDarkMode ? '#1e293b' : '#fff', borderColor: isDarkMode ? '#334155' : '#f1f5f9' }} onClick={() => navigate(isPackage ? `/package/${itemName}` : `/product/${itemName}`)}>
-                                        <div style={{ ...productImageWrapperSmall, backgroundColor: isDarkMode ? '#0f172a' : '#f8fafc' }}>
+                                        <div style={{ ...productImageWrapperSmall, position: 'relative', backgroundColor: isDarkMode ? '#0f172a' : '#f8fafc' }}>
+                                            <button
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    let currentWishlist = [...wishlistItems];
+                                                    const exists = currentWishlist.find(w => w.id === itemId);
+                                                    if (exists) {
+                                                        currentWishlist = currentWishlist.filter(w => w.id !== itemId);
+                                                        toast.info("Removed from wishlist");
+                                                    } else {
+                                                        currentWishlist.push({ ...item, name: itemName, price: item.price || item.bundlePrice, image: itemImage });
+                                                        toast.success("Added to wishlist!");
+                                                    }
+                                                    setWishlistItems(currentWishlist);
+                                                    setWishlistCount(currentWishlist.length);
+                                                    localStorage.setItem('wishlist', JSON.stringify(currentWishlist));
+                                                    window.dispatchEvent(new Event('wishlistUpdated'));
+                                                }}
+                                                style={{
+                                                    position: 'absolute',
+                                                    top: '15px',
+                                                    right: '15px',
+                                                    background: '#fff',
+                                                    border: '1px solid #f1f5f9',
+                                                    borderRadius: '50%',
+                                                    width: '35px',
+                                                    height: '35px',
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    justifyContent: 'center',
+                                                    cursor: 'pointer',
+                                                    boxShadow: '0 2px 5px rgba(0,0,0,0.1)',
+                                                    zIndex: 2,
+                                                    color: wishlistItems.some(w => w.id === itemId) ? '#ec4899' : '#cbd5e1'
+                                                }}
+                                            >
+                                                <FaHeart size={18} />
+                                            </button>
                                             <img src={itemImage || 'https://via.placeholder.com/200?text=Ayurkisan'} alt={itemName} style={productImageSmall} />
                                         </div>
                                         <div style={productInfoSmall}>
@@ -404,19 +468,24 @@ const CustomerDashboard = () => {
                                                     onClick={async (e) => {
                                                         e.stopPropagation();
                                                         try {
-                                                            const userId = localStorage.getItem('userId');
-                                                            const role = localStorage.getItem('role') || 'CUSTOMER';
-                                                            if (!userId) {
-                                                                toast.error("Please login to add to cart");
+                                                            const decoded = getDecodedToken();
+                                                            const role = decoded?.role || localStorage.getItem('role');
+                                                            const userId = decoded?.userId || localStorage.getItem('userId');
+                                                            if (!userId || (role !== 'CUSTOMER' && role !== 'Customer')) {
+                                                                toast.error("Please login as a Customer to add to cart");
+                                                                return;
+                                                            }
+                                                            if (!itemId) {
+                                                                console.error("Missing item ID for:", item);
+                                                                toast.error("Invalid product selected");
                                                                 return;
                                                             }
                                                             await customerService.addToCart(userId, role, itemId, isPackage ? 'PACKAGE' : 'PRODUCT', 1);
                                                             toast.success("Added to cart!");
-                                                            // Refresh cart count
-                                                            const cartRes = await customerService.getCart(userId, role);
-                                                            setCartCount(cartRes.data?.items?.length || 0);
+                                                            window.dispatchEvent(new Event('cartUpdated'));
                                                         } catch (err) {
-                                                            toast.error("Failed to add to cart");
+                                                            console.error("Add to cart error:", err);
+                                                            toast.error(err.response?.data?.message || "Failed to add to cart");
                                                         }
                                                     }}
                                                 >
@@ -427,16 +496,24 @@ const CustomerDashboard = () => {
                                                     onClick={async (e) => {
                                                         e.stopPropagation();
                                                         try {
-                                                            const userId = localStorage.getItem('userId');
-                                                            const role = localStorage.getItem('role') || 'CUSTOMER';
-                                                            if (!userId) {
-                                                                toast.error("Please login to purchase");
+                                                            const decoded = getDecodedToken();
+                                                            const role = decoded?.role || localStorage.getItem('role');
+                                                            const userId = decoded?.userId || localStorage.getItem('userId');
+                                                            if (!userId || (role !== 'CUSTOMER' && role !== 'Customer')) {
+                                                                toast.error("Please login as a Customer to purchase");
+                                                                return;
+                                                            }
+                                                            if (!itemId) {
+                                                                console.error("Missing item ID for:", item);
+                                                                toast.error("Invalid product selected");
                                                                 return;
                                                             }
                                                             await customerService.addToCart(userId, role, itemId, isPackage ? 'PACKAGE' : 'PRODUCT', 1);
+                                                            window.dispatchEvent(new Event('cartUpdated'));
                                                             navigate('/checkout');
                                                         } catch (err) {
-                                                            toast.error("Failed to process request");
+                                                            console.error("Buy now err:", err);
+                                                            toast.error(err.response?.data?.message || "Failed to process request");
                                                         }
                                                     }}
                                                 >

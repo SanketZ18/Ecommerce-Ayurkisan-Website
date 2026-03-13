@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface OrderRepository extends MongoRepository<Order, String> {
 
-    List<Order> findByUserId(String userId);
+    List<Order> findAllByUserIdOrderByCreatedAtDesc(String userId);
 
     List<Order> findByOrderStatus(String orderStatus);
 

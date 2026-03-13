@@ -35,17 +35,37 @@ public class ShipmentService {
         shipment.setRole(order.getRole());
         shipment.setShippingAddress(order.getShippingAddress());
         shipment.setContactPhone(order.getContactPhone());
-        shipment.setStatus("CONFIRMED");
+        // Statuses: PLACED, CONFIRMED, SHIPPED, OUT_FOR_DELIVERY, DELIVERED, CANCELLED
+        shipment.setStatus(order.getOrderStatus() != null ? order.getOrderStatus() : "PLACED");
+        shipment.setCustomerName(order.getUserName());
 
         // Add initial tracking history event
-        shipment.getTrackingHistory().add(new ShipmentUpdate("CONFIRMED", "Order has been confirmed and is preparing for shipment."));
+        String initialLabel = order.getOrderStatus() != null ? order.getOrderStatus() : "PLACED";
+        shipment.getTrackingHistory().add(new ShipmentUpdate(initialLabel, "Order record created for logistics tracking."));
 
         return shipmentRepository.save(shipment);
     }
 
     public List<Shipment> getAllShipments() {
+        // First, ensure all orders have a shipment record (Sync logic)
+        List<Order> allOrders = orderService.getAllOrders();
+        for (Order order : allOrders) {
+            createShipment(order);
+        }
+
         List<Shipment> shipments = shipmentRepository.findAll();
-        shipments.forEach(this::populateCustomerName);
+        for (Shipment shipment : shipments) {
+            // Fix persisted name if missing/Unknown
+            if (shipment.getCustomerName() == null || "Unknown".equals(shipment.getCustomerName())) {
+                try {
+                    Order order = orderService.getOrderById(shipment.getOrderId());
+                    shipment.setCustomerName(order.getUserName());
+                    shipmentRepository.save(shipment); // Persist it now that @Transient is gone
+                } catch (Exception e) {
+                    shipment.setCustomerName("Unknown");
+                }
+            }
+        }
         return shipments;
     }
 
@@ -57,11 +77,14 @@ public class ShipmentService {
     }
 
     private void populateCustomerName(Shipment shipment) {
-        try {
-            Order order = orderService.getOrderById(shipment.getOrderId());
-            shipment.setCustomerName(order.getUserName());
-        } catch (Exception e) {
-            shipment.setCustomerName("Unknown");
+        // This is now redundant but kept for safety in single-fetch APIs if needed
+        if (shipment.getCustomerName() == null || "Unknown".equals(shipment.getCustomerName())) {
+            try {
+                Order order = orderService.getOrderById(shipment.getOrderId());
+                shipment.setCustomerName(order.getUserName());
+            } catch (Exception e) {
+                shipment.setCustomerName("Unknown");
+            }
         }
     }
 

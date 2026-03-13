@@ -3,6 +3,7 @@ import { NavLink, Link, useNavigate } from 'react-router-dom';
 import { isAuthenticated, getUserRole, clearAuthData } from '../../utils/auth';
 import { FaWhatsapp, FaEnvelope, FaShoppingCart, FaHeart } from 'react-icons/fa';
 import logo from '../../assets/Company Logos (1024 × 1024 px).png';
+import customerService from '../../utils/customerService';
 // To avoid a missing CSS file error, I'll define styles inline and use hover effects via CSS injected into head if needed, or just use NavLink's active feature.
 
 const Header = ({ onLoginClick, onSignUpClick }) => {
@@ -10,6 +11,7 @@ const Header = ({ onLoginClick, onSignUpClick }) => {
     const loggedIn = isAuthenticated();
     const role = getUserRole();
     const [scrollY, setScrollY] = useState(0);
+    const [cartCount, setCartCount] = useState(0);
 
     const handleLogout = () => {
         clearAuthData();
@@ -24,6 +26,33 @@ const Header = ({ onLoginClick, onSignUpClick }) => {
             default: return '/';
         }
     };
+
+    useEffect(() => {
+        const fetchCartCount = async () => {
+            if (loggedIn && (role === 'CUSTOMER' || role === 'RETAILER' || role === 'Customer')) {
+                try {
+                    const userId = localStorage.getItem('userId');
+                    const res = await customerService.getCart(userId, role);
+                    setCartCount(res.data?.items?.length || 0);
+                } catch (e) {
+                    console.error('Failed to fetch cart count', e);
+                    setCartCount(0);
+                }
+            }
+        };
+
+        fetchCartCount();
+
+        const handleCartUpdated = () => {
+            fetchCartCount();
+        };
+
+        window.addEventListener('cartUpdated', handleCartUpdated);
+
+        return () => {
+            window.removeEventListener('cartUpdated', handleCartUpdated);
+        };
+    }, [loggedIn, role]);
 
     useEffect(() => {
         const handleScroll = () => setScrollY(window.scrollY);
@@ -92,8 +121,23 @@ const Header = ({ onLoginClick, onSignUpClick }) => {
                         <Link to="/wishlist" style={{ color: 'var(--text-dark)', marginRight: '10px', display: 'flex', alignItems: 'center' }}>
                             <FaHeart size={22} color="#ef4444" />
                         </Link>
-                        <Link to="/cart" style={{ color: 'var(--text-dark)', marginRight: '15px', display: 'flex', alignItems: 'center' }}>
+                        <Link to="/cart" style={{ color: 'var(--text-dark)', marginRight: '15px', display: 'flex', alignItems: 'center', position: 'relative' }}>
                             <FaShoppingCart size={22} color="var(--primary-green)" />
+                            {cartCount > 0 && (
+                                <span style={{
+                                    position: 'absolute',
+                                    top: '-8px',
+                                    right: '-10px',
+                                    backgroundColor: '#ef4444',
+                                    color: 'white',
+                                    borderRadius: '50%',
+                                    padding: '2px 6px',
+                                    fontSize: '0.75rem',
+                                    fontWeight: 'bold'
+                                }}>
+                                    {cartCount}
+                                </span>
+                            )}
                         </Link>
                     </>
                 )}

@@ -48,7 +48,12 @@ const Checkout = () => {
         e.preventDefault();
         setLoading(true);
         try {
-            const res = await customerService.placeOrder(formData.paymentMethod);
+            const res = await customerService.placeOrder(
+                formData.paymentMethod,
+                formData.name,
+                formData.phone,
+                formData.address
+            );
             if (res.status === 200 || res.status === 201) {
                 setOrderInfo(res.data);
                 setOrderDone(true);
@@ -83,10 +88,26 @@ const Checkout = () => {
 
                     <div style={cardStyle}>
                         <h3 style={sectionTitleStyle}><FaMapMarkerAlt /> Shipping Details</h3>
-                        <form style={{ display: 'flex', flexDirection: 'column', gap: '15px', marginTop: '15px' }}>
-                            <input style={inputStyle} value={formData.name} readOnly placeholder="Name" />
-                            <input style={inputStyle} value={formData.phone} readOnly placeholder="Phone" />
-                            <textarea style={{ ...inputStyle, minHeight: '80px' }} value={formData.address} readOnly placeholder="Address" />
+                        <p style={{ fontSize: '0.85rem', color: '#64748b', marginBottom: '15px' }}>Confirm or edit your shipping information for this order.</p>
+                        <form style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                            <input 
+                                style={inputStyle} 
+                                value={formData.name} 
+                                onChange={(e) => setFormData({...formData, name: e.target.value})}
+                                placeholder="Name" 
+                            />
+                            <input 
+                                style={inputStyle} 
+                                value={formData.phone} 
+                                onChange={(e) => setFormData({...formData, phone: e.target.value})}
+                                placeholder="Phone" 
+                            />
+                            <textarea 
+                                style={{ ...inputStyle, minHeight: '80px' }} 
+                                value={formData.address} 
+                                onChange={(e) => setFormData({...formData, address: e.target.value})}
+                                placeholder="Address" 
+                            />
                         </form>
                     </div>
 
@@ -105,12 +126,12 @@ const Checkout = () => {
                             {cartData?.items?.map(item => (
                                 <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px', fontSize: '0.9rem' }}>
                                     <span>{item.productName} x {item.quantity}</span>
-                                    <span>₹{item.totalPrice}</span>
+                                    <span>₹{item.totalItemPrice}</span>
                                 </div>
                             ))}
                             <div style={{ borderTop: '2px solid #111827', marginTop: '15px', paddingTop: '15px', display: 'flex', justifyContent: 'space-between', fontWeight: 'bold' }}>
                                 <span>Grand Total</span>
-                                <span>₹{cartData?.totalAmount || 0}</span>
+                                <span>₹{cartData?.totalDiscountedPrice || 0}</span>
                             </div>
                         </div>
                         <button

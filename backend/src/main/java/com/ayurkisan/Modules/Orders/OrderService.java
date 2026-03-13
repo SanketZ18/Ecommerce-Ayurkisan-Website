@@ -50,7 +50,7 @@ public class OrderService {
     private ShipmentService shipmentService;
 
     @Transactional
-    public Order placeOrder(String userId, String role, String paymentMethod) {
+    public Order placeOrder(String userId, String role, String paymentMethod, String customName, String customPhone, String customAddress) {
 
         // 1. Fetch Cart
         Cart cart = cartService.getCart(userId, role);
@@ -67,17 +67,17 @@ public class OrderService {
         if ("Customer".equalsIgnoreCase(role)) {
             Customer customer = customerRepository.findById(userId)
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Customer not found"));
-            userName = customer.getName();
+            userName = (customName != null && !customName.isBlank()) ? customName : customer.getName();
             email = customer.getEmail();
-            phone = customer.getPhoneNumber();
-            address = customer.getAddress();
+            phone = (customPhone != null && !customPhone.isBlank()) ? customPhone : customer.getPhoneNumber();
+            address = (customAddress != null && !customAddress.isBlank()) ? customAddress : customer.getAddress();
         } else if ("Retailer".equalsIgnoreCase(role)) {
             Retailer retailer = retailerRepository.findById(userId)
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Retailer not found"));
-            userName = retailer.getRetailerName();
+            userName = (customName != null && !customName.isBlank()) ? customName : retailer.getRetailerName();
             email = retailer.getEmail();
-            phone = retailer.getPhoneNumber();
-            address = retailer.getAddress();
+            phone = (customPhone != null && !customPhone.isBlank()) ? customPhone : retailer.getPhoneNumber();
+            address = (customAddress != null && !customAddress.isBlank()) ? customAddress : retailer.getAddress();
         } else {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid role: " + role);
         }
@@ -135,17 +135,20 @@ public class OrderService {
         // 5. Save Order
         Order savedOrder = orderRepository.save(order);
 
-        // 6. Clear Cart
+        // 6. Create Shipment Record immediately for the Admin Dashboard
+        shipmentService.createShipment(savedOrder);
+
+        // 7. Clear Cart
         cartService.clearCart(userId);
 
-        // 7. Send Email asynchronously
+        // 8. Send Email asynchronously
         emailService.sendOrderConfirmation(email, savedOrder);
 
         return savedOrder;
     }
 
     public List<Order> getUserOrders(String userId) {
-        return orderRepository.findByUserId(userId);
+        return orderRepository.findAllByUserIdOrderByCreatedAtDesc(userId);
     }
 
     public List<Order> getAllOrders() {
@@ -201,12 +204,14 @@ public class OrderService {
         order.setOrderStatus(newStatus);
         
         if ("CONFIRMED".equalsIgnoreCase(newStatus)) {
-            shipmentService.createShipment(order);
+            // Shipment already exists, update its status
+            shipmentService.updateShipmentStatus(orderId, "CONFIRMED", "Order has been confirmed by admin.");
         } else if ("SHIPPED".equalsIgnoreCase(newStatus)) {
             order.setShippedAt(java.time.LocalDateTime.now());
         } else if ("DELIVERED".equalsIgnoreCase(newStatus)) {
             order.setDeliveredAt(java.time.LocalDateTime.now());
             order.setReturnDeadline(java.time.LocalDateTime.now().plusDays(5));
+            order.setPaymentStatus("COMPLETED");
             emailService.sendOrderDelivered(order.getContactEmail(), order);
         } else if ("RETURNED".equalsIgnoreCase(newStatus)) {
             // Add back physical stock when return is complete

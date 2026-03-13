@@ -44,6 +44,7 @@ import RetailerProfile from './pages/retailer/RetailerProfile';
 import MyOrders from './pages/MyOrders';
 import OrderTracking from './pages/OrderTracking';
 import RequestReturn from './pages/RequestReturn';
+import CustomerReturns from './pages/CustomerReturns';
 
 import { getUserRole, isAuthenticated } from './utils/auth';
 
@@ -172,7 +173,7 @@ function App() {
                             <Route path="orders" element={<MyOrders />} />
                             <Route path="wishlist" element={<Wishlist />} />
                             <Route path="tracking/:orderId" element={<OrderTracking />} />
-                            <Route path="returns" element={<ManageReturns />} />
+                            <Route path="returns" element={<CustomerReturns />} />
                             <Route path="returns/request/:orderId" element={<RequestReturn />} />
                         </Routes>
                     </CustomerLayout>
