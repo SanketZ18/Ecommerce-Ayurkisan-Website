@@ -23,16 +23,20 @@ const OrderTracking = () => {
                 const trackData = trackRes.data;
 
                 if (trackData || orderInfo) {
+                    const items = orderInfo?.items || [];
+                    const firstItemName = items.length > 0 ? items[0].productName : 'Your Order';
+                    const productDisplay = items.length > 1 ? `${firstItemName} +${items.length - 1} more` : firstItemName;
+                    
                     setTrackingData({
                         ...(trackData || {}),
                         orderId: orderId,
-                        status: trackData?.status || orderInfo?.orderStatus || 'PENDING',
-                        totalAmount: orderInfo?.totalAmount || 0,
-                        orderDate: orderInfo?.orderDate || trackData?.history?.[0]?.date || new Date().toISOString(),
-                        productName: orderInfo?.productName || orderInfo?.packageName || 'Your Order',
+                        status: orderInfo?.orderStatus || trackData?.status || 'PENDING',
+                        totalAmount: orderInfo?.totalDiscountedPrice || orderInfo?.totalAmount || 0,
+                        orderDate: orderInfo?.orderDate || orderInfo?.createdAt || trackData?.history?.[0]?.date || new Date().toISOString(),
+                        productName: productDisplay,
                         // Ensure history exists
                         history: trackData?.history || [
-                            { status: 'Order Placed', date: orderInfo?.orderDate || new Date().toISOString(), location: 'Website' }
+                            { status: 'Order Placed', date: orderInfo?.orderDate || orderInfo?.createdAt || new Date().toISOString(), location: 'Website' }
                         ],
                         trackingNumber: trackData?.trackingNumber || 'Awaiting Shipment',
                         carrier: trackData?.carrier || 'Ayurkisan Express'
@@ -86,8 +90,20 @@ const OrderTracking = () => {
     };
 
     const getProgressLevel = (status) => {
-        switch (status?.toUpperCase()) {
-            case 'ORDERED': return 1;
+        const s = status?.toUpperCase();
+        if (s?.startsWith('RETURN')) {
+            switch (s) {
+                case 'RETURN_REQUESTED': return 1;
+                case 'RETURN_ACCEPTED': return 2;
+                case 'RETURN_PICKUP': return 3;
+                case 'RETURNED': return 4;
+                case 'REFUNDED': return 4;
+                default: return 1;
+            }
+        }
+        switch (s) {
+            case 'PLACED': return 1;
+            case 'PENDING': return 1;
             case 'PACKED': return 2;
             case 'SHIPPED': return 3;
             case 'IN_TRANSIT': return 3;
@@ -162,16 +178,29 @@ const OrderTracking = () => {
                     {/* Active Line */}
                     <motion.div
                         initial={{ width: 0 }}
-                        animate={{ width: `${((currentLevel - 1) / 3) * 100}%` }}
+                        animate={{ width: trackingData.status?.toUpperCase().startsWith('RETURN') 
+                            ? `${((currentLevel - 1) / 3) * 100}%` 
+                            : `${((currentLevel - 1) / 4) * 100}%` }}
                         transition={{ duration: 1, ease: "easeOut" }}
                         style={{ position: 'absolute', top: '20px', left: '40px', height: '4px', backgroundColor: 'var(--primary-green)', zIndex: 1, maxWidth: 'calc(100% - 80px)' }}
                     ></motion.div>
 
                     <div style={{ display: 'flex', justifyContent: 'space-between', position: 'relative', zIndex: 2 }}>
-                        <StepIcon icon={<FaBox />} label="Ordered" active={currentLevel >= 1} current={currentLevel === 1} />
-                        <StepIcon icon={<FaTruck />} label="Shipped" active={currentLevel >= 3} current={currentLevel === 3} />
-                        <StepIcon icon={<FaHome />} label="Out for Delivery" active={currentLevel >= 4} current={currentLevel === 4} />
-                        <StepIcon icon={<FaCheckCircle />} label="Delivered" active={currentLevel >= 5} current={currentLevel === 5} />
+                        {trackingData.status?.toUpperCase().startsWith('RETURN') ? (
+                            <>
+                                <StepIcon icon={<FaUndo />} label="Request Sent" active={currentLevel >= 1} current={currentLevel === 1} />
+                                <StepIcon icon={<FaCheckCircle />} label="Accepted" active={currentLevel >= 2} current={currentLevel === 2} />
+                                <StepIcon icon={<FaTruck />} label="Pickup" active={currentLevel >= 3} current={currentLevel === 3} />
+                                <StepIcon icon={<FaBox />} label="Refunded" active={currentLevel >= 4} current={currentLevel === 4} />
+                            </>
+                        ) : (
+                            <>
+                                <StepIcon icon={<FaBox />} label="Ordered" active={currentLevel >= 1} current={currentLevel === 1} />
+                                <StepIcon icon={<FaTruck />} label="Shipped" active={currentLevel >= 3} current={currentLevel === 3} />
+                                <StepIcon icon={<FaHome />} label="Out for Delivery" active={currentLevel >= 4} current={currentLevel === 4} />
+                                <StepIcon icon={<FaCheckCircle />} label="Delivered" active={currentLevel >= 5} current={currentLevel === 5} />
+                            </>
+                        )}
                     </div>
                 </div>
 
@@ -226,6 +255,10 @@ const OrderTracking = () => {
                             >
                                 <FaUndo /> Return Order
                             </button>
+                        ) : (['CANCELLED', 'RETURNED', 'REFUNDED'].includes(trackingData.status?.toUpperCase())) ? (
+                            <div style={{ padding: '10px 20px', backgroundColor: '#f8fafc', borderRadius: '12px', color: '#64748b', fontSize: '0.9rem', fontWeight: '600' }}>
+                                Process Completed
+                            </div>
                         ) : (
                             <button style={{ ...actionBtnStyle, opacity: 0.5, cursor: 'not-allowed' }} disabled>
                                 <FaTruck /> In Transit

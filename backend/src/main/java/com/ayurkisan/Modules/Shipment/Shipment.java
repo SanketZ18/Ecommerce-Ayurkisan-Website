@@ -22,7 +22,6 @@ public class Shipment {
     // Statuses: CONFIRMED, SHIPPED, OUT_FOR_DELIVERY, DELIVERED
     private String status;
     
-    @org.springframework.data.annotation.Transient
     private String customerName;
 
     // Array of status changes

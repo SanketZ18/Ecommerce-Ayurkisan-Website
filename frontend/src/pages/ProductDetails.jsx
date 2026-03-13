@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { FaShoppingCart, FaBolt, FaStar, FaLeaf, FaArrowLeft, FaBox, FaInfoCircle } from 'react-icons/fa';
 import { toast } from 'react-toastify';
@@ -8,6 +8,7 @@ import customerService from "../utils/customerService";
 
 const ProductDetails = () => {
     const { productName } = useParams();
+    const navigate = useNavigate();
     const [product, setProduct] = useState(null);
     const [feedbacks, setFeedbacks] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -28,6 +29,7 @@ const ProductDetails = () => {
         try {
             await customerService.addToCart(userId, role, product.id, 'PRODUCT', quantity);
             toast.success(`${product.productName || product.name} added to cart!`);
+            window.dispatchEvent(new Event('cartUpdated'));
         } catch (error) {
             console.error(error);
             toast.error("Failed to add to cart. Please try again.");
@@ -36,12 +38,22 @@ const ProductDetails = () => {
 
     const handleBuyNow = async () => {
         const userId = localStorage.getItem('userId');
+        const role = localStorage.getItem('role') || 'CUSTOMER';
         if (!userId) {
             toast.warning("Please login to place an order");
             return;
         }
-        await handleAddToCart();
-        window.location.href = '/checkout';
+        
+        try {
+            await customerService.addToCart(userId, role, product.id, 'PRODUCT', quantity);
+            await customerService.placeOrder('COD');
+            toast.success("Order Placed Successfully!");
+            window.dispatchEvent(new Event('cartUpdated'));
+            navigate('/customer/orders'); // Must import useNavigate
+        } catch (error) {
+            console.error(error);
+            toast.error("Failed to place order.");
+        }
     };
 
     useEffect(() => {

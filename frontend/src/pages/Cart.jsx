@@ -22,7 +22,12 @@ const Cart = () => {
             setCartData(res.data);
             setCartItems(res.data.items || []);
         } catch (error) {
-            toast.error("Failed to fetch cart");
+            if (error.response && error.response.status === 404) {
+                // Cart doesn't exist yet, just set empty
+                setCartItems([]);
+            } else {
+                toast.error("Failed to fetch cart");
+            }
         } finally {
             setLoading(false);
         }
@@ -65,7 +70,7 @@ const Cart = () => {
             <div style={{ padding: '4rem 5%', textAlign: 'center', minHeight: '60vh' }}>
                 <h2 style={{ color: 'var(--text-dark)', marginBottom: '1rem' }}>Your Cart is Empty</h2>
                 <p style={{ color: 'var(--text-light)', marginBottom: '2rem' }}>Looks like you haven't added anything to your cart yet.</p>
-                <Link to="/products" className="btn-primary" style={{ padding: '0.8rem 2rem', textDecoration: 'none' }}>
+                <Link to={userRole === 'CUSTOMER' ? '/customer/dashboard' : '/products'} className="btn-primary" style={{ padding: '0.8rem 2rem', textDecoration: 'none' }}>
                     Continue Shopping
                 </Link>
             </div>

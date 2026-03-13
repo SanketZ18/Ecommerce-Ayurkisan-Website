@@ -56,13 +56,16 @@ public class OrderController {
     @PostMapping("/place-order")
     public ResponseEntity<Map<String, Object>> placeOrder(
             @RequestHeader("Authorization") String authHeader,
-            @RequestParam(defaultValue = "COD") String paymentMethod) {
+            @RequestParam(defaultValue = "COD") String paymentMethod,
+            @RequestParam(required = false) String customName,
+            @RequestParam(required = false) String customPhone,
+            @RequestParam(required = false) String customAddress) {
 
         Map<String, String> userDetails = extractUserFromToken(authHeader);
         String userId = userDetails.get("userId");
         String role = userDetails.get("role");
 
-        Order placedOrder = orderService.placeOrder(userId, role, paymentMethod);
+        Order placedOrder = orderService.placeOrder(userId, role, paymentMethod, customName, customPhone, customAddress);
 
         Map<String, Object> response = new HashMap<>();
         response.put("message", "Order placed successfully!");
