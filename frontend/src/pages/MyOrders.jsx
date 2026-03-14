@@ -5,6 +5,7 @@ import { FaBoxOpen, FaBan, FaCheckCircle, FaMapMarkerAlt, FaEye, FaTruck, FaUndo
 import customerService from '../utils/customerService';
 import retailerService from '../utils/retailerService';
 import { toast } from 'react-toastify';
+import { resolveProductImage, resolvePackageImage } from '../utils/imageUtils';
 
 const MyOrders = () => {
     const [orders, setOrders] = useState([]);
@@ -308,9 +309,14 @@ const MyOrders = () => {
                                     <h4 style={{ margin: '0 0 15px 0', color: '#1e293b' }}>Order Items</h4>
                                     <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                                         {order.items && order.items.length > 0 ? order.items.map((item, idxx) => (
-                                            <div key={idxx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#fff', padding: '15px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
-                                                <div>
-                                                    <Link to={`/product/${encodeURIComponent(item.productName)}`} style={{ fontWeight: 'bold', color: 'var(--primary-green)', textDecoration: 'none', fontSize: '1rem', display: 'block', marginBottom: '5px' }}>
+                                            <div key={idxx} style={{ display: 'flex', gap: '15px', alignItems: 'center', backgroundColor: '#fff', padding: '15px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+                                                <img 
+                                                    src={item.itemType === 'PACKAGE' ? resolvePackageImage(item.productImage) : resolveProductImage(item.productImage, item.productId)} 
+                                                    alt={item.productName} 
+                                                    style={{ width: '50px', height: '50px', objectFit: 'cover', borderRadius: '4px' }} 
+                                                />
+                                                <div style={{ flex: 1 }}>
+                                                    <Link to={item.itemType === 'PACKAGE' ? `/package/${item.productId}` : `/product/${item.productId}`} style={{ fontWeight: 'bold', color: 'var(--primary-green)', textDecoration: 'none', fontSize: '1rem', display: 'block', marginBottom: '2px' }}>
                                                         {item.productName || 'Unknown Product'}
                                                     </Link>
                                                     <div style={{ fontSize: '0.85rem', color: '#64748b' }}>Qty: {item.quantity || 1}</div>

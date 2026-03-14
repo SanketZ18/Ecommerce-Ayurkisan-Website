@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import axios from "axios";
 import { isAuthenticated } from "../../utils/auth";
 import { toast } from 'react-toastify';
+import { resolveProductImage } from '../../utils/imageUtils';
 
 const API = 'http://localhost:9090';
 
@@ -89,14 +90,14 @@ const BestSellers = () => {
                     >
                         <div style={{ padding: "20px", background: "#f9fafb", borderBottom: "1px solid #f3f4f6", height: "200px", display: "flex", alignItems: "center", justifyContent: "center" }}>
                             <img
-                                src={product.productImage1 || 'https://via.placeholder.com/300x200?text=Agro+Product'}
+                                src={resolveProductImage(product.productImage1, product.id)}
                                 alt={product.productName}
                                 style={imageStyle}
                             />
                         </div>
 
                         <div style={{ padding: "20px", display: "flex", flexDirection: "column", flexGrow: 1 }}>
-                            <Link to={`/product/${encodeURIComponent(product.productName)}`} style={{ textDecoration: 'none' }}>
+                            <Link to={`/product/${product.id}`} style={{ textDecoration: 'none' }}>
                                 <h3 style={{ fontSize: "1.1rem", color: "var(--text-dark)", marginBottom: "10px" }}>{product.productName}</h3>
                             </Link>
 

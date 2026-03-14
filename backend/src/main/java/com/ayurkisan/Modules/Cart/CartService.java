@@ -51,10 +51,9 @@ public class CartService {
         String itemImage = "";
 
         if ("PRODUCT".equalsIgnoreCase(itemType)) {
-            // Using ID for Product but in this system it seems product methods use 'productName'. 
-            // We use getProductById which expects the product name. Or we find by actual actual DB ID? 
-            // Wait, ProductService.getProductById(productName) expects the name. 
-            // Assuming the frontend passed the product name as itemId for now.
+            if (itemId == null) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Item ID is required");
+            }
             Product product = productService.getProductById(itemId);
             itemName = product.getProductName();
             itemImage = product.getProductImage1();
@@ -74,6 +73,9 @@ public class CartService {
             discountedPrice = originalPrice - (originalPrice * discountPct / 100.0);
 
         } else if ("PACKAGE".equalsIgnoreCase(itemType)) {
+            if (itemId == null) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Item ID is required");
+            }
             // Using actual package ID instead of name
             ProductPackage pkg = packageService.getPackageById(itemId);
             itemName = pkg.getName();

@@ -124,7 +124,7 @@ const ManagePackages = () => {
 
         try {
             if (editingPackage) {
-                await adminService.updatePackage(editingPackage.name, formData);
+                await adminService.updatePackage(editingPackage.id, formData);
                 toast.success("Package updated successfully");
             } else {
                 await adminService.addPackage(formData);
@@ -137,10 +137,10 @@ const ManagePackages = () => {
         }
     };
 
-    const handleDelete = async (name) => {
-        if (window.confirm(`Delete package "${name}"?`)) {
+    const handleDelete = async (pkg) => {
+        if (window.confirm(`Delete package "${pkg.name}"?`)) {
             try {
-                await adminService.deletePackage(name);
+                await adminService.deletePackage(pkg.id);
                 toast.success("Package deleted");
                 fetchData();
             } catch (err) {
@@ -189,7 +189,7 @@ const ManagePackages = () => {
                             </div>
                             <div style={{ display: 'flex', gap: '8px' }}>
                                 <button onClick={() => handleOpenModal(pkg)} style={{ border: 'none', background: '#f3f4f6', padding: '8px', borderRadius: '10px', cursor: 'pointer', color: '#4b5563' }}><FaEdit /></button>
-                                <button onClick={() => handleDelete(pkg.name)} style={{ border: 'none', background: '#fee2e2', padding: '8px', borderRadius: '10px', cursor: 'pointer', color: '#ef4444' }}><FaTrash /></button>
+                                <button onClick={() => handleDelete(pkg)} style={{ border: 'none', background: '#fee2e2', padding: '8px', borderRadius: '10px', cursor: 'pointer', color: '#ef4444' }}><FaTrash /></button>
                             </div>
                         </div>
 

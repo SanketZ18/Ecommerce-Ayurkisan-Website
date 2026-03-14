@@ -105,7 +105,7 @@ function App() {
                         <Shop />
                     </CustomerOrPublicLayout>
                 } />
-                <Route path="/product/:productName" element={
+                <Route path="/product/:productId" element={
                     <CustomerOrPublicLayout>
                         <ProductDetails />
                     </CustomerOrPublicLayout>
@@ -115,7 +115,7 @@ function App() {
                         <Packages />
                     </CustomerOrPublicLayout>
                 } />
-                <Route path="/package/:packageName" element={
+                <Route path="/package/:packageId" element={
                     <CustomerOrPublicLayout>
                         <PackageDetails />
                     </CustomerOrPublicLayout>

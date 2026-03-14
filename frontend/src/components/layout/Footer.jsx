@@ -34,9 +34,9 @@ const Footer = () => {
 
                 <div className="footer-contact" style={sectionStyle}>
                     <h4 style={{ marginBottom: '1rem', color: 'var(--white)' }}>Contact</h4>
-                    <p style={linkStyle}>Email: support@ayurkisan.com</p>
+                    <p style={linkStyle}>Email: [EMAIL_ADDRESS]</p>
                     <p style={linkStyle}>Phone: +91 98765 43210</p>
-                    <p style={linkStyle}>India IN</p>
+                    <p style={linkStyle}>Address: Baramati, Pune, Maharashtra, India</p>
                 </div>
 
             </div>

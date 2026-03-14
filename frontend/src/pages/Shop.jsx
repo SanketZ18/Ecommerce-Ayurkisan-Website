@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { isAuthenticated } from "../utils/auth";
 import { toast } from 'react-toastify';
+import { resolveProductImage } from '../utils/imageUtils';
 
 const Shop = () => {
     const [products, setProducts] = useState([]);
@@ -190,7 +191,7 @@ const Shop = () => {
                         >
                             <div style={imageContainerStyle}>
                                 <img
-                                    src={product.productImage1 || 'https://via.placeholder.com/300x200?text=Agro+Product'}
+                                    src={resolveProductImage(product.productImage1, product.id)}
                                     alt={product.productName}
                                     style={imageStyle}
                                 />
@@ -199,7 +200,7 @@ const Shop = () => {
                             <div style={productInfoStyle}>
                                 {/* Open in new window target="_blank" */}
                                 <Link
-                                    to={`/product/${encodeURIComponent(product.productName)}`}
+                                    to={`/product/${product.id}`}
                                     style={productNameStyle}
                                 >
                                     {product.productName}

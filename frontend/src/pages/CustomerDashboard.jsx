@@ -412,13 +412,19 @@ const CustomerDashboard = () => {
                                 return 0;
                             })
                             .map((item, idx) => {
-                                const isPackage = suggestionTab === 'packages';
-                                const itemName = isPackage ? (item.name || item.packageName) : item.productName;
-                                const itemImage = isPackage ? (item.imageURL || item.productImage || item.imageUrl || 'https://via.placeholder.com/200?text=Package') : (item.productImage1 || item.productImage || 'https://via.placeholder.com/200?text=Product');
-                                const itemId = item.id;
+                                 const isPackage = suggestionTab === 'packages';
+                                 const itemName = isPackage ? (item.name || item.packageName) : item.productName;
+                                 const itemImage = isPackage ? (item.imageURL || item.productImage || item.imageUrl) : item.productImage1;
+                                 const itemId = item.id;
+
+                                 const getImageUrl = (img) => {
+                                     if (!img) return `https://via.placeholder.com/200?text=${isPackage ? 'Package' : 'Product'}`;
+                                     if (img.startsWith('http')) return img;
+                                     return `/assets/Product_Images/${img}`;
+                                 };
 
                                 return (
-                                    <div key={idx} style={{ ...productCardSmallStyle, backgroundColor: isDarkMode ? '#1e293b' : '#fff', borderColor: isDarkMode ? '#334155' : '#f1f5f9' }} onClick={() => navigate(isPackage ? `/package/${itemName}` : `/product/${itemName}`)}>
+                                     <div key={idx} style={{ ...productCardSmallStyle, backgroundColor: isDarkMode ? '#1e293b' : '#fff', borderColor: isDarkMode ? '#334155' : '#f1f5f9' }} onClick={() => navigate(isPackage ? `/package/${itemId}` : `/product/${itemId}`)}>
                                         <div style={{ ...productImageWrapperSmall, position: 'relative', backgroundColor: isDarkMode ? '#0f172a' : '#f8fafc' }}>
                                             <button
                                                 onClick={(e) => {
@@ -457,7 +463,7 @@ const CustomerDashboard = () => {
                                             >
                                                 <FaHeart size={18} />
                                             </button>
-                                            <img src={itemImage || 'https://via.placeholder.com/200?text=Ayurkisan'} alt={itemName} style={productImageSmall} />
+                                             <img src={getImageUrl(itemImage)} alt={itemName} style={productImageSmall} />
                                         </div>
                                         <div style={productInfoSmall}>
                                             <h4 style={{ ...productNameSmall, color: isDarkMode ? '#f8fafc' : '#1e293b' }}>{itemName}</h4>
