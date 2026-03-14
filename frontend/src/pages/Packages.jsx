@@ -4,6 +4,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { FaShoppingCart, FaBolt, FaInfoCircle } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import { isAuthenticated, getUserRole } from "../utils/auth";
+import { resolvePackageImage } from "../utils/imageUtils";
 import customerService from "../utils/customerService";
 
 const Packages = () => {
@@ -95,11 +96,11 @@ const Packages = () => {
                             key={pkg.id}
                             style={packageCardStyle}
                             whileHover={{ y: -5, boxShadow: "0 15px 30px rgba(0,0,0,0.1)" }}
-                            onClick={() => navigate(`/package/${encodeURIComponent(pkg.name)}`)}
+                            onClick={() => navigate(`/package/${pkg.id}`)}
                         >
                             <div style={packageImageWrapperStyle}>
                                 <img 
-                                    src={pkg.imageURL || 'https://via.placeholder.com/400x300?text=Ayurvedic+Package'} 
+                                    src={resolvePackageImage(pkg.imageURL)} 
                                     alt={pkg.name} 
                                     style={packageImageStyle} 
                                 />
@@ -112,7 +113,7 @@ const Packages = () => {
                             
                             <div style={{ padding: '20px', flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
                                 <Link 
-                                    to={`/package/${encodeURIComponent(pkg.name)}`} 
+                                    to={`/package/${pkg.id}`} 
                                     style={packageNameLinkStyle}
                                     onClick={(e) => e.stopPropagation()}
                                 >

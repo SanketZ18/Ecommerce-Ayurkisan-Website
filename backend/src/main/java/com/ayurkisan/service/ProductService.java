@@ -99,15 +99,6 @@ public void deleteProduct(String id) {
     }
 
     // ================= GET PRODUCT BY NAME =================
-public Product getProductByName(String productName) {
-
-    Product product = productRepository.findByProductNameIgnoreCase(productName)
-            .orElseThrow(() -> new ResponseStatusException(
-                    HttpStatus.NOT_FOUND,
-                    "Product not found with name: " + productName));
-
-    return product;
-}
 
     // ================= GET PRODUCT BY ID (REAL DB ID) =================
     public Product getProductById(String id) {

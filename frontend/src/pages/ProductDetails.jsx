@@ -4,10 +4,11 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { FaShoppingCart, FaBolt, FaStar, FaLeaf, FaArrowLeft, FaBox, FaInfoCircle } from 'react-icons/fa';
 import { toast } from 'react-toastify';
+import { resolveProductImage } from '../utils/imageUtils';
 import customerService from "../utils/customerService";
 
 const ProductDetails = () => {
-    const { productName } = useParams();
+    const { productId } = useParams();
     const navigate = useNavigate();
     const [product, setProduct] = useState(null);
     const [feedbacks, setFeedbacks] = useState([]);
@@ -59,8 +60,8 @@ const ProductDetails = () => {
     useEffect(() => {
         window.scrollTo(0, 0); // Scroll to top on load
 
-        // fetch the product by name
-        axios.get(`http://localhost:9090/products/${encodeURIComponent(productName)}`)
+        // fetch the product by ID
+        axios.get(`http://localhost:9090/products/id/${productId}`)
             .then(res => {
                 const fetchedProduct = res.data;
                 setProduct(fetchedProduct);
@@ -76,7 +77,7 @@ const ProductDetails = () => {
             })
             .catch(err => console.error(err))
             .finally(() => setLoading(false));
-    }, [productName]);
+    }, [productId]);
 
     if (loading) {
         return <ProductSkeleton />;
@@ -96,6 +97,10 @@ const ProductDetails = () => {
     // Attempt to split description into benefits if comma-separated, or use default
     const benefitsList = product.benefits ? product.benefits.split(',') :
         ["100% Organic Ingredients", "Sustainably Harvested", "No Artificial Preservatives", "Lab Tested for Purity"];
+
+    const getImageUrl = (imageName) => {
+        return resolveProductImage(imageName, product.id);
+    };
 
     return (
         <motion.div
@@ -119,7 +124,7 @@ const ProductDetails = () => {
                     <div style={imageContainerStyle}>
                         <motion.img
                             key={activeImageIndex}
-                            src={[product.productImage1, product.productImage2, product.productImage3][activeImageIndex] || product.productImage1 || 'https://via.placeholder.com/600x600?text=Agro+Product'}
+                            src={getImageUrl([product.productImage1, product.productImage2, product.productImage3][activeImageIndex] || product.productImage1)}
                             alt={product.productName || product.name}
                             style={imageStyle}
                             initial={{ opacity: 0, scale: 0.9 }}
@@ -139,7 +144,7 @@ const ProductDetails = () => {
                                 style={{
                                     ...thumbnailStyle,
                                     border: activeImageIndex === idx ? '2px solid var(--primary-green)' : '2px solid transparent',
-                                    backgroundImage: `url(${img})`,
+                                    backgroundImage: `url(${getImageUrl(img)})`,
                                     backgroundSize: 'cover',
                                     backgroundPosition: 'center'
                                 }}

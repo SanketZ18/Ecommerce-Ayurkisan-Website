@@ -4,6 +4,7 @@ import { FaFilter, FaSearch, FaShoppingCart, FaHeart, FaSortAmountDown, FaThLarg
 import customerService from '../utils/customerService';
 import { toast } from 'react-toastify';
 import { useLocation, Link } from 'react-router-dom';
+import { resolveProductImage } from '../utils/imageUtils';
 
 const AllProducts = () => {
     const location = useLocation();
@@ -217,7 +218,7 @@ const AllProducts = () => {
                                 >
                                     <div style={imageWrapperStyle}>
                                         <img
-                                            src={product.productImage1 || 'https://via.placeholder.com/250?text=Ayurkisan'}
+                                            src={resolveProductImage(product.productImage1, product.id)}
                                             alt={product.productName}
                                             style={productImageStyle}
                                         />
@@ -228,7 +229,7 @@ const AllProducts = () => {
                                     </div>
                                     <div style={productInfoStyle}>
                                         <span style={categoryBadgeStyle}>{product.category?.categoryName || 'General'}</span>
-                                        <Link to={`/product/${encodeURIComponent(product.productName)}`} style={{ textDecoration: 'none' }}>
+                                        <Link to={`/product/${product.id}`} style={{ textDecoration: 'none' }}>
                                             <h3 style={productNameStyle}>{product.productName}</h3>
                                         </Link>
                                         <div style={ratingRowStyle}>

@@ -4,10 +4,11 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { FaShoppingCart, FaBolt, FaArrowLeft, FaBox, FaLeaf, FaInfoCircle } from 'react-icons/fa';
 import { toast } from 'react-toastify';
+import { resolveProductImage, resolvePackageImage } from '../utils/imageUtils';
 import customerService from "../utils/customerService";
 
 const PackageDetails = () => {
-    const { packageName } = useParams();
+    const { packageId } = useParams();
     const navigate = useNavigate();
     const [pkg, setPkg] = useState(null);
     const [products, setProducts] = useState([]);
@@ -18,13 +19,13 @@ const PackageDetails = () => {
     useEffect(() => {
         window.scrollTo(0, 0);
         fetchPackageData();
-    }, [packageName]);
+    }, [packageId]);
 
     const fetchPackageData = async () => {
         setLoading(true);
         try {
-            // Fetch package by name
-            const response = await axios.get(`http://localhost:9090/packages/view/${encodeURIComponent(packageName)}`);
+            // Fetch package by ID
+            const response = await axios.get(`http://localhost:9090/packages/view/id/${packageId}`);
             const packageData = response.data;
             setPkg(packageData);
 
@@ -102,6 +103,14 @@ const PackageDetails = () => {
         );
     }
 
+    const getImageUrl = (imageName) => {
+        return resolvePackageImage(imageName);
+    };
+
+    const getProductImageUrl = (imageName, productId) => {
+        return resolveProductImage(imageName, productId);
+    };
+
     return (
         <motion.div
             style={containerStyle}
@@ -122,7 +131,7 @@ const PackageDetails = () => {
                 >
                     <div style={imageContainerStyle}>
                         <img 
-                            src={pkg.imageURL || 'https://via.placeholder.com/600x600?text=Ayurvedic+Package'} 
+                            src={getImageUrl(pkg.imageURL)} 
                             alt={pkg.name} 
                             style={imageStyle} 
                         />
@@ -190,11 +199,11 @@ const PackageDetails = () => {
                             {products.map((product, idx) => (
                                 <Link 
                                     key={product.id || idx} 
-                                    to={`/product/${encodeURIComponent(product.productName)}`}
+                                    to={`/product/${product.id}`}
                                     style={productCardLinkStyle}
                                 >
                                     <div style={productThumbnailStyle}>
-                                        <img src={product.productImage1 || 'https://via.placeholder.com/80'} alt={product.productName} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                        <img src={getProductImageUrl(product.productImage1, product.id)} alt={product.productName} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                                     </div>
                                     <div style={{ flexGrow: 1 }}>
                                         <div style={productNameStyle}>{product.productName}</div>

@@ -183,13 +183,13 @@ const RetailerDashboard = () => {
                             <motion.div whileHover={{ y: -5 }} key={prod.id} style={productCardStyle}>
                                 <div style={{ ...productImageContainerStyle, height: '160px', overflow: 'hidden' }}>
                                     <img
-                                        src={prod.productImage1 || prod.imageUrl || 'https://via.placeholder.com/200?text=Herbal+Item'}
+                                        src={prod.productImage1 ? (prod.productImage1.startsWith('http') ? prod.productImage1 : `/assets/Product_Images/${prod.productImage1}`) : 'https://via.placeholder.com/200?text=Ayurkisan'}
                                         alt={prod.name}
                                         style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                                     />
                                 </div>
                                 <div style={productInfoStyle}>
-                                    <Link to={`/product/${encodeURIComponent(prod.name)}`} style={{ textDecoration: 'none' }}>
+                                    <Link to={`/product/${prod.id}`} style={{ textDecoration: 'none' }}>
                                         <h4 style={productNameStyle}>{prod.name}</h4>
                                     </Link>
                                     <div style={pricingDivStyle}>

@@ -64,8 +64,8 @@ const adminService = {
     // Package Management
     getPackages: () => axios.get(`${API_BASE_URL}/packages/all`),
     addPackage: (packageData) => axios.post(`${API_BASE_URL}/packages/admin/add`, packageData, { headers: getAuthHeader() }),
-    updatePackage: (name, packageData) => axios.put(`${API_BASE_URL}/packages/admin/update/${name}`, packageData, { headers: getAuthHeader() }),
-    deletePackage: (name) => axios.delete(`${API_BASE_URL}/packages/admin/delete/${name}`, { headers: getAuthHeader() }),
+    updatePackage: (id, packageData) => axios.put(`${API_BASE_URL}/packages/admin/update/${id}`, packageData, { headers: getAuthHeader() }),
+    deletePackage: (id) => axios.delete(`${API_BASE_URL}/packages/admin/delete/${id}`, { headers: getAuthHeader() }),
 
     // Order Management
     getAllOrders: () => axios.get(`${API_BASE_URL}/orders/admin/all`, { headers: getAuthHeader() }),

@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { FaTrash, FaArrowRight, FaShoppingBasket } from 'react-icons/fa';
 import customerService from '../utils/customerService';
 import { toast } from 'react-toastify';
+import { resolveProductImage, resolvePackageImage } from '../utils/imageUtils';
 
 const Cart = () => {
     const [cartItems, setCartItems] = useState([]);
@@ -97,11 +98,15 @@ const Cart = () => {
                                 exit={{ opacity: 0, x: -50 }}
                                 style={{ display: 'flex', gap: '1.5rem', padding: '1.5rem', backgroundColor: '#fff', borderRadius: '12px', boxShadow: '0 2px 10px rgba(0,0,0,0.05)', alignItems: 'center', border: '1px solid #f3f4f6' }}
                             >
-                                <Link to={item.itemType === 'PACKAGE' ? `/package/${item.productName}` : `/product/${item.productName}`}>
-                                    <img src={item.productImage || 'https://via.placeholder.com/100?text=Ayurkisan'} alt={item.productName} style={{ width: '100px', height: '100px', objectFit: 'cover', borderRadius: '8px', cursor: 'pointer' }} />
+                                <Link to={item.itemType === 'PACKAGE' ? `/package/${item.productId}` : `/product/${item.productId}`}>
+                                    <img 
+                                        src={item.itemType === 'PACKAGE' ? resolvePackageImage(item.productImage) : resolveProductImage(item.productImage, item.productId)} 
+                                        alt={item.productName} 
+                                        style={{ width: '100px', height: '100px', objectFit: 'cover', borderRadius: '8px', cursor: 'pointer' }} 
+                                    />
                                 </Link>
                                 <div style={{ flex: 1 }}>
-                                    <Link to={item.itemType === 'PACKAGE' ? `/package/${item.productName}` : `/product/${item.productName}`} style={{ textDecoration: 'none' }}>
+                                    <Link to={item.itemType === 'PACKAGE' ? `/package/${item.productId}` : `/product/${item.productId}`} style={{ textDecoration: 'none' }}>
                                         <h3 style={{ margin: '0 0 0.5rem 0', color: 'var(--text-dark)', cursor: 'pointer' }}>{item.productName}</h3>
                                     </Link>
 
