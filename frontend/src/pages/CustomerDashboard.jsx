@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FaBox, FaHeart, FaTruck, FaUndo, FaUserCircle, FaMapMarkerAlt, FaShoppingCart, FaSearch, FaChevronDown, FaLeaf, FaBurn, FaSpa, FaMoon, FaSun } from 'react-icons/fa';
+import { FaBox, FaHeart, FaTruck, FaUndo, FaUserCircle, FaMapMarkerAlt, FaShoppingCart, FaSearch, FaChevronDown, FaLeaf, FaBurn, FaSpa, FaMoon, FaSun, FaArrowRight } from 'react-icons/fa';
 import { Link, useNavigate } from 'react-router-dom';
 import i111 from '../assets/images/111.jpg';
 import i112 from '../assets/images/112.jpg';
@@ -78,14 +78,16 @@ const CustomerDashboard = () => {
                     };
                 }));
 
-                // Process offers - filter only promotional types or use fallback if empty
-                const fetchedOffers = Array.isArray(offersRes.data) ? offersRes.data.filter(s => s.type === 'promotional') : [];
+                // Process offers - synchronize with homepage special_offers
+                const fetchedOffers = Array.isArray(offersRes.data) ? offersRes.data.filter(s => s.type === 'special_offers') : [];
                 setOffers(fetchedOffers.length > 0 ? fetchedOffers : [
                     {
-                        id: 1,
+                        id: 'default_off',
                         title: 'Special Summer Offers! 🌿',
-                        subtitle: 'Get up to 30% off on all organic skin care products.',
-                        imageUrl: 'https://images.unsplash.com/photo-1556228578-0d85b1a4d571?q=80&w=1000&auto=format&fit=crop'
+                        subtitle: 'Get up to 30% off on all organic skin care products this season.',
+                        imageUrl: 'https://images.unsplash.com/photo-1556228578-0d85b1a4d571?q=80&w=1000&auto=format&fit=crop',
+                        ctaText: 'Shop Offers',
+                        ctaLink: '/shop'
                     }
                 ]);
 
@@ -282,19 +284,65 @@ const CustomerDashboard = () => {
                             </div>
                         </div>
 
-                        {/* Offers Section */}
-                        <div style={{ ...cardStyle, height: '100%', display: 'flex', flexDirection: 'column', backgroundColor: isDarkMode ? 'rgba(30, 41, 59, 0.8)' : 'rgba(255, 255, 255, 0.8)' }}>
-                            <h3 style={{ ...cardTitleStyle, color: isDarkMode ? '#fff' : '#111827' }}>Current Offers</h3>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '15px', flex: 1, justifyContent: 'center' }}>
+                        {/* Offers Section - Redesigned for Premium Look */}
+                        <div style={{ ...cardStyle, height: '100%', display: 'flex', flexDirection: 'column', backgroundColor: isDarkMode ? 'rgba(30, 41, 59, 0.8)' : 'rgba(255, 255, 255, 0.9)', backdropFilter: 'blur(10px)', border: isDarkMode ? '1px solid rgba(255,255,255,0.1)' : '1px solid rgba(255,255,255,0.2)' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                                <h3 style={{ ...cardTitleStyle, color: isDarkMode ? '#fff' : '#111827' }}>Exclusive Offers</h3>
+                                <div style={{ fontSize: '1.5rem' }}>🎁</div>
+                            </div>
+                            
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', flex: 1, justifyContent: 'center' }}>
                                 {offers.map((offer, idx) => (
-                                    <div key={idx} style={{ ...offerCardStyle, backgroundColor: isDarkMode ? 'rgba(51, 65, 85, 0.7)' : 'rgba(255, 255, 255, 0.7)', borderColor: isDarkMode ? '#475569' : '#f1f5f9' }}>
-                                        <img src={offer.imageUrl} alt={offer.title} style={offerImageStyle} />
-                                        <div style={offerContentStyle}>
-                                            <h4 style={{ ...offerTitleStyle, color: isDarkMode ? '#4ade80' : '#065f46' }}>{offer.title}</h4>
-                                            <p style={{ ...offerSubStyle, color: isDarkMode ? '#94a3b8' : '#047857' }}>{offer.subtitle}</p>
-                                            <Link to="/products" style={offerLinkStyle}>Claim Now</Link>
+                                    <motion.div 
+                                        key={idx} 
+                                        initial={{ opacity: 0, scale: 0.95 }}
+                                        animate={{ opacity: 1, scale: 1 }}
+                                        transition={{ delay: 0.2 + idx * 0.1 }}
+                                        style={{ 
+                                            position: 'relative',
+                                            borderRadius: '24px', 
+                                            overflow: 'hidden',
+                                            height: '350px',
+                                            boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)'
+                                        }}
+                                    >
+                                        <img src={offer.imageUrl} alt={offer.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                        <div style={{ 
+                                            position: 'absolute', 
+                                            bottom: 0, 
+                                            left: 0, 
+                                            right: 0, 
+                                            background: 'linear-gradient(to top, rgba(0,0,0,0.8), transparent)', 
+                                            padding: '24px', 
+                                            color: '#fff',
+                                            display: 'flex',
+                                            flexDirection: 'column',
+                                            gap: '8px'
+                                        }}>
+                                            <h4 style={{ margin: 0, fontSize: '1.4rem', fontWeight: '800', color: '#fbbf24' }}>{offer.title}</h4>
+                                            <p style={{ margin: 0, fontSize: '0.95rem', opacity: 0.9, lineHeight: '1.4' }}>{offer.subtitle}</p>
+                                            <Link 
+                                                to={offer.ctaLink || '/products'} 
+                                                style={{ 
+                                                    display: 'inline-flex', 
+                                                    alignItems: 'center', 
+                                                    gap: '8px', 
+                                                    backgroundColor: '#10b981', 
+                                                    color: '#fff', 
+                                                    padding: '10px 20px', 
+                                                    borderRadius: '12px', 
+                                                    textDecoration: 'none', 
+                                                    fontWeight: '700', 
+                                                    fontSize: '0.9rem',
+                                                    marginTop: '10px',
+                                                    width: 'fit-content',
+                                                    boxShadow: '0 4px 6px -1px rgba(16, 185, 129, 0.3)'
+                                                }}
+                                            >
+                                                {offer.ctaText || 'Claim Now'} <FaArrowRight />
+                                            </Link>
                                         </div>
-                                    </div>
+                                    </motion.div>
                                 ))}
                             </div>
                         </div>
