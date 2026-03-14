@@ -9,9 +9,4 @@ import org.springframework.stereotype.Repository;
 public interface ProductPackageRepository 
         extends MongoRepository<ProductPackage, String> {
 
-    Optional<ProductPackage> findByNameIgnoreCase(String name);
-
-    void deleteByNameIgnoreCase(String name);
-
-    boolean existsByNameIgnoreCase(String name);
 }

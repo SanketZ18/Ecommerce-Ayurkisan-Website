@@ -3,6 +3,7 @@ package com.ayurkisan.Modules.Packages;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -13,10 +14,6 @@ public class ProductPackageService {
 
     // CREATE
     public ProductPackage createPackage(ProductPackage productPackage) {
-
-        if (repository.existsByNameIgnoreCase(productPackage.getName())) {
-            throw new RuntimeException("Package with this name already exists");
-        }
 
         productPackage.generateId();
         return repository.save(productPackage);
@@ -34,26 +31,18 @@ public class ProductPackageService {
         return list;
     }
 
-    // GET BY NAME
-    public ProductPackage getByName(String name) {
-
-        return repository.findByNameIgnoreCase(name)
-                .orElseThrow(() -> new RuntimeException("Package not found"));
-    }
-
     // GET BY ID
-    public ProductPackage getPackageById(String id) {
-
+    public ProductPackage getPackageById(@NonNull String id) {
         return repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Package not found with ID: " + id));
     }
 
-    // UPDATE BY NAME
-    public ProductPackage updateByName(String name, ProductPackage updatedPackage) {
+    // UPDATE BY ID
+    public ProductPackage updateById(@NonNull String id, ProductPackage updatedPackage) {
+        ProductPackage existing = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Package not found with ID: " + id));
 
-        ProductPackage existing = repository.findByNameIgnoreCase(name)
-                .orElseThrow(() -> new RuntimeException("Package not found"));
-
+        existing.setName(updatedPackage.getName());
         existing.setItems(updatedPackage.getItems());
         existing.setPackagePrice(updatedPackage.getPackagePrice());
         existing.setTotalPrice(updatedPackage.getTotalPrice());
@@ -63,13 +52,11 @@ public class ProductPackageService {
         return repository.save(existing);
     }
 
-    // DELETE BY NAME
-    public void deleteByName(String name) {
-
-        if (!repository.existsByNameIgnoreCase(name)) {
-            throw new RuntimeException("Package not found");
+    // DELETE BY ID
+    public void deleteById(@NonNull String id) {
+        if (!repository.existsById(id)) {
+            throw new RuntimeException("Package not found with ID: " + id);
         }
-
-        repository.deleteByNameIgnoreCase(name);
+        repository.deleteById(id);
     }
 }

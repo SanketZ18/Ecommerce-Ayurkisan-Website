@@ -83,8 +83,4 @@ public Map<String, String> deleteProduct(@PathVariable String id) {
         return productService.getProductById(id);
     }
 
-    @GetMapping("/{productName}")
-public Product getProduct(@PathVariable String productName) {
-    return productService.getProductByName(productName);
-}
 }

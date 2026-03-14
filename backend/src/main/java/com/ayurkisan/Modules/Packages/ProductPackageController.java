@@ -50,12 +50,12 @@ public class ProductPackageController {
 
     // 🔒 ADMIN UPDATE
     @PreAuthorize("hasRole('ADMIN')")
-    @PutMapping("/admin/update/{name}")
-    public ResponseEntity<?> updatePackage(@PathVariable String name,
+    @PutMapping("/admin/update/{id}")
+    public ResponseEntity<?> updatePackage(@PathVariable @org.springframework.lang.NonNull String id,
                                            @Valid @RequestBody ProductPackage pkg) {
 
         try {
-            ProductPackage updated = service.updateByName(name, pkg);
+            ProductPackage updated = service.updateById(id, pkg);
 
             return ResponseEntity.ok(
                     Map.of(
@@ -72,11 +72,11 @@ public class ProductPackageController {
 
     // 🔒 ADMIN DELETE
     @PreAuthorize("hasRole('ADMIN')")
-    @DeleteMapping("/admin/delete/{name}")
-    public ResponseEntity<?> deletePackage(@PathVariable String name) {
+    @DeleteMapping("/admin/delete/{id}")
+    public ResponseEntity<?> deletePackage(@PathVariable @org.springframework.lang.NonNull String id) {
 
         try {
-            service.deleteByName(name);
+            service.deleteById(id);
 
             return ResponseEntity.ok(
                     Map.of("message", "Product Package deleted successfully")
@@ -88,13 +88,13 @@ public class ProductPackageController {
         }
     }
 
-    // 🔓 VIEW SINGLE (All roles)
-    @PreAuthorize("hasAnyRole('ADMIN','CUSTOMER','RETAILER')")
-    @GetMapping("/view/{name}")
-    public ResponseEntity<?> getByName(@PathVariable String name) {
 
+    // 🔓 VIEW SINGLE (All roles) - BY ID
+    @PreAuthorize("hasAnyRole('ADMIN','CUSTOMER','RETAILER')")
+    @GetMapping("/view/id/{id}")
+    public ResponseEntity<?> getById(@PathVariable @org.springframework.lang.NonNull String id) {
         try {
-            ProductPackage pkg = service.getByName(name);
+            ProductPackage pkg = service.getPackageById(id);
             return ResponseEntity.ok(pkg);
 
         } catch (RuntimeException e) {
