@@ -67,10 +67,15 @@ function App() {
     const userRole = getUserRole();
     const loggedIn = isAuthenticated();
 
-    // Helper to wrap pages in the correct layout based on role
-    const CustomerOrPublicLayout = ({ children }) => {
-        if (loggedIn && userRole === 'CUSTOMER') {
-            return <CustomerLayout>{children}</CustomerLayout>;
+    // Helper to wrap pages in the correct layout based on dynamic role
+    const GlobalLayout = ({ children }) => {
+        if (loggedIn) {
+            if (userRole === 'CUSTOMER') {
+                return <CustomerLayout>{children}</CustomerLayout>;
+            }
+            if (userRole === 'RETAILER') {
+                return <RetailerLayout>{children}</RetailerLayout>;
+            }
         }
         return (
             <PublicLayout onLoginClick={handleLoginClick} onSignUpClick={handleSignUpClick}>
@@ -101,49 +106,49 @@ function App() {
                     </PublicRouteGuard>
                 } />
                 <Route path="/products" element={
-                    <CustomerOrPublicLayout>
+                    <GlobalLayout>
                         <Shop />
-                    </CustomerOrPublicLayout>
+                    </GlobalLayout>
                 } />
                 <Route path="/product/:productId" element={
-                    <CustomerOrPublicLayout>
+                    <GlobalLayout>
                         <ProductDetails />
-                    </CustomerOrPublicLayout>
+                    </GlobalLayout>
                 } />
                 <Route path="/packages" element={
-                    <CustomerOrPublicLayout>
+                    <GlobalLayout>
                         <Packages />
-                    </CustomerOrPublicLayout>
+                    </GlobalLayout>
                 } />
                 <Route path="/package/:packageId" element={
-                    <CustomerOrPublicLayout>
+                    <GlobalLayout>
                         <PackageDetails />
-                    </CustomerOrPublicLayout>
+                    </GlobalLayout>
                 } />
                 <Route path="/cart" element={
-                    <CustomerOrPublicLayout>
+                    <GlobalLayout>
                         <Cart />
-                    </CustomerOrPublicLayout>
+                    </GlobalLayout>
                 } />
                 <Route path="/checkout" element={
-                    <CustomerOrPublicLayout>
+                    <GlobalLayout>
                         <Checkout />
-                    </CustomerOrPublicLayout>
+                    </GlobalLayout>
                 } />
                 <Route path="/wishlist" element={
-                    <CustomerOrPublicLayout>
+                    <GlobalLayout>
                         <Wishlist />
-                    </CustomerOrPublicLayout>
+                    </GlobalLayout>
                 } />
                 <Route path="/about" element={
-                    <PublicLayout onLoginClick={handleLoginClick} onSignUpClick={handleSignUpClick}>
+                    <GlobalLayout>
                         <About />
-                    </PublicLayout>
+                    </GlobalLayout>
                 } />
                 <Route path="/feedback" element={
-                    <PublicLayout onLoginClick={handleLoginClick} onSignUpClick={handleSignUpClick}>
+                    <GlobalLayout>
                         <Contact />
-                    </PublicLayout>
+                    </GlobalLayout>
                 } />
 
                 {/* DASHBOARDS */}

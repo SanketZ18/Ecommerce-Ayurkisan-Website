@@ -108,8 +108,7 @@ const Contact = () => {
                 </div>
             </motion.div>
 
-            {/* CONTACT CHANNELS SECTION */}
-            <motion.div style={{ padding: "80px 5%", maxWidth: "1200px", margin: "0 auto", textAlign: "center" }} initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5, delay: 0.1 }}>
+            <motion.div style={{ padding: "80px 2%", width: "100%", boxSizing: "border-box", margin: "0 auto", textAlign: "center" }} initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5, delay: 0.1 }}>
                 <h2 style={{ fontSize: "2rem", fontWeight: 700, color: "var(--text-dark)", marginBottom: "10px" }}>Contact Channels</h2>
                 <div style={{ width: "60px", height: "3px", backgroundColor: "var(--primary-green)", margin: "0 auto 20px auto" }}></div>
                 <p style={{ color: "#4B5563", marginBottom: "50px" }}>Choose the contact path that suits you best. Our team will respond as quickly as possible.</p>
@@ -233,41 +232,7 @@ const Contact = () => {
                 </div>
             </motion.div>
 
-            {/* FAQ SECTION */}
-            <motion.div style={{ padding: "80px 5%", maxWidth: "800px", margin: "0 auto", textAlign: "center" }} initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5 }}>
-                <h2 style={{ fontSize: "2rem", fontWeight: 700, color: "var(--text-dark)", marginBottom: "10px" }}>Before you reach out</h2>
-                <div style={{ width: "60px", height: "3px", backgroundColor: "var(--primary-green)", margin: "0 auto 40px auto" }}></div>
 
-                <div
-                    style={faqItem}
-                    onClick={() => setFaq1Open(!faq1Open)}
-                >
-                    <div style={faqHeader}>
-                        <span style={faqTitle}>What information helps us respond faster?</span>
-                        {faq1Open ? <FaChevronUp color="#9CA3AF" /> : <FaChevronDown color="#9CA3AF" />}
-                    </div>
-                    {faq1Open && (
-                        <div style={faqContent}>
-                            Please include your specific requirements, product names, quantities, location, and whether you represent a business or are an individual customer.
-                        </div>
-                    )}
-                </div>
-
-                <div
-                    style={faqItem}
-                    onClick={() => setFaq2Open(!faq2Open)}
-                >
-                    <div style={faqHeader}>
-                        <span style={faqTitle}>Do you work with small and medium buyers?</span>
-                        {faq2Open ? <FaChevronUp color="#9CA3AF" /> : <FaChevronDown color="#9CA3AF" />}
-                    </div>
-                    {faq2Open && (
-                        <div style={faqContent}>
-                            Yes, absolutely! We cater to orders of various sizes, from small retail quantities to large wholesale distributions.
-                        </div>
-                    )}
-                </div>
-            </motion.div>
 
             {/* CALL TO ACTION BANNER */}
             <motion.div style={{ background: "linear-gradient(90deg, #1D4ED8, #16A34A)", padding: "60px 5%", color: "#fff", display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "center", gap: "30px" }} initial={{ opacity: 0, scale: 0.95 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} transition={{ duration: 0.4 }}>
