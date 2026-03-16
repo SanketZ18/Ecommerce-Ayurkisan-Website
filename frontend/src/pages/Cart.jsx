@@ -38,13 +38,30 @@ const Cart = () => {
         fetchCart();
     }, []);
 
-    const updateQuantity = async (itemId, itemType, newQuantity) => {
-        if (newQuantity < 1) return;
+    const updateQuantity = async (itemId, itemType, delta) => {
+        const item = cartItems.find(i => i.productId === itemId && i.itemType === itemType);
+        if (!item) return;
+
+        let targetQuantity;
+        if (userRole === 'RETAILER' && itemType === 'PRODUCT') {
+            const currentBoxes = Math.max(1, Math.floor(item.quantity / 10));
+            targetQuantity = currentBoxes + delta;
+        } else {
+            targetQuantity = item.quantity + delta;
+        }
+
+        if (targetQuantity < 1) {
+            if (targetQuantity === 0) {
+                removeItem(itemId, itemType);
+            }
+            return;
+        }
+
         try {
-            await customerService.updateCartQuantity(userId, itemId, itemType, newQuantity);
+            await customerService.updateCartQuantity(userId, userRole, itemId, itemType, targetQuantity);
             fetchCart();
         } catch (error) {
-            toast.error("Failed to update quantity");
+            toast.error(error.response?.data?.message || "Failed to update quantity");
         }
     };
 
@@ -71,7 +88,7 @@ const Cart = () => {
             <div style={{ padding: '4rem 5%', textAlign: 'center', minHeight: '60vh' }}>
                 <h2 style={{ color: 'var(--text-dark)', marginBottom: '1rem' }}>Your Cart is Empty</h2>
                 <p style={{ color: 'var(--text-light)', marginBottom: '2rem' }}>Looks like you haven't added anything to your cart yet.</p>
-                <Link to={userRole === 'CUSTOMER' ? '/customer/dashboard' : '/products'} className="btn-primary" style={{ padding: '0.8rem 2rem', textDecoration: 'none' }}>
+                <Link to={userRole === 'CUSTOMER' ? '/customer/dashboard' : (userRole === 'RETAILER' ? '/retailer/dashboard' : '/products')} className="btn-primary" style={{ padding: '0.8rem 2rem', textDecoration: 'none' }}>
                     Continue Shopping
                 </Link>
             </div>
@@ -129,12 +146,16 @@ const Cart = () => {
 
                                 </div>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                    <button onClick={() => updateQuantity(item.productId, item.itemType, item.quantity - 1)} style={qtyBtn}>-</button>
+                                    <button onClick={() => updateQuantity(item.productId, item.itemType, -1)} style={qtyBtn}>-</button>
                                     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                                        <span style={{ width: '30px', textAlign: 'center', fontWeight: 'bold' }}>{item.quantity}</span>
-                                        <span style={{ fontSize: '0.65rem', color: '#64748b' }}>{item.itemType === 'RETAILER' ? 'Boxes' : 'Items'}</span>
+                                        <span style={{ width: '30px', textAlign: 'center', fontWeight: 'bold' }}>
+                                            {userRole === 'RETAILER' && item.itemType === 'PRODUCT' ? (item.quantity / 10) : item.quantity}
+                                        </span>
+                                        <span style={{ fontSize: '0.65rem', color: '#64748b' }}>
+                                            {userRole === 'RETAILER' && item.itemType === 'PRODUCT' ? 'Boxes' : 'Items'}
+                                        </span>
                                     </div>
-                                    <button onClick={() => updateQuantity(item.productId, item.itemType, item.quantity + 1)} style={qtyBtn}>+</button>
+                                    <button onClick={() => updateQuantity(item.productId, item.itemType, 1)} style={qtyBtn}>+</button>
                                 </div>
                                 <div style={{ marginLeft: '1rem' }}>
                                     <button onClick={() => removeItem(item.productId, item.itemType)} style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', fontSize: '1.2rem', padding: '0.5rem' }}>

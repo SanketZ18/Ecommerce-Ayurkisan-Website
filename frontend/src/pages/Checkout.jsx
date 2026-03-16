@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { FaCheckCircle, FaTruck, FaMapMarkerAlt, FaCreditCard, FaReceipt } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import customerService from '../utils/customerService';
+import retailerService from '../utils/retailerService';
 import { toast } from 'react-toastify';
 
 const Checkout = () => {
@@ -27,15 +28,30 @@ const Checkout = () => {
             const userId = localStorage.getItem('userId');
             const role = localStorage.getItem('role');
             if (userId) {
-                const profileRes = await customerService.getProfile(userId);
-                if (profileRes.data) {
-                    setFormData(prev => ({
-                        ...prev,
-                        name: profileRes.data.name || '',
-                        address: profileRes.data.address || '',
-                        phone: profileRes.data.phoneNumber || ''
-                    }));
+                // Fetch Profile based on role
+                let profileRes;
+                if (role === 'RETAILER') {
+                    profileRes = await retailerService.getProfile(userId);
+                    if (profileRes.data) {
+                        setFormData(prev => ({
+                            ...prev,
+                            name: profileRes.data.retailerName || profileRes.data.name || '',
+                            address: profileRes.data.address || '',
+                            phone: profileRes.data.phoneNumber || ''
+                        }));
+                    }
+                } else {
+                    profileRes = await customerService.getProfile(userId);
+                    if (profileRes.data) {
+                        setFormData(prev => ({
+                            ...prev,
+                            name: profileRes.data.name || '',
+                            address: profileRes.data.address || '',
+                            phone: profileRes.data.phoneNumber || ''
+                        }));
+                    }
                 }
+                
                 const cartRes = await customerService.getCart(userId, role);
                 setCartData(cartRes.data);
             }
@@ -86,7 +102,7 @@ const Checkout = () => {
                         <strong style={{ fontSize: '1.4rem', color: '#111827' }}>#{orderInfo?.orderId || orderInfo?.id}</strong>
                     </div>
                     <div style={{ display: 'flex', gap: '20px', justifyContent: 'center' }}>
-                        <button style={{ ...placeOrderBtnStyle, width: 'auto', padding: '15px 40px', marginTop: 0 }} onClick={() => navigate('/customer/orders')}>Track Order</button>
+                        <button style={{ ...placeOrderBtnStyle, width: 'auto', padding: '15px 40px', marginTop: 0 }} onClick={() => navigate(localStorage.getItem('role') === 'RETAILER' ? '/retailer/orders' : '/customer/orders')}>Track Order</button>
                         <button style={{ ...placeOrderBtnStyle, width: 'auto', padding: '15px 40px', marginTop: 0, backgroundColor: '#fff', color: '#111827', border: '2px solid #e5e7eb' }} onClick={() => navigate('/')}>Back Home</button>
                     </div>
                 </div>
@@ -160,7 +176,7 @@ const Checkout = () => {
                                         <div style={{ flex: 1 }}>
                                             <h4 style={{ margin: '0 0 5px 0', fontSize: '1.05rem', fontWeight: '700', color: '#111827' }}>{item.productName}</h4>
                                             <div style={{ display: 'flex', alignItems: 'center', gap: '15px', color: '#6b7280', fontSize: '0.9rem', marginBottom: '10px' }}>
-                                                <span>Qty: <strong>{item.quantity}</strong></span>
+                                                <span>Qty: <strong>{localStorage.getItem('role') === 'RETAILER' && item.itemType === 'PRODUCT' ? (item.quantity / 10) : item.quantity}</strong> {localStorage.getItem('role') === 'RETAILER' && item.itemType === 'PRODUCT' ? 'Boxes' : 'Units'}</span>
                                                 {calculateDiscount(item.price, item.discountedPrice) && (
                                                     <span style={{ color: '#10b981', fontWeight: '700', backgroundColor: '#f0fdf4', padding: '2px 8px', borderRadius: '6px' }}>
                                                         {calculateDiscount(item.price, item.discountedPrice)}% Off

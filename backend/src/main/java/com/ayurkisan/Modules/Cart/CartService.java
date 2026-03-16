@@ -86,6 +86,10 @@ public class CartService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid item type: " + itemType);
         }
 
+        if ("Retailer".equalsIgnoreCase(role)) {
+            discountedPrice = discountedPrice * 0.7; // Fixed 30% discount for retailers on wholesale boxes
+        }
+
         // Add to cart items list
         Optional<CartItem> existingItemOpt = cart.getItems().stream()
                 .filter(i -> i.getProductId().equals(itemId) && i.getItemType().equalsIgnoreCase(itemType))
@@ -122,13 +126,12 @@ public class CartService {
         return cartRepository.save(cart);
     }
 
-    public Cart updateQuantity(String userId, String itemId, String itemType, int requestedQuantity) {
+    public Cart updateQuantity(String userId, String role, String itemId, String itemType, int requestedQuantity) {
         if (requestedQuantity <= 0) {
             return removeFromCart(userId, itemId, itemType);
         }
 
-        Cart cart = cartRepository.findByUserId(userId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Cart not found"));
+        Cart cart = getCart(userId, role);
 
         CartItem item = cart.getItems().stream()
                 .filter(i -> i.getProductId().equals(itemId) && i.getItemType().equalsIgnoreCase(itemType))
@@ -137,13 +140,14 @@ public class CartService {
 
         int physicalQuantity = requestedQuantity;
         if ("PRODUCT".equalsIgnoreCase(itemType) && "Retailer".equalsIgnoreCase(cart.getRole())) {
+            // Retailer manages in boxes (1 box = 10 products)
             physicalQuantity = requestedQuantity * 10;
         }
 
         if ("PRODUCT".equalsIgnoreCase(itemType)) {
             Product product = productService.getProductById(itemId);
             if (product.getStockQuantity() < physicalQuantity) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Insufficient stock.");
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Insufficient stock. Available: " + product.getStockQuantity());
             }
         }
 

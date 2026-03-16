@@ -25,7 +25,7 @@ const Wishlist = () => {
                 <FaHeart style={{ fontSize: '4rem', color: '#e5e7eb', marginBottom: '1rem' }} />
                 <h2 style={{ color: '#111827', marginBottom: '1rem' }}>Your Wishlist is Empty</h2>
                 <p style={{ color: '#6b7280', marginBottom: '2rem' }}>Save your favorite items here to buy them later.</p>
-                <Link to={userRole === 'CUSTOMER' ? '/customer/dashboard' : '/products'} className="btn-primary" style={{ padding: '0.8rem 2rem', textDecoration: 'none' }}>
+                <Link to={userRole === 'CUSTOMER' ? '/customer/dashboard' : (userRole === 'RETAILER' ? '/retailer/dashboard' : '/products')} className="btn-primary" style={{ padding: '0.8rem 2rem', textDecoration: 'none' }}>
                     Explore Products
                 </Link>
             </div>
