@@ -83,12 +83,12 @@ const Shop = () => {
         // Proceed with corresponding action (e.g. Add to Cart logic)
     };
 
-    // Array for exactly 6 skeletons to display 2 rows while loading
-    const skeletons = Array(6).fill(0);
+    // Array for exactly 8 skeletons to display 2 rows while loading
+    const skeletons = Array(8).fill(0);
 
     return (
         <motion.div
-            style={{ padding: "40px 5%", maxWidth: "1200px", margin: "0 auto" }}
+            style={{ padding: "40px 2%", width: "100%", boxSizing: "border-box", margin: "0 auto" }}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5 }}
@@ -162,14 +162,7 @@ const Shop = () => {
                 </div>
             </div>
 
-            <div
-                style={{
-                    display: "grid",
-                    gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
-                    gap: "30px"
-                }}
-                className="shop-grid"
-            >
+            <div className="shop-grid">
                 {loading ? (
                     skeletons.map((_, index) => (
                         <div key={index} className="skeleton-card" style={skeletonCardStyle}>
@@ -259,6 +252,20 @@ const Shop = () => {
                     background: #f6f7f8;
                     background: linear-gradient(to right, #eeeeee 8%, #dddddd 18%, #eeeeee 33%);
                     background-size: 800px 104px;
+                }
+                .shop-grid {
+                    display: grid;
+                    grid-template-columns: repeat(4, 1fr);
+                    gap: 30px;
+                }
+                @media (max-width: 1200px) {
+                    .shop-grid { grid-template-columns: repeat(3, 1fr); }
+                }
+                @media (max-width: 900px) {
+                    .shop-grid { grid-template-columns: repeat(2, 1fr); }
+                }
+                @media (max-width: 600px) {
+                    .shop-grid { grid-template-columns: 1fr; }
                 }
             `}</style>
         </motion.div>
