@@ -38,10 +38,11 @@ public class CartController {
 
     @PutMapping("/update")
     public Cart updateQuantity(@RequestParam String userId,
+                               @RequestParam String role,
                                @RequestParam String itemId,
                                @RequestParam String itemType,
                                @RequestParam int quantity) {
-        return cartService.updateQuantity(userId, itemId, itemType, quantity);
+        return cartService.updateQuantity(userId, role, itemId, itemType, quantity);
     }
 
     @DeleteMapping("/remove/{userId}/{itemId}/{itemType}")

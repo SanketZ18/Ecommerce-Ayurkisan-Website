@@ -6,7 +6,9 @@ import { toast } from 'react-toastify';
 
 const RetailerProfileModal = ({ onClose }) => {
     const [profile, setProfile] = useState({
-        name: '',
+        retailerName: '',
+        firmName: '',
+        registrationId: '',
         email: '',
         phoneNumber: '',
         address: ''
@@ -50,7 +52,9 @@ const RetailerProfileModal = ({ onClose }) => {
         try {
             const userId = localStorage.getItem('userId');
             await retailerService.updateProfile(userId, {
-                name: profile.name,
+                retailerName: profile.retailerName,
+                firmName: profile.firmName,
+                registrationId: profile.registrationId,
                 phoneNumber: profile.phoneNumber,
                 address: profile.address
             });
@@ -139,17 +143,29 @@ const RetailerProfileModal = ({ onClose }) => {
                                     initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 10 }}
                                     onSubmit={handleProfileUpdate}
                                 >
-                                    <div style={formGroupStyle}>
-                                        <label style={labelStyle}>Business Name</label>
-                                        <input type="text" value={profile.name} onChange={(e) => setProfile({ ...profile, name: e.target.value })} required style={inputStyle} />
+                                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
+                                        <div style={formGroupStyle}>
+                                            <label style={labelStyle}>Retailer Name</label>
+                                            <input type="text" value={profile.retailerName} onChange={(e) => setProfile({ ...profile, retailerName: e.target.value })} required style={inputStyle} />
+                                        </div>
+                                        <div style={formGroupStyle}>
+                                            <label style={labelStyle}>Firm Name</label>
+                                            <input type="text" value={profile.firmName} onChange={(e) => setProfile({ ...profile, firmName: e.target.value })} required style={inputStyle} />
+                                        </div>
                                     </div>
                                     <div style={formGroupStyle}>
-                                        <label style={labelStyle}>Business Email (Logged as ID)</label>
-                                        <input type="email" value={profile.email} disabled style={{ ...inputStyle, backgroundColor: '#f8fafc', color: '#94a3b8' }} />
+                                        <label style={labelStyle}>Registration ID</label>
+                                        <input type="text" value={profile.registrationId} onChange={(e) => setProfile({ ...profile, registrationId: e.target.value })} required style={inputStyle} />
                                     </div>
-                                    <div style={formGroupStyle}>
-                                        <label style={labelStyle}>Business Phone</label>
-                                        <input type="text" value={profile.phoneNumber} onChange={(e) => setProfile({ ...profile, phoneNumber: e.target.value })} required style={inputStyle} />
+                                    <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: '15px' }}>
+                                        <div style={formGroupStyle}>
+                                            <label style={labelStyle}>Business Email</label>
+                                            <input type="email" value={profile.email} disabled style={{ ...inputStyle, backgroundColor: '#f8fafc', color: '#94a3b8' }} />
+                                        </div>
+                                        <div style={formGroupStyle}>
+                                            <label style={labelStyle}>Phone Number</label>
+                                            <input type="text" value={profile.phoneNumber} onChange={(e) => setProfile({ ...profile, phoneNumber: e.target.value })} required style={inputStyle} />
+                                        </div>
                                     </div>
                                     <div style={formGroupStyle}>
                                         <label style={labelStyle}>Warehouse / Billing Address</label>
@@ -157,7 +173,7 @@ const RetailerProfileModal = ({ onClose }) => {
                                             value={profile.address}
                                             onChange={(e) => setProfile({ ...profile, address: e.target.value })}
                                             required
-                                            style={{ ...inputStyle, minHeight: '80px', resize: 'vertical' }}
+                                            style={{ ...inputStyle, minHeight: '60px', resize: 'vertical' }}
                                         />
                                     </div>
                                     <button type="submit" disabled={isSaving} style={saveButtonStyle}>

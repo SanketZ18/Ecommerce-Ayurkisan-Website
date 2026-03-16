@@ -34,8 +34,8 @@ const customerService = {
     getCart: (userId, role) => axios.get(`${API_BASE_URL}/cart/${userId}?role=${role}`, { headers: getAuthHeader() }),
     addToCart: (userId, role, itemId, itemType, quantity) =>
         axios.post(`${API_BASE_URL}/cart/add?userId=${userId}&role=${role}&itemId=${itemId}&itemType=${itemType}&quantity=${quantity}`, {}, { headers: getAuthHeader() }),
-    updateCartQuantity: (userId, itemId, itemType, quantity) =>
-        axios.put(`${API_BASE_URL}/cart/update?userId=${userId}&itemId=${itemId}&itemType=${itemType}&quantity=${quantity}`, {}, { headers: getAuthHeader() }),
+    updateCartQuantity: (userId, role, itemId, itemType, quantity) =>
+        axios.put(`${API_BASE_URL}/cart/update?userId=${userId}&role=${role}&itemId=${itemId}&itemType=${itemType}&quantity=${quantity}`, {}, { headers: getAuthHeader() }),
     removeFromCart: (userId, itemId, itemType) =>
         axios.delete(`${API_BASE_URL}/cart/remove/${userId}/${itemId}/${itemType}`, { headers: getAuthHeader() }),
     clearCart: (userId) =>

@@ -11,6 +11,7 @@ import axios from 'axios';
 import customerService from '../utils/customerService';
 import { getDecodedToken } from '../utils/auth';
 import { toast } from 'react-toastify';
+import { resolveProductImage, resolvePackageImage } from '../utils/imageUtils';
 
 const CustomerDashboard = () => {
     const navigate = useNavigate();
@@ -28,6 +29,7 @@ const CustomerDashboard = () => {
     const [searchQuery, setSearchQuery] = useState('');
     const [sortBy, setSortBy] = useState('Default Sort');
     const [selectedCategory, setSelectedCategory] = useState('All');
+    const [categoriesList, setCategoriesList] = useState([]);
     const [currentSlide, setCurrentSlide] = useState(0);
     const [isDarkMode, setIsDarkMode] = useState(false);
 
@@ -50,13 +52,14 @@ const CustomerDashboard = () => {
             const userId = localStorage.getItem('userId');
             const role = localStorage.getItem('role');
             if (userId) {
-                const [profileRes, ordersRes, offersRes, productsRes, packagesRes, cartRes] = await Promise.all([
+                const [profileRes, ordersRes, offersRes, productsRes, packagesRes, cartRes, categoriesRes] = await Promise.all([
                     customerService.getProfile(userId),
                     customerService.getOrderHistory(userId),
                     axios.get('http://localhost:9090/api/homepage/sections').catch(() => ({ data: [] })),
                     customerService.getAllProducts().catch(() => ({ data: [] })),
                     customerService.getAllPackages().catch(() => ({ data: [] })),
-                    customerService.getCart(userId, role).catch(() => ({ data: { items: [] } }))
+                    customerService.getCart(userId, role).catch(() => ({ data: { items: [] } })),
+                    customerService.getAllCategories().catch(() => ({ data: [] }))
                 ]);
 
                 setProfile(profileRes.data);
@@ -93,6 +96,7 @@ const CustomerDashboard = () => {
 
                 setProducts(Array.isArray(productsRes.data) ? productsRes.data : []);
                 setPackages(Array.isArray(packagesRes.data) ? packagesRes.data : []);
+                setCategoriesList(Array.isArray(categoriesRes.data) ? categoriesRes.data : []);
 
                 // Real counts
                 const wishlist = JSON.parse(localStorage.getItem('wishlist') || '[]');
@@ -174,7 +178,7 @@ const CustomerDashboard = () => {
     const collectionSortSelectStyle = { appearance: 'none', padding: '10px 40px 10px 20px', borderRadius: '10px', border: '1px solid #e2e8f0', fontSize: '0.95rem', fontWeight: '600', outline: 'none', cursor: 'pointer', minWidth: '180px' };
     const collectionSortIconStyle = { position: 'absolute', right: '15px', color: '#94a3b8', pointerEvents: 'none' };
 
-    const suggestionGridStyle = { display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '30px' };
+    const suggestionGridStyle = { display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '30px' };
     const productCardSmallStyle = { borderRadius: '24px', overflow: 'hidden', border: '1px solid #f1f5f9', cursor: 'pointer', transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)', boxShadow: '0 4px 15px rgba(0,0,0,0.03)', position: 'relative' };
     const productImageWrapperSmall = { height: '200px', padding: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center' };
     const productImageSmall = { maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' };
@@ -375,23 +379,31 @@ const CustomerDashboard = () => {
                     <div style={collectionFilterContainerStyle}>
                         {/* Category Cards Row */}
                         <div style={categoryCardsRowStyle}>
-                            {[
-                                { name: 'Herbal Supplements', icon: <FaLeaf />, color: '#10b981' },
-                                { name: 'Aromatherapy & Essential Oils', icon: <FaSpa />, color: '#6366f1' },
-                                { name: 'Therapeutic Skincare', icon: <FaBurn />, color: '#f59e0b' }
-                            ].map((cat, i) => (
+                            <div
+                                style={{
+                                    ...categoryCardItemStyle,
+                                    border: selectedCategory === 'All' ? `2px solid #10b981` : (isDarkMode ? '1px solid #334155' : '1px solid #e2e8f0'),
+                                    backgroundColor: selectedCategory === 'All' ? `#10b98115` : (isDarkMode ? '#1e293b' : '#fff'),
+                                    color: isDarkMode ? '#f8fafc' : '#1e293b'
+                                }}
+                                onClick={() => setSelectedCategory('All')}
+                            >
+                                <div style={{ color: '#10b981', fontSize: '1.5rem', marginBottom: '10px' }}><FaBox /></div>
+                                <span style={{ fontWeight: '700', fontSize: '1rem', textAlign: 'center' }}>All Categories</span>
+                            </div>
+                            {categoriesList.map((cat, i) => (
                                 <div
                                     key={i}
                                     style={{
                                         ...categoryCardItemStyle,
-                                        border: selectedCategory === cat.name ? `2px solid ${cat.color}` : (isDarkMode ? '1px solid #334155' : '1px solid #e2e8f0'),
-                                        backgroundColor: selectedCategory === cat.name ? `${cat.color}15` : (isDarkMode ? '#1e293b' : '#fff'),
+                                        border: selectedCategory === cat.categoryName ? `2px solid #10b981` : (isDarkMode ? '1px solid #334155' : '1px solid #e2e8f0'),
+                                        backgroundColor: selectedCategory === cat.categoryName ? `#10b98115` : (isDarkMode ? '#1e293b' : '#fff'),
                                         color: isDarkMode ? '#f8fafc' : '#1e293b'
                                     }}
-                                    onClick={() => setSelectedCategory(selectedCategory === cat.name ? 'All' : cat.name)}
+                                    onClick={() => setSelectedCategory(selectedCategory === cat.categoryName ? 'All' : cat.categoryName)}
                                 >
-                                    <div style={{ color: cat.color, fontSize: '1.5rem', marginBottom: '10px' }}>{cat.icon}</div>
-                                    <span style={{ fontWeight: '700', fontSize: '1rem', textAlign: 'center' }}>{cat.name}</span>
+                                    <div style={{ color: '#10b981', fontSize: '1.5rem', marginBottom: '10px' }}><FaLeaf /></div>
+                                    <span style={{ fontWeight: '700', fontSize: '1rem', textAlign: 'center' }}>{cat.categoryName}</span>
                                 </div>
                             ))}
                         </div>
@@ -438,8 +450,12 @@ const CustomerDashboard = () => {
                                         onChange={(e) => setSortBy(e.target.value)}
                                     >
                                         <option>Default Sort</option>
-                                        <option value="low-high">Price: Low to High</option>
                                         <option value="high-low">Price: High to Low</option>
+                                        <optgroup label="Categories">
+                                            {categoriesList.map(cat => (
+                                                <option key={cat.id} value={cat.categoryName}>{cat.categoryName}</option>
+                                            ))}
+                                        </optgroup>
                                     </select>
                                     <FaChevronDown style={collectionSortIconStyle} />
                                 </div>
@@ -451,29 +467,39 @@ const CustomerDashboard = () => {
                         {(suggestionTab === 'products' ? products : packages)
                             .filter(item => {
                                 const matchesSearch = (item.productName || item.packageName || item.name || '').toLowerCase().includes(searchQuery.toLowerCase());
-                                const matchesCategory = selectedCategory === 'All' || item.categoryName === selectedCategory;
-                                return matchesSearch && matchesCategory;
+                                
+                                // Handling category filtering specifically for products
+                                if (selectedCategory === 'All') return matchesSearch;
+                                
+                                if (suggestionTab === 'products') {
+                                    const catObj = categoriesList.find(c => c.categoryName === selectedCategory);
+                                    return matchesSearch && item.categoryId === catObj?.id;
+                                }
+                                
+                                return matchesSearch; // Packages usually don't have categoryId at this level in this app
                             })
                             .sort((a, b) => {
-                                if (sortBy === 'low-high') return a.price - b.price;
-                                if (sortBy === 'high-low') return b.price - a.price;
+                                if (sortBy === 'low-high') return (a.price || a.packagePrice) - (b.price || b.packagePrice);
+                                if (sortBy === 'high-low') return (b.price || b.packagePrice) - (a.price || a.packagePrice);
                                 return 0;
                             })
                             .map((item, idx) => {
                                  const isPackage = suggestionTab === 'packages';
                                  const itemName = isPackage ? (item.name || item.packageName) : item.productName;
-                                 const itemImage = isPackage ? (item.imageURL || item.productImage || item.imageUrl) : item.productImage1;
+                                 const itemImage = isPackage ? item.imageURL : item.productImage1;
                                  const itemId = item.id;
-
-                                 const getImageUrl = (img) => {
-                                     if (!img) return `https://via.placeholder.com/200?text=${isPackage ? 'Package' : 'Product'}`;
-                                     if (img.startsWith('http')) return img;
-                                     return `/assets/Product_Images/${img}`;
-                                 };
+                                 
+                                 const price = isPackage ? item.packagePrice : item.price;
+                                 const oldPrice = isPackage ? item.totalPrice : null;
 
                                 return (
                                      <div key={idx} style={{ ...productCardSmallStyle, backgroundColor: isDarkMode ? '#1e293b' : '#fff', borderColor: isDarkMode ? '#334155' : '#f1f5f9' }} onClick={() => navigate(isPackage ? `/package/${itemId}` : `/product/${itemId}`)}>
                                         <div style={{ ...productImageWrapperSmall, position: 'relative', backgroundColor: isDarkMode ? '#0f172a' : '#f8fafc' }}>
+                                            {isPackage && oldPrice > price && (
+                                               <div style={{ ...discountBadgeStyle, top: '15px', left: '15px', right: 'auto' }}>
+                                                   SAVE {Math.round(((oldPrice - price) / oldPrice) * 100)}%
+                                               </div>
+                                            )}
                                             <button
                                                 onClick={(e) => {
                                                     e.stopPropagation();
@@ -483,7 +509,7 @@ const CustomerDashboard = () => {
                                                         currentWishlist = currentWishlist.filter(w => w.id !== itemId);
                                                         toast.info("Removed from wishlist");
                                                     } else {
-                                                        currentWishlist.push({ ...item, name: itemName, price: item.price || item.bundlePrice, image: itemImage });
+                                                        currentWishlist.push({ ...item, name: itemName, price: price, image: itemImage });
                                                         toast.success("Added to wishlist!");
                                                     }
                                                     setWishlistItems(currentWishlist);
@@ -511,11 +537,21 @@ const CustomerDashboard = () => {
                                             >
                                                 <FaHeart size={18} />
                                             </button>
-                                             <img src={getImageUrl(itemImage)} alt={itemName} style={productImageSmall} />
+                                             <img 
+                                               src={isPackage ? resolvePackageImage(itemImage) : resolveProductImage(itemImage, itemId)} 
+                                               alt={itemName} 
+                                               style={productImageSmall} 
+                                               onError={(e) => e.target.src = 'https://via.placeholder.com/200?text=Image+Not+Found'}
+                                             />
                                         </div>
                                         <div style={productInfoSmall}>
-                                            <h4 style={{ ...productNameSmall, color: isDarkMode ? '#f8fafc' : '#1e293b' }}>{itemName}</h4>
-                                            <div style={productPriceSmall}>₹{item.price || item.bundlePrice}</div>
+                                            <h4 style={{ ...productNameSmall, color: isDarkMode ? '#f8fafc' : '#1e293b', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{itemName}</h4>
+                                            <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
+                                               <div style={productPriceSmall}>₹{price}</div>
+                                               {isPackage && oldPrice > price && (
+                                                   <div style={{ fontSize: '0.9rem', color: '#9ca3af', textDecoration: 'line-through' }}>₹{oldPrice}</div>
+                                               )}
+                                            </div>
                                             <div style={productActionRow}>
                                                 <button
                                                     style={cartBtnSmall}

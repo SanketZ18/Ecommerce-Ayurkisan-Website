@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { FaSearch, FaShoppingCart, FaUser, FaCaretDown, FaBox, FaUndo, FaSignOutAlt, FaChartBar, FaWarehouse } from 'react-icons/fa';
+import { FaSearch, FaShoppingCart, FaUser, FaCaretDown, FaBox, FaUndo, FaSignOutAlt, FaChartBar, FaWarehouse, FaHeart } from 'react-icons/fa';
 import logo from '../../assets/Company Logos (1024 × 1024 px).png';
 import { clearAuthData } from '../../utils/auth';
 import retailerService from '../../utils/retailerService';
@@ -9,7 +9,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 const RetailerNavbar = ({ onOpenProfileModal }) => {
     const navigate = useNavigate();
     const [isAccountMenuOpen, setAccountMenuOpen] = useState(false);
-    const [retailerName, setRetailerName] = useState('Retailer');
+    const [businessProfile, setBusinessProfile] = useState(null);
 
     useEffect(() => {
         const fetchRetailerData = async () => {
@@ -17,8 +17,8 @@ const RetailerNavbar = ({ onOpenProfileModal }) => {
                 const userId = localStorage.getItem('userId');
                 if (userId) {
                     const res = await retailerService.getProfile(userId);
-                    if (res.data && res.data.name) {
-                        setRetailerName(res.data.name.split(' ')[0]);
+                    if (res.data) {
+                        setBusinessProfile(res.data);
                     }
                 }
             } catch (error) {
@@ -66,7 +66,7 @@ const RetailerNavbar = ({ onOpenProfileModal }) => {
                 >
                     <div style={{ display: 'flex', flexDirection: 'column' }}>
                         <span style={navSubtextStyle}>Retailer</span>
-                        <span style={navMainTextStyle}>{retailerName} <FaCaretDown size={12} style={{ marginLeft: '4px' }} /></span>
+                        <span style={navMainTextStyle}>{businessProfile?.retailerName || 'Business'} <FaCaretDown size={12} style={{ marginLeft: '4px' }} /></span>
                     </div>
 
                     <AnimatePresence>
@@ -78,7 +78,12 @@ const RetailerNavbar = ({ onOpenProfileModal }) => {
                                 transition={{ duration: 0.2 }}
                                 style={dropdownMenuStyle}
                             >
-                                <div style={dropdownHeaderStyle}>Business Account</div>
+                                <div style={dropdownHeaderStyle}>
+                                    <div>{businessProfile?.firmName || 'Business Account'}</div>
+                                    <div style={{ fontSize: '0.7rem', color: '#64748b', fontWeight: 'normal', marginTop: '4px' }}>
+                                        Reg ID: {businessProfile?.registrationId || 'N/A'}
+                                    </div>
+                                </div>
 
                                 <button className="dropdown-item" onClick={onOpenProfileModal} style={dropdownItemStyle}>
                                     <FaWarehouse style={dropdownIconStyle} /> Company Profile
@@ -86,10 +91,6 @@ const RetailerNavbar = ({ onOpenProfileModal }) => {
 
                                 <Link to="/retailer/orders" className="dropdown-item" style={dropdownItemStyle}>
                                     <FaBox style={dropdownIconStyle} /> Bulk Orders
-                                </Link>
-
-                                <Link to="/retailer/dashboard" className="dropdown-item" style={dropdownItemStyle}>
-                                    <FaChartBar style={dropdownIconStyle} /> Analytics Dashboard
                                 </Link>
 
                                 <div style={{ borderTop: '1px solid #e2e8f0', margin: '4px 0' }}></div>
@@ -106,6 +107,16 @@ const RetailerNavbar = ({ onOpenProfileModal }) => {
                     <div style={{ display: 'flex', flexDirection: 'column' }}>
                         <span style={navSubtextStyle}>Manage</span>
                         <span style={navMainTextStyle}>Shipments</span>
+                    </div>
+                </Link>
+
+                <Link to="/wishlist" style={{ ...navItemStyle, textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <div style={{ position: 'relative' }}>
+                        <FaHeart size={24} color="#fff" />
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column' }}>
+                        <span style={navSubtextStyle}>Favorites</span>
+                        <span style={navMainTextStyle}>Wishlist</span>
                     </div>
                 </Link>
 

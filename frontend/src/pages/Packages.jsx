@@ -62,11 +62,11 @@ const Packages = () => {
         }
     };
 
-    const skeletons = Array(3).fill(0);
+    const skeletons = Array(4).fill(0);
 
     return (
         <motion.div
-            style={{ padding: "40px 5%", maxWidth: "1200px", margin: "0 auto", minHeight: "80vh" }}
+            style={{ padding: "40px 2%", width: "100%", boxSizing: "border-box", margin: "0 auto", minHeight: "80vh" }}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5 }}
@@ -80,7 +80,7 @@ const Packages = () => {
                 </p>
             </div>
 
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: "30px" }}>
+            <div className="packages-grid">
                 {loading ? (
                     skeletons.map((_, index) => (
                         <div key={index} style={skeletonCardStyle}>
@@ -179,6 +179,20 @@ const Packages = () => {
                     background: #f6f7f8;
                     background: linear-gradient(to right, #eeeeee 8%, #dddddd 18%, #eeeeee 33%);
                     background-size: 800px 104px;
+                }
+                .packages-grid {
+                    display: grid;
+                    grid-template-columns: repeat(4, 1fr);
+                    gap: 30px;
+                }
+                @media (max-width: 1200px) {
+                    .packages-grid { grid-template-columns: repeat(3, 1fr); }
+                }
+                @media (max-width: 900px) {
+                    .packages-grid { grid-template-columns: repeat(2, 1fr); }
+                }
+                @media (max-width: 600px) {
+                    .packages-grid { grid-template-columns: 1fr; }
                 }
             `}</style>
         </motion.div>
