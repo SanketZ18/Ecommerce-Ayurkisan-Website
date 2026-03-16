@@ -8,5 +8,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ProductPackageRepository 
         extends MongoRepository<ProductPackage, String> {
-
+    Optional<ProductPackage> findByNameIgnoreCase(String name);
 }
