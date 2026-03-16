@@ -91,8 +91,10 @@ public class OrderService {
         order.setContactPhone(phone);
         order.setShippingAddress(address);
 
-        order.setTotalOriginalPrice(cart.getTotalOriginalPrice());
-        order.setTotalDiscountedPrice(cart.getTotalDiscountedPrice());
+        double deliveryFee = 50.0;
+        order.setDeliveryCharge(deliveryFee);
+        order.setTotalOriginalPrice(cart.getTotalOriginalPrice() + deliveryFee);
+        order.setTotalDiscountedPrice(cart.getTotalDiscountedPrice() + deliveryFee);
 
         order.setPaymentMethod(paymentMethod);
         if ("COD".equalsIgnoreCase(paymentMethod)) {

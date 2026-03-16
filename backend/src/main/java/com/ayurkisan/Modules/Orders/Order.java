@@ -26,6 +26,7 @@ public class Order {
 
     private double totalOriginalPrice;
     private double totalDiscountedPrice;
+    private double deliveryCharge = 50.0;
 
     // Payment details
     private String paymentMethod; // COD or ONLINE
@@ -70,6 +71,9 @@ public class Order {
 
     public double getTotalDiscountedPrice() { return totalDiscountedPrice; }
     public void setTotalDiscountedPrice(double totalDiscountedPrice) { this.totalDiscountedPrice = totalDiscountedPrice; }
+
+    public double getDeliveryCharge() { return deliveryCharge; }
+    public void setDeliveryCharge(double deliveryCharge) { this.deliveryCharge = deliveryCharge; }
 
     public String getPaymentMethod() { return paymentMethod; }
     public void setPaymentMethod(String paymentMethod) { this.paymentMethod = paymentMethod; }
