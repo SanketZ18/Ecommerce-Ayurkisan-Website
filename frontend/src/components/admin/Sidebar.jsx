@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { FaTachometerAlt, FaSitemap, FaBoxOpen, FaLayerGroup, FaShoppingCart, FaTruck, FaUndo, FaUsers, FaSignOutAlt, FaHome } from 'react-icons/fa';
+import { FaTachometerAlt, FaSitemap, FaBoxOpen, FaLayerGroup, FaShoppingCart, FaTruck, FaUndo, FaUsers, FaSignOutAlt, FaHome, FaChartLine } from 'react-icons/fa';
 import logo from '../../assets/Company Logos (1024 × 1024 px).png';
 
 const Sidebar = ({ isOpen, onLogout }) => {
@@ -46,6 +46,7 @@ const menuItems = [
     { name: 'Orders', path: '/admin/orders', icon: FaShoppingCart },
     { name: 'Shipment', path: '/admin/shipment', icon: FaTruck },
     { name: 'Returns', path: '/admin/returns', icon: FaUndo },
+    { name: 'Reports', path: '/admin/reports', icon: FaChartLine },
     { name: 'Manage Admins', path: '/admin/manage-admins', icon: FaUsers },
 ];
 

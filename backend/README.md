@@ -3,10 +3,12 @@
 http://localhost:9090/swagger-ui/index.html
 
 ## AYURKISAN BACKEND – API ROUTES DOCUMENT
-USER APIs-
 Base URL - http://localhost:9090
-1️⃣ Customer Registration - POST - /api/auth/customer/register
-Body Example -
+
+### 🔐 AUTH MODULE
+1️⃣ **Customer Signup** - POST - `/api/auth/customer/signup`
+Request Body:
+```json
 {
   "name": "John Doe",
   "email": "john@gmail.com",
@@ -14,8 +16,11 @@ Body Example -
   "address": "Pune",
   "password": "john123"
 }
-2️⃣ Retailer Registration - POST - /api/auth/retailer/register
-Body Example -
+```
+
+2️⃣ **Retailer Signup** - POST - `/api/auth/retailer/signup`
+Request Body:
+```json
 {
   "retailerName": "Ramesh",
   "firmName": "Ramesh Agro",
@@ -25,9 +30,11 @@ Body Example -
   "email": "retailer@gmail.com",
   "password": "retailer123"
 }
+```
 
-3️⃣ Admin Registration - POST - /api/auth/admin/register
-Request Body -
+3️⃣ **Admin Registration** - POST - `/api/auth/admin/register`
+Request Body:
+```json
 {
   "name": "Super Admin",
   "email": "admin@gmail.com",
@@ -35,241 +42,183 @@ Request Body -
   "address": "Pune",
   "password": "admin123"
 }
+```
 
-4️⃣ Login (Customer / Retailer / Admin) - POST - /api/auth/login
-Request Body -
+4️⃣ **Login** - POST - `/api/auth/login`
+Request Body:
+```json
 {
   "email": "admin@gmail.com",
   "password": "admin123",
-  "role": "ADMIN"
+  "role": "ADMIN" 
 }
+```
+*(Roles: CUSTOMER, RETAILER, ADMIN)*
 
-ADMIN MODULE - 
-1️⃣ View All Customers - GET - /api/admin/customers
-2️⃣ View All Retailers - GET - /api/admin/retailers
-3️⃣ Recover Customer - PUT - /api/admin/recover/customer/{id}
-4️⃣ Recover Retailer - PUT - /api/admin/recover/retailer/{id}
-5️⃣ Update Admin - PUT - /api/admin/update/{id}
-Request Body - 
+---
+
+### 🛡️ ADMIN MODULE
+1️⃣ **View All Customers** - GET - `/api/admin/customers`
+2️⃣ **View All Retailers** - GET - `/api/admin/retailers`
+3️⃣ **Recover Customer** - PUT - `/api/admin/recover/customer/{id}`
+4️⃣ **Recover Retailer** - PUT - `/api/admin/recover/retailer/{id}`
+5️⃣ **Update Admin** - PUT - `/api/admin/update/{id}`
+6️⃣ **Delete Admin** - DELETE - `/api/admin/delete/{id}`
+7️⃣ **View All Admins** - GET - `/api/admin/admins`
+8️⃣ **Dashboard Stats** - GET - `/api/admin/dashboard-stats`
+
+---
+
+### 👤 CUSTOMER MODULE
+1️⃣ **Get All Customers** - GET - `/api/customer/all`
+2️⃣ **Get Customer by ID** - GET - `/api/customer/{id}`
+3️⃣ **Update Profile** - PUT - `/api/customer/update/{id}`
+4️⃣ **Soft Delete** - DELETE - `/api/customer/delete/{id}`
+5️⃣ **Change Password** - PUT - `/api/customer/change-password/{id}`
+
+---
+
+### 🏪 RETAILER MODULE
+1️⃣ **Get All Retailers** - GET - `/api/retailer/all`
+2️⃣ **Get Retailer by ID** - GET - `/api/retailer/{id}`
+3️⃣ **Update Profile** - PUT - `/api/retailer/update/{id}`
+4️⃣ **Soft Delete** - DELETE - `/api/retailer/delete/{id}`
+5️⃣ **Change Password** - PUT - `/api/retailer/change-password/{id}`
+
+---
+
+### 📦 PRODUCT MODULE
+1️⃣ **Add Product (Admin)** - POST - `/products/admin/add`
+**Example Registration Payload:**
+```json
 {
-  "name": "Updated Name",
-  "phoneNumber": "9876543210",
-  "address": "Updated Address"
-}
-6️⃣ Delete Admin - DELETE - /api/admin/delete/{id}
-7️⃣ View All Admins - GET - /api/admin/admins
-
-CUSTOMER MODULE APIs - 
-1️⃣ Update Customer Profile - PUT - /api/customer/update/{id}
-Request Body - 
-{
-  "name": "Updated Name",
-  "phoneNumber": "9876543210",
-  "address": "Updated Address"
-}
-
-2️⃣ Delete Customer (Soft Delete)- PUT - /api/customer/delete/{id}
-
-RETAILER MODULE APIs -
-1️⃣ Update Retailer Profile - PUT - /api/retailer/update/{id}
-Request Body
-{
-  "retailerName": "Ramesh",
-  "firmName": "Ramesh Agro",
-  "registrationId": "REG123",
-  "address": "Mumbai",
-  "phoneNumber": "9876543210",
-  "email": "retailer@gmail.com",
-  "password": "retailer123"
-}
-
-2️⃣ Delete Retailer (Soft Delete) - PUT - /api/retailer/delete/{id}
-
-## Product Module APIs-
-1️⃣ Add Product - POST - http://localhost:9090/products/admin/add
-Body Example -
-{
-  "id": "herb-7721-ashwa",
   "productName": "Ashwagandha KSM-66 Root Extract",
-  "description": "High-potency organic Ashwagandha capsules designed to support stress relief, cortisol balance, and cognitive clarity. Non-GMO and vegan-friendly.",
+  "description": "High-potency organic Ashwagandha capsules designed to support stress relief.",
   "brand": "Herbal Vitality Co.",
-  "price": 45.00,
-  "discount": 15,
-  "finalPrice": 38.25,
-  "stockQuantity": 250,
-  "productImage": "https://cdn.herbalvitality.com/products/ashwagandha-60.jpg",
-  "categoryId": "cat-stress-relief-01",
-  "createdAt": "2026-02-21T05:43:09.280Z",
-  "piecesPerBox": 60,
-  "customerDiscount": 15.00,
-  "retailerDiscount": 30.00,
+  "price": 2500.00,
+  "discount": 10.0,
+  "stockQuantity": 500,
+  "productImage1": "https://example.com/img1.jpg",
+  "productImage2": "https://example.com/img2.jpg",
+  "productImage3": "https://example.com/img3.jpg",
+  "categoryId": "cat-stress-001",
+  "piecesPerBox": 10,
+  "customerDiscount": 10.0,
+  "retailerDiscount": 30.0,
   "discountEnabled": true,
-  "ingredients": "Organic Ashwagandha Root Extract (KSM-66), Black Pepper Extract (BioPerine), Vegetable Cellulose Capsule.",
-  "usageInstructions": "Take two capsules daily with a glass of water, preferably after a meal.",
+  "ingredients": "Organic Ashwagandha, Black Pepper",
+  "usageInstructions": "Two capsules daily",
   "dosage": "500mg per capsule",
-  "sideEffects": "May cause mild drowsiness or digestive upset in rare cases. Not recommended for pregnant women without medical advice.",
-  "expiryDate": "2028-02-21",
-  "manufacturingDate": "2026-01-15",
-  "weight": "120g",
-  "prescriptionRequired": false
+  "sideEffects": "None common",
+  "expiryDate": "2028-12-31",
+  "manufacturingDate": "2026-01-01",
+  "weight": "150g",
+  "isPrescriptionRequired": false
 }
+```
 
-2️⃣ Get Product by ID - GET - http://localhost:9090/products/{id} | Get all Products - GET - http://localhost:9090/products/all
+2️⃣ **Update Product (Admin)** - PUT - `/products/admin/update/{id}`
+3️⃣ **Delete Product (Admin)** - DELETE - `/products/admin/delete/{id}`
+4️⃣ **Get All Products** - GET - `/products/all`
+5️⃣ **Get Product by ID** - GET - `/products/id/{id}`
+6️⃣ **Out of Stock Products** - GET - `/products/admin/out-of-stock`
 
-3️⃣ Update Product - PUT - http://localhost:9090/products/admin/update/{id}
-Example Body -
+---
+
+### 📑 CATEGORY MODULE
+1️⃣ **Add Category (Admin)** - POST - `/categories/admin/add`
+2️⃣ **Update Category (Admin)** - PUT - `/categories/admin/update/{categoryName}`
+3️⃣ **Delete Category (Admin)** - DELETE - `/categories/admin/delete/{categoryName}`
+4️⃣ **Get All Active Categories** - GET - `/categories/all`
+5️⃣ **Get Category by Name** - GET - `/categories/view/{categoryName}`
+
+---
+
+### 🎁 PRODUCT PACKAGE MODULE
+1️⃣ **Add Package (Admin)** - POST - `/packages/admin/add`
+Payload Example:
+```json
 {
-  "id": "herb-7721-ashwa",
-  "productName": "Ashwagandha KSM-66 Root Extract",
-  "description": "High-potency organic Ashwagandha capsules designed to support stress relief, cortisol balance, and cognitive clarity. Non-GMO and vegan-friendly.",
-  "brand": "Herbal Vitality Co.",
-  "price": 45.00,
-  "discount": 15,
-  "finalPrice": 38.25,
-  "stockQuantity": 240,
-  "productImage": "https://cdn.herbalvitality.com/products/ashwagandha-60.jpg",
-  "categoryId": "cat-stress-relief-01",
-  "createdAt": "2026-02-21T05:43:09.280Z",
-  "piecesPerBox": 60,
-  "customerDiscount": 15.00,
-  "retailerDiscount": 30.00,
-  "discountEnabled": true,
-  "ingredients": "Organic Ashwagandha Root Extract (KSM-66), Black Pepper Extract (BioPerine), Vegetable Cellulose Capsule.",
-  "usageInstructions": "Take two capsules daily with a glass of water, preferably after a meal.",
-  "dosage": "500mg per capsule",
-  "sideEffects": "May cause mild drowsiness or digestive upset in rare cases. Not recommended for pregnant women without medical advice.",
-  "expiryDate": "2028-02-21",
-  "manufacturingDate": "2026-01-15",
-  "weight": "120g",
-  "prescriptionRequired": false
-}
-
-4️⃣ Delete Product - DELETE - http://localhost:9090/products/admin/delete/{id}
-
-## CATEGORY MODULE Apis-
-1️⃣ Add Category (Admin Only) - POST -http://localhost:9090/categories/admin/add
-Body Example -
-{
-  "id": "cat-skincare-202",
-  "categoryName": "Therapeutic Skincare",
-  "description": "Herbal balms, salves, and oils formulated with botanical extracts to soothe.",
-  "active": true
-}
-
-2️⃣ Update Category (Admin Only) - PUT - http://localhost:9090/categories/admin/update/{name}
-Body Example -
-{
-  "id": "cat-skincare-202",
-  "categoryName": "Therapeutic Skincare",
-  "description": "Herbal balms and oils formulated with botanical extracts to soothe.",
-  "active": true
-}
-
-3️⃣ Delete Category (Admin Only) - DELETE - http://localhost:9090/categories/admin/delete/{name}
-4️⃣ Get All Categories - GET - http://localhost:9090/categories/all
-5️⃣ Get Categories by Name - GET - 'http://localhost:9090/categories/view/{name}
-
-## PRODUCT PACKAGE MODULE APIs -
-1️⃣ Add Product Package (Admin Only) - POST - http://localhost:9090/packages/admin/add
-Body Example -
-{
-  "id": "pkg-skin-003",
-  "name": "Ayurvedic Radiance Glow Set",
+  "name": "Immunity Booster Pack",
   "items": [
-    {
-      "productId": "herb-9902-neem-balm",
-      "quantity": 1
-    },
-    {
-      "productId": "herb-2210-rosewater-toner",
-      "quantity": 1
-    }
+    { "productId": "prod123", "quantity": 1 },
+    { "productId": "prod456", "quantity": 2 }
   ],
-  "bundlePrice": 40.00,
-  "compareAtPrice": 48.00,
+  "packagePrice": 1200.0,
+  "totalPrice": 1500.0,
+  "imageURL": "https://example.com/package.jpg",
   "active": true
 }
+```
+2️⃣ **Update Package (Admin)** - PUT - `/packages/admin/update/{packageName}`
+3️⃣ **Delete Package (Admin)** - DELETE - `/packages/admin/delete/{packageName}`
+4️⃣ **Get All Packages** - GET - `/packages/all`
+5️⃣ **Get Package by Name** - GET - `/packages/view/{packageName}`
 
-2️⃣ Update Product Package (Admin Only)- PUT - http://localhost:9090/packages/admin/update/{packageName}
-Body Example -
-{
-  "id": "pkg-skin-003",
-  "name": "Ayurvedic Radiance Glow Set",
-  "items": [
-    {
-      "productId": "herb-9902-neem-balm",
-      "quantity": 1
-    },
-    {
-      "productId": "herb-2210-rosewater-toner",
-      "quantity": 1
-    }
-  ],
-  "bundlePrice": 45.00,
-  "compareAtPrice": 48.00,
-  "active": true
-}
-3️⃣ Delete Product Package (Admin Only) - DELETE - http://localhost:9090/packages/admin/delete/{packageName}
-4️⃣ Get All Product Packages - GET - http://localhost:9090/packages/all
-5️⃣ Get Package By Name - GET - http://localhost:9090/packages/view/{packageName}
+---
 
-## FEEDBACK MODULE APIs -
-1️⃣ Add Feedback - POST - http://localhost:9090/feedback/add
-Body Example -
-{
-  "productId": "herb-7721-ashwa",
-  "rating": 5,
-  "comments": "Excellent quality ashwagandha.",
-  "suggestions": "Please offer larger pack sizes."
-}
+### 🛒 CART MODULE
+1️⃣ **Get My Cart** - GET - `/cart/{userId}?role={ROLE}`
+2️⃣ **Add Item** - POST - `/cart/add?userId={uid}&role={ROLE}&itemId={id}&itemType={PRODUCT/PACKAGE}&quantity={q}`
+3️⃣ **Update Quantity** - PUT - `/cart/update?userId={uid}&role={ROLE}&itemId={id}&itemType={PRODUCT/PACKAGE}&quantity={q}`
+4️⃣ **Remove Item** - DELETE - `/cart/remove/{userId}/{itemId}/{itemType}`
+5️⃣ **Clear Cart** - DELETE - `/cart/clear/{userId}`
+6️⃣ **Checkout** - POST - `/cart/checkout/{userId}`
 
-2️⃣ Get Feedbacks by Product - GET - http://localhost:9090/feedback/product/{productId}
-3️⃣ Get All Feedbacks (Admin) - GET - http://localhost:9090/feedback/admin/all
-4️⃣ Get Feedbacks by Role (Admin) - GET - http://localhost:9090/feedback/admin/role/{role}
-5️⃣ Delete Feedback - DELETE - http://localhost:9090/feedback/delete/{id}
+---
 
-## CART MODULE APIs -
-1️⃣ Add Item to Cart - POST - http://localhost:9090/cart/add
-Body Example -
-{
-  "itemId": "Ashwagandha KSM-66 Root Extract",
-  "itemType": "PRODUCT",
-  "quantity": 2
-}
+### 📦 ORDER MODULE
+1️⃣ **Place Order** - POST - `/orders/place-order?paymentMethod=COD&customName=...&customPhone=...&customAddress=...`
+*(Authorization: Bearer <JWT>)*
+2️⃣ **My Orders** - GET - `/orders/my-orders`
+3️⃣ **Cancel Order** - PUT - `/orders/cancel/{orderId}`
+4️⃣ **All Orders (Admin)** - GET - `/orders/admin/all`
+5️⃣ **Update Status (Admin)** - PUT - `/orders/admin/status/{orderId}?newStatus=SHIPPED`
 
-2️⃣ Get User Cart - GET - http://localhost:9090/cart/my-cart
-3️⃣ Update Item Quantity - PUT - http://localhost:9090/cart/update
-Body Example -
-{
-  "itemId": "Ashwagandha KSM-66 Root Extract",
-  "itemType": "PRODUCT",
-  "quantity": 5
-}
+---
 
-4️⃣ Remove Item from Cart - DELETE - http://localhost:9090/cart/remove/{itemId}/{itemType}
-5️⃣ Clear Cart - DELETE - http://localhost:9090/cart/clear
+### 📧 CONTACT MODULE
+1️⃣ **Submit Form** - POST - `/api/contact/submit`
+2️⃣ **View All (Admin)** - GET - `/api/contact/all`
+3️⃣ **Reply (Admin)** - POST - `/api/contact/reply/{id}`
+4️⃣ **Delete Message (Admin)** - DELETE - `/api/contact/{id}`
 
-## ORDER MODULE APIs -
-1️⃣ Place Order - POST - http://localhost:9090/orders/place-order?paymentMethod=COD
-*(Note: Requires JWT token in Authorization header e.g., 'Bearer eyJhb...')*
+---
 
-2️⃣ Get My Orders - GET - http://localhost:9090/orders/my-orders
-3️⃣ Cancel Order - PUT - http://localhost:9090/orders/cancel/{orderId}
-4️⃣ Get All Orders (Admin) - GET - http://localhost:9090/orders/admin/all
-5️⃣ Update Order Status (Admin) - PUT - http://localhost:9090/orders/admin/status/{orderId}?newStatus=SHIPPED
+### 🏠 HOMEPAGE SECTIONS
+1️⃣ **Get All Sections** - GET - `/api/homepage/sections`
+2️⃣ **Get by Type** - GET - `/api/homepage/sections/type/{type}`
+3️⃣ **Create Section** - POST - `/api/homepage/sections`
+4️⃣ **Update Section** - PUT - `/api/homepage/sections/{id}`
+5️⃣ **Delete Section** - DELETE - `/api/homepage/sections/{id}`
 
-## SHIPMENT MODULE APIs -
-*(Note: Requires JWT token in Authorization header e.g., 'Bearer eyJhb...')*
-1️⃣ Track Shipment - GET - http://localhost:9090/shipments/track/{orderId}
-2️⃣ Get All Shipments (Admin) - GET - http://localhost:9090/shipments/admin/all
-3️⃣ Update Shipment Status (Admin) - PUT - http://localhost:9090/shipments/admin/status/{orderId}?newStatus=SHIPPED&remarks=Dispatching today
-*(Admin can set statuses: CONFIRMED, SHIPPED, OUT_FOR_DELIVERY, DELIVERED)*
+---
 
-## RETURN MODULE APIs -
-*(Note: Requires JWT token in Authorization header e.g., 'Bearer eyJhb...')*
-1️⃣ Initiate Return - POST - http://localhost:9090/returns/request/{orderId}?reason=Damaged item&comments=Box was open
-2️⃣ Get My Returns - GET - http://localhost:9090/returns/my-returns
-3️⃣ Track Return - GET - http://localhost:9090/returns/track/{orderId}
-4️⃣ Get All Returns (Admin) - GET - http://localhost:9090/returns/admin/all
-5️⃣ Update Return Status (Admin) - PUT - http://localhost:9090/returns/admin/status/{orderId}?newStatus=ACCEPTED&remarks=Arranging pickup
+### 📊 REPORT MODULE (ADMIN)
+1️⃣ **Sales Report** - GET - `/api/reports/sales?start={ISO}&end={ISO}`
+2️⃣ **Product Sales Report** - GET - `/api/reports/products`
+3️⃣ **Package Sales Report** - GET - `/api/reports/packages`
+4️⃣ **Detailed Product History** - GET - `/api/reports/products/{productId}`
+5️⃣ **Dashboard Overview** - GET - `/api/reports/dashboard-stats`
+6️⃣ **Export Data**:
+   - `GET /api/reports/export/products/csv`
+   - `GET /api/reports/export/products/excel`
+   - `GET /api/reports/export/products/pdf`
+
+---
+
+### 🚚 SHIPMENT MODULE
+1️⃣ **Track Shipment** - GET - `/shipments/track/{orderId}`
+2️⃣ **All Shipments (Admin)** - GET - `/shipments/admin/all`
+3️⃣ **Update Status (Admin)** - PUT - `/shipments/admin/status/{orderId}?newStatus={STATUS}&remarks={msg}`
+
+---
+
+### 🔄 RETURN MODULE
+1️⃣ **Request Return** - POST - `/returns/request/{orderId}?reason={msg}&comments={msg}`
+2️⃣ **My Returns** - GET - `/returns/my-returns`
+3️⃣ **Track Return** - GET - `/returns/track/{orderId}`
+4️⃣ **All Returns (Admin)** - GET - `/returns/admin/all`
+5️⃣ **Update Return Status (Admin)** - PUT - `/returns/admin/status/{orderId}?newStatus={STATUS}&remarks={msg}`
 *(Admin can set statuses: ACCEPTED, REJECTED, PICKED_UP, REFUNDED)*
+```
