@@ -9,6 +9,9 @@ import AdminLayout from './components/layout/AdminLayout';
 import CustomerLayout from './components/layout/CustomerLayout';
 import RetailerLayout from './components/layout/RetailerLayout';
 
+/* Chatbot */
+import ChatBot from './components/chatbot/ChatBot';
+
 /* Auth */
 import AuthModalManager from './components/auth/AuthModalManager';
 
@@ -209,6 +212,9 @@ function App() {
                     onClose={handleCloseModal}
                 />
             )}
+
+            {/* CHATBOT */}
+            <ChatBot />
 
         </div>
     );
