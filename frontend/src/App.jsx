@@ -9,6 +9,9 @@ import AdminLayout from './components/layout/AdminLayout';
 import CustomerLayout from './components/layout/CustomerLayout';
 import RetailerLayout from './components/layout/RetailerLayout';
 
+/* Chatbot */
+import ChatBot from './components/chatbot/ChatBot';
+
 /* Auth */
 import AuthModalManager from './components/auth/AuthModalManager';
 
@@ -35,8 +38,9 @@ import ManageCategories from './pages/ManageCategories';
 import ManagePackages from './pages/ManagePackages';
 import ManageProducts from './pages/ManageProducts';
 import ManageOrders from './pages/ManageOrders';
-import ManageShipments from './pages/ManageShipments';
 import ManageReturns from './pages/ManageReturns';
+import ManageShipments from './pages/ManageShipments';
+import ManageReports from './pages/ManageReports';
 import CustomerDashboard from './pages/CustomerDashboard';
 import CustomerProfile from './pages/customer/CustomerProfile';
 import RetailerDashboard from './pages/RetailerDashboard';
@@ -165,6 +169,7 @@ function App() {
                             <Route path="orders" element={<ManageOrders />} />
                             <Route path="shipment" element={<ManageShipments />} />
                             <Route path="returns" element={<ManageReturns />} />
+                            <Route path="reports" element={<ManageReports />} />
                             {/* Other admin routes will go here */}
                         </Routes>
                     </AdminLayout>
@@ -207,6 +212,9 @@ function App() {
                     onClose={handleCloseModal}
                 />
             )}
+
+            {/* CHATBOT */}
+            <ChatBot />
 
         </div>
     );

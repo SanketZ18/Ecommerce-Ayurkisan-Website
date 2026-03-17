@@ -82,7 +82,18 @@ const adminService = {
     // Support / Contact Management
     getContacts: () => axios.get(`${API_BASE_URL}/api/contact/all`, { headers: getAuthHeader() }),
     deleteContact: (id) => axios.delete(`${API_BASE_URL}/api/contact/${id}`, { headers: getAuthHeader() }),
-    replyToContact: (id, message) => axios.post(`${API_BASE_URL}/api/contact/reply/${id}`, { replyMessage: message }, { headers: getAuthHeader() })
+    replyToContact: (id, message) => axios.post(`${API_BASE_URL}/api/contact/reply/${id}`, { replyMessage: message }, { headers: getAuthHeader() }),
+
+    // Reporting Module
+    getSalesReport: (start, end) => axios.get(`${API_BASE_URL}/api/reports/sales?start=${start}&end=${end}`, { headers: getAuthHeader() }),
+    getProductSalesReport: () => axios.get(`${API_BASE_URL}/api/reports/products`, { headers: getAuthHeader() }),
+    getPackageSalesReport: () => axios.get(`${API_BASE_URL}/api/reports/packages`, { headers: getAuthHeader() }),
+    getReportingDashboardStats: () => axios.get(`${API_BASE_URL}/api/reports/dashboard-stats`, { headers: getAuthHeader() }),
+    exportReport: (type, format) => axios.get(`${API_BASE_URL}/api/reports/export/${type}/${format}`, { 
+        headers: getAuthHeader(),
+        responseType: 'blob'
+    }),
+    getProductHistory: (productId) => axios.get(`${API_BASE_URL}/api/reports/products/${productId}`, { headers: getAuthHeader() })
 };
 
 export default adminService;
