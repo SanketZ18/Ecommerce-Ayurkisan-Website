@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { FaShoppingCart, FaBolt, FaArrowLeft, FaBox, FaLeaf, FaInfoCircle } from 'react-icons/fa';
+import { FaShoppingCart, FaBolt, FaArrowLeft, FaBox, FaLeaf, FaInfoCircle, FaStar } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import { resolveProductImage, resolvePackageImage } from '../utils/imageUtils';
 import customerService from "../utils/customerService";
@@ -12,6 +12,7 @@ const PackageDetails = () => {
     const navigate = useNavigate();
     const [pkg, setPkg] = useState(null);
     const [products, setProducts] = useState([]);
+    const [feedbacks, setFeedbacks] = useState([]);
     const [loading, setLoading] = useState(true);
 
     const userRole = localStorage.getItem('role') || 'CUSTOMER';
@@ -28,6 +29,10 @@ const PackageDetails = () => {
             const response = await axios.get(`http://localhost:9090/packages/view/id/${packageId}`);
             const packageData = response.data;
             setPkg(packageData);
+
+            // Fetch feedbacks
+            const feedbackRes = await axios.get(`http://localhost:9090/feedbacks/product/${packageId}`).catch(() => ({ data: [] }));
+            setFeedbacks(feedbackRes.data);
 
             // Fetch details for each product in the package
             if (packageData.items && packageData.items.length > 0) {
@@ -213,6 +218,35 @@ const PackageDetails = () => {
                                 </Link>
                             ))}
                         </div>
+                    </div>
+
+                    {/* FEEDBACK SECTION */}
+                    <div style={{ marginTop: '40px', paddingTop: '30px', borderTop: '1px solid #e2e8f0' }}>
+                        <h4 style={{ marginBottom: '20px', color: 'var(--text-dark)', fontSize: '1.4rem' }}>Customer Reviews</h4>
+                        {feedbacks.length === 0 ? (
+                            <div style={{ textAlign: 'center', padding: '30px', backgroundColor: '#f8fafc', borderRadius: '12px', border: '1px solid #f1f5f9' }}>
+                                <p style={{ color: '#64748b', margin: 0 }}>No reviews yet. Be the first to review this package!</p>
+                            </div>
+                        ) : (
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '20px' }}>
+                                {feedbacks.map((f, i) => (
+                                    <div key={i} style={{ padding: '20px', border: '1px solid #e2e8f0', borderRadius: '16px', backgroundColor: '#fff', boxShadow: '0 2px 4px rgba(0,0,0,0.02)' }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
+                                            <div style={{ display: 'flex', color: '#fbbf24', marginRight: '10px' }}>
+                                                {[...Array(f.rating || 5)].map((_, idx) => <FaStar key={idx} />)}
+                                            </div>
+                                            <span style={{ fontWeight: 'bold' }}>{f.rating || 5}/5</span>
+                                        </div>
+                                        <p style={{ color: 'var(--text-dark)', margin: '0 0 15px 0', lineHeight: 1.5 }}>"{f.comments}"</p>
+                                        {f.suggestions && (
+                                            <div style={{ backgroundColor: '#f8fafc', padding: '12px', borderRadius: '8px', fontSize: '0.9rem', color: '#475569' }}>
+                                                <strong style={{ color: '#1e293b' }}>Suggestion:</strong> {f.suggestions}
+                                            </div>
+                                        )}
+                                    </div>
+                                ))}
+                            </div>
+                        )}
                     </div>
                 </motion.div>
             </div>

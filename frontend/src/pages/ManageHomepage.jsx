@@ -156,18 +156,31 @@ const ManageHomepage = () => {
 
 // ========== BEST SELLERS TAB ==========
 const BestSellersTab = ({ section, setSection, allProducts, onSave }) => {
-    const selectedIds = section.productIds || [];
+    // Auto-clean: Remove invalid product IDs from the list if they no longer exist in allProducts
+    React.useEffect(() => {
+        if (section.productIds && allProducts.length > 0) {
+            const currentIds = section.productIds || [];
+            const validIds = currentIds.filter(id => allProducts.some(p => p.id === id));
+            if (validIds.length !== currentIds.length) {
+                setSection({ ...section, productIds: validIds });
+            }
+        }
+    }, [allProducts, section.productIds]);
+
+    const selectedIds = (section.productIds || []).filter(id => allProducts.some(p => p.id === id));
 
     const toggleProduct = (productId) => {
-        const current = section.productIds || [];
-        if (current.includes(productId)) {
-            setSection({ ...section, productIds: current.filter(id => id !== productId) });
+        const isSelected = selectedIds.includes(productId);
+        
+        if (isSelected) {
+            const newIds = selectedIds.filter(id => id !== productId);
+            setSection({ ...section, productIds: newIds });
         } else {
-            if (current.length >= 8) {
+            if (selectedIds.length >= 8) {
                 toast.warn('You can select a maximum of 8 best selling products.');
                 return;
             }
-            setSection({ ...section, productIds: [...current, productId] });
+            setSection({ ...section, productIds: [...selectedIds, productId] });
         }
     };
 

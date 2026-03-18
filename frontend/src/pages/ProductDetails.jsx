@@ -68,7 +68,7 @@ const ProductDetails = () => {
 
                 // Then fetch feedbacks using the product's ID
                 if (fetchedProduct && fetchedProduct.id) {
-                    return axios.get(`http://localhost:9090/feedback/product/${fetchedProduct.id}`);
+                    return axios.get(`http://localhost:9090/feedbacks/product/${fetchedProduct.id}`);
                 }
                 return null;
             })
