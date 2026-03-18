@@ -135,4 +135,18 @@ public class OrderController {
         response.put("message", "Order status updated to " + newStatus);
         return ResponseEntity.ok(response);
     }
+
+    @GetMapping("/admin/order/{orderId}")
+    public ResponseEntity<Order> getOrderById(
+            @RequestHeader("Authorization") String authHeader,
+            @PathVariable String orderId) {
+
+        Map<String, String> userDetails = extractUserFromToken(authHeader);
+        if (!"Admin".equalsIgnoreCase(userDetails.get("role"))) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Admin access required");
+        }
+
+        Order order = orderService.getOrderById(orderId);
+        return ResponseEntity.ok(order);
+    }
 }
