@@ -51,7 +51,7 @@ public class EmailService {
     }
 
     @Async
-    public void sendOrderCancellation(String toEmail, Order order) {
+    public void sendOrderCancellation(String toEmail, Order order, String reason) {
         if (toEmail == null || toEmail.isEmpty()) {
             return;
         }
@@ -61,16 +61,22 @@ public class EmailService {
             message.setTo(toEmail);
             message.setSubject("Order Cancelled - Ayurkisan");
             
-            String body = "Dear " + order.getUserName() + ",\n\n" +
-                          "Your order (ID: " + order.getId() + ") has been successfully cancelled.\n" +
-                          "If you have already paid online, the refund process will be initiated shortly.\n\n" +
-                          "Best Regards,\nAyurkisan Team";
+            StringBuilder body = new StringBuilder();
+            body.append("Dear ").append(order.getUserName()).append(",\n\n");
+            body.append("Your order (ID: ").append(order.getId()).append(") has been cancelled by the Ayurkisan Team.\n");
+            
+            if (reason != null && !reason.isEmpty()) {
+                body.append("\nReason for cancellation: ").append(reason).append("\n");
+            }
 
-            message.setText(body);
+            body.append("\nIf you have already paid online, the refund process will be initiated shortly.\n\n");
+            body.append("Best Regards,\nAyurkisan Team");
+
+            message.setText(body.toString());
             mailSender.send(message);
 
         } catch (Exception e) {
-            System.err.println("Failed to send email to " + toEmail + ": " + e.getMessage());
+            System.err.println("Failed to send cancellation email to " + toEmail + ": " + e.getMessage());
         }
     }
 

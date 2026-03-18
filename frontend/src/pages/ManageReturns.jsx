@@ -11,6 +11,8 @@ const ManageReturns = () => {
     const [selectedReturn, setSelectedReturn] = useState(null);
     const [statusUpdating, setStatusUpdating] = useState(false);
     const [remarks, setRemarks] = useState('');
+    const [selectedOrderDetails, setSelectedOrderDetails] = useState(null);
+    const [fetchingOrder, setFetchingOrder] = useState(false);
 
     const [activeTab, setActiveTab] = useState('Customer');
     const [searchTerm, setSearchTerm] = useState('');
@@ -18,6 +20,26 @@ const ManageReturns = () => {
     useEffect(() => {
         fetchReturns();
     }, []);
+
+    useEffect(() => {
+        if (showModal && selectedReturn) {
+            fetchOrderDetails(selectedReturn.orderId);
+        } else {
+            setSelectedOrderDetails(null);
+        }
+    }, [showModal, selectedReturn]);
+
+    const fetchOrderDetails = async (orderId) => {
+        try {
+            setFetchingOrder(true);
+            const res = await adminService.getOrderById(orderId);
+            setSelectedOrderDetails(res.data);
+        } catch (err) {
+            console.error("Failed to fetch order details", err);
+        } finally {
+            setFetchingOrder(false);
+        }
+    };
 
     const fetchReturns = async () => {
         try {
@@ -217,14 +239,45 @@ const ManageReturns = () => {
                 {showModal && selectedReturn && (
                     <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, backdropFilter: 'blur(8px)' }}>
                         <motion.div
-                            initial={{ opacity: 0, scale: 0.9, y: 30 }}
+                            initial={{ opacity: 0, scale: 0.9, y: 20 }}
                             animate={{ opacity: 1, scale: 1, y: 0 }}
-                            exit={{ opacity: 0, scale: 0.9, y: 30 }}
-                            style={{ backgroundColor: '#fff', borderRadius: '28px', padding: '2.5rem', width: '95%', maxWidth: '550px', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)' }}
+                            exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                            style={{ 
+                                backgroundColor: '#fff', 
+                                borderRadius: '28px', 
+                                padding: '2rem', 
+                                width: '95%', 
+                                maxWidth: '600px', 
+                                maxHeight: '90vh', 
+                                overflowY: 'auto',
+                                boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)',
+                                position: 'relative',
+                                scrollbarWidth: 'thin'
+                            }}
                         >
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
-                                <h2 style={{ margin: 0, color: 'var(--text-dark)', fontWeight: '800' }}>Process Return</h2>
-                                <button onClick={() => setShowModal(false)} style={{ background: '#f3f4f6', border: 'none', width: '36px', height: '36px', borderRadius: '50%', cursor: 'pointer' }}><FaTimes /></button>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', position: 'sticky', top: 0, backgroundColor: '#fff', zIndex: 10, paddingBottom: '1rem', borderBottom: '1px solid #f1f5f9' }}>
+                                <h2 style={{ margin: 0, color: 'var(--text-dark)', fontWeight: '800', fontSize: '1.5rem' }}>Process Return Request</h2>
+                                <button 
+                                    onClick={() => setShowModal(false)} 
+                                    style={{ 
+                                        background: '#fef2f2', 
+                                        color: '#ef4444',
+                                        border: '1px solid #fee2e2', 
+                                        width: '40px', 
+                                        height: '40px', 
+                                        borderRadius: '50%', 
+                                        cursor: 'pointer',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        fontSize: '1.2rem',
+                                        transition: 'all 0.2s'
+                                    }}
+                                    onMouseOver={(e) => { e.target.style.background = '#fee2e2'; }}
+                                    onMouseOut={(e) => { e.target.style.background = '#fef2f2'; }}
+                                >
+                                    <FaTimes />
+                                </button>
                             </div>
 
                             <div style={{ padding: '1.25rem', backgroundColor: '#f9fafb', borderRadius: '18px', marginBottom: '1.5rem', border: '1px solid #f1f5f9' }}>
@@ -233,6 +286,41 @@ const ManageReturns = () => {
                                 </div>
                                 <div style={{ fontWeight: '700', marginBottom: '4px' }}>{selectedReturn.reason}</div>
                                 <div style={{ color: '#64748b', fontSize: '0.9rem', lineHeight: '1.5' }}>"{selectedReturn.comments}"</div>
+                            </div>
+
+                            {/* Order Details in Modal */}
+                            <div style={{ marginBottom: '1.5rem' }}>
+                                <label style={labelStyle}>Order Information</label>
+                                {fetchingOrder ? (
+                                    <div style={{ fontSize: '0.8rem', color: '#64748b' }}>Loading order details...</div>
+                                ) : selectedOrderDetails ? (
+                                    <div style={{ backgroundColor: '#fff', border: '1px solid #e2e8f0', borderRadius: '14px', overflow: 'hidden' }}>
+                                        <div style={{ padding: '10px 15px', backgroundColor: '#f8fafc', borderBottom: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem' }}>
+                                            <span style={{ fontWeight: '700' }}>Items</span>
+                                            <span style={{ fontWeight: '700' }}>Price</span>
+                                        </div>
+                                        <div style={{ maxHeight: '150px', overflowY: 'auto' }}>
+                                            {selectedOrderDetails.items.map((item, idx) => (
+                                                <div key={idx} style={{ padding: '10px 15px', borderBottom: idx === selectedOrderDetails.items.length - 1 ? 'none' : '1px solid #f1f5f9', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                                        <img src={item.productImage} alt="" style={{ width: '32px', height: '32px', borderRadius: '6px', objectFit: 'cover' }} />
+                                                        <div>
+                                                            <div style={{ fontWeight: '600', fontSize: '0.85rem' }}>{item.productName}</div>
+                                                            <div style={{ fontSize: '0.75rem', color: '#64748b' }}>Qty: {item.quantity}</div>
+                                                        </div>
+                                                    </div>
+                                                    <div style={{ fontWeight: '700', fontSize: '0.85rem' }}>₹{item.totalItemPrice}</div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                        <div style={{ padding: '10px 15px', backgroundColor: '#f0fdf4', borderTop: '2px dashed #bbf7d0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                            <span style={{ fontWeight: '800', fontSize: '0.85rem', color: '#166534' }}>Total Order Amount:</span>
+                                            <span style={{ fontWeight: '900', fontSize: '1rem', color: '#15803d' }}>₹{selectedOrderDetails.totalDiscountedPrice}</span>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div style={{ fontSize: '0.8rem', color: '#ef4444' }}>Could not load order details.</div>
+                                )}
                             </div>
 
                             <div style={{ marginBottom: '1.5rem' }}>

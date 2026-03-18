@@ -14,6 +14,7 @@ const ManageOrders = () => {
     const [selectedOrder, setSelectedOrder] = useState(null);
     const [showModal, setShowModal] = useState(false);
     const [statusUpdating, setStatusUpdating] = useState(false);
+    const [remarks, setRemarks] = useState('');
 
     useEffect(() => {
         fetchOrders();
@@ -34,14 +35,14 @@ const ManageOrders = () => {
             setLoading(false);
         }
     };
-
     const handleUpdateStatus = async (orderId, newStatus) => {
         try {
             setStatusUpdating(true);
-            await adminService.updateOrderStatus(orderId, newStatus);
+            await adminService.updateOrderStatus(orderId, newStatus, remarks);
             toast.success(`Order status updated to ${newStatus}`);
             fetchOrders();
             setShowModal(false);
+            setRemarks(''); // Reset remarks after update
         } catch (err) {
             toast.error("Failed to update status");
         } finally {
@@ -342,6 +343,27 @@ const ManageOrders = () => {
                                         </button>
                                     ))}
                                 </div>
+                            </div>
+
+                            {/* Remarks / Reason */}
+                            <div style={{ marginBottom: '2rem' }}>
+                                <label style={labelStyle}>Administrative Remarks / Cancellation Reason</label>
+                                <textarea
+                                    style={{
+                                        width: '100%',
+                                        padding: '0.9rem 1.25rem',
+                                        borderRadius: '14px',
+                                        border: '1px solid #e2e8f0',
+                                        minHeight: '80px',
+                                        fontSize: '0.9rem',
+                                        resize: 'none',
+                                        outline: 'none',
+                                        transition: 'all 0.2s'
+                                    }}
+                                    placeholder="Provide a reason if cancelling, or general notes for this update..."
+                                    value={remarks}
+                                    onChange={(e) => setRemarks(e.target.value)}
+                                />
                             </div>
 
                             {/* Order Items */}

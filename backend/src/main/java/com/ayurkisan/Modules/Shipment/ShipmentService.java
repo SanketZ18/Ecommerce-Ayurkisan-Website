@@ -47,20 +47,17 @@ public class ShipmentService {
     }
 
     public List<Shipment> getAllShipments() {
-        // First, ensure all orders have a shipment record (Sync logic)
-        List<Order> allOrders = orderService.getAllOrders();
-        for (Order order : allOrders) {
-            createShipment(order);
-        }
-
+        // Optimized: Removed the heavy loop that syncs ALL orders every time.
+        // Shipments are already created during order placement.
+        
         List<Shipment> shipments = shipmentRepository.findAll();
         for (Shipment shipment : shipments) {
-            // Fix persisted name if missing/Unknown
+            // Fix persisted name if missing/Unknown (minor cleanup)
             if (shipment.getCustomerName() == null || "Unknown".equals(shipment.getCustomerName())) {
                 try {
                     Order order = orderService.getOrderById(shipment.getOrderId());
                     shipment.setCustomerName(order.getUserName());
-                    shipmentRepository.save(shipment); // Persist it now that @Transient is gone
+                    shipmentRepository.save(shipment);
                 } catch (Exception e) {
                     shipment.setCustomerName("Unknown");
                 }
@@ -77,7 +74,6 @@ public class ShipmentService {
     }
 
     private void populateCustomerName(Shipment shipment) {
-        // This is now redundant but kept for safety in single-fetch APIs if needed
         if (shipment.getCustomerName() == null || "Unknown".equals(shipment.getCustomerName())) {
             try {
                 Order order = orderService.getOrderById(shipment.getOrderId());
@@ -92,6 +88,11 @@ public class ShipmentService {
         Shipment shipment = shipmentRepository.findByOrderId(orderId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Shipment not found for order ID: " + orderId));
 
+        // Prevent redundant updates and infinite recursion during sync
+        if (shipment.getStatus().equals(newStatus)) {
+            return shipment;
+        }
+
         shipment.setStatus(newStatus);
         
         if (remarks == null || remarks.isEmpty()) {
@@ -103,7 +104,7 @@ public class ShipmentService {
 
         // Synchronize the status back to the Order module which handles emails and dates
         try {
-            orderService.updateOrderStatus(orderId, newStatus);
+            orderService.updateOrderStatus(orderId, newStatus, remarks);
         } catch (Exception e) {
             System.err.println("Note: Order might already have the status or sync failed: " + e.getMessage());
         }
