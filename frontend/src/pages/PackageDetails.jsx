@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { FaShoppingCart, FaBolt, FaArrowLeft, FaBox, FaLeaf, FaInfoCircle } from 'react-icons/fa';
+import { FaShoppingCart, FaBolt, FaArrowLeft, FaBox, FaLeaf, FaInfoCircle, FaStar, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import { resolveProductImage, resolvePackageImage } from '../utils/imageUtils';
 import customerService from "../utils/customerService";
@@ -12,7 +12,18 @@ const PackageDetails = () => {
     const navigate = useNavigate();
     const [pkg, setPkg] = useState(null);
     const [products, setProducts] = useState([]);
+    const [feedbacks, setFeedbacks] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [activeImageIndex, setActiveImageIndex] = useState(0);
+
+    const nextImage = () => {
+        // Packages currently only have one image, but we add navigation for consistency
+        setActiveImageIndex(0);
+    };
+
+    const prevImage = () => {
+        setActiveImageIndex(0);
+    };
 
     const userRole = localStorage.getItem('role') || 'CUSTOMER';
 
@@ -28,6 +39,10 @@ const PackageDetails = () => {
             const response = await axios.get(`http://localhost:9090/packages/view/id/${packageId}`);
             const packageData = response.data;
             setPkg(packageData);
+
+            // Fetch feedbacks
+            const feedbackRes = await axios.get(`http://localhost:9090/feedbacks/product/${packageId}`).catch(() => ({ data: [] }));
+            setFeedbacks(feedbackRes.data);
 
             // Fetch details for each product in the package
             if (packageData.items && packageData.items.length > 0) {
@@ -135,6 +150,13 @@ const PackageDetails = () => {
                             alt={pkg.name} 
                             style={imageStyle} 
                         />
+                        {/* Adding arrows for consistency with ProductDetails */}
+                        <button onClick={(e) => { e.preventDefault(); prevImage(); }} style={leftArrowStyle}>
+                            <FaChevronLeft />
+                        </button>
+                        <button onClick={(e) => { e.preventDefault(); nextImage(); }} style={rightArrowStyle}>
+                            <FaChevronRight />
+                        </button>
                     </div>
                 </motion.div>
 
@@ -178,7 +200,7 @@ const PackageDetails = () => {
                             whileHover={{ scale: 1.02, backgroundColor: 'var(--primary-light)' }}
                             whileTap={{ scale: 0.98 }}
                         >
-                            <FaShoppingCart size={18} /> Add Package To Cart
+                            <FaShoppingCart size={18} /> Add Package
                         </motion.button>
 
                         <motion.button
@@ -190,31 +212,65 @@ const PackageDetails = () => {
                             <FaBolt size={18} /> Buy Now
                         </motion.button>
                     </div>
+                </motion.div>
 
-                    <div style={productInclusionSectionStyle}>
-                        <h4 style={{ marginBottom: '15px', color: 'var(--text-dark)', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                            <FaBox color="var(--primary-green)" /> What's included in this package?
-                        </h4>
-                        <div style={productListStyle}>
-                            {products.map((product, idx) => (
-                                <Link 
-                                    key={product.id || idx} 
-                                    to={`/product/${product.id}`}
-                                    style={productCardLinkStyle}
-                                >
-                                    <div style={productThumbnailStyle}>
-                                        <img src={getProductImageUrl(product.productImage1, product.id)} alt={product.productName} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                                    </div>
-                                    <div style={{ flexGrow: 1 }}>
-                                        <div style={productNameStyle}>{product.productName}</div>
-                                        <div style={productQuantityStyle}>Quantity: {product.quantity || 1}</div>
-                                    </div>
-                                    <div style={viewLinkStyle}>View &rarr;</div>
-                                </Link>
-                            ))}
-                        </div>
+                {/* Column 3: Package Inclusions */}
+                <motion.div
+                    initial={{ opacity: 0, x: 50 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.4 }}
+                    style={productInclusionSectionStyle}
+                >
+                    <h4 style={{ marginBottom: '12px', color: 'var(--text-dark)', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '1rem' }}>
+                        <FaBox color="var(--primary-green)" size={16} /> What's included?
+                    </h4>
+                    <div style={productListStyle}>
+                        {products.map((product, idx) => (
+                            <Link 
+                                key={product.id || idx} 
+                                to={`/product/${product.id}`}
+                                style={productCardLinkStyle}
+                            >
+                                <div style={productThumbnailStyle}>
+                                    <img src={getProductImageUrl(product.productImage1, product.id)} alt={product.productName} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                </div>
+                                <div style={{ flexGrow: 1, overflow: 'hidden' }}>
+                                    <div style={{ ...productNameStyle, fontSize: '0.9rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{product.productName}</div>
+                                    <div style={productQuantityStyle}>Qty: {product.quantity || 1}</div>
+                                </div>
+                            </Link>
+                        ))}
                     </div>
                 </motion.div>
+            </div>
+
+            {/* FEEDBACK SECTION */}
+            <div style={{ marginTop: '30px', paddingTop: '20px', borderTop: '1px solid #e2e8f0' }}>
+                <h4 style={{ marginBottom: '15px', color: 'var(--text-dark)', fontSize: '1.2rem' }}>Customer Reviews</h4>
+                {feedbacks.length === 0 ? (
+                    <div style={{ textAlign: 'center', padding: '20px', backgroundColor: '#f8fafc', borderRadius: '12px', border: '1px solid #f1f5f9' }}>
+                        <p style={{ color: '#64748b', margin: 0, fontSize: '0.9rem' }}>No reviews yet.</p>
+                    </div>
+                ) : (
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '15px' }}>
+                        {feedbacks.map((f, i) => (
+                            <div key={i} style={{ padding: '15px', border: '1px solid #e2e8f0', borderRadius: '12px', backgroundColor: '#fff', boxShadow: '0 2px 4px rgba(0,0,0,0.02)' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', marginBottom: '8px' }}>
+                                    <div style={{ display: 'flex', color: '#fbbf24', marginRight: '8px', fontSize: '0.8rem' }}>
+                                        {[...Array(f.rating || 5)].map((_, idx) => <FaStar key={idx} />)}
+                                    </div>
+                                    <span style={{ fontWeight: 'bold', fontSize: '0.85rem' }}>{f.rating || 5}/5</span>
+                                </div>
+                                <p style={{ color: 'var(--text-dark)', margin: '0 0 10px 0', lineHeight: 1.4, fontSize: '0.85rem' }}>"{f.comments}"</p>
+                                {f.suggestions && (
+                                    <div style={{ backgroundColor: '#f8fafc', padding: '8px', borderRadius: '8px', fontSize: '0.8rem', color: '#475569' }}>
+                                        <strong style={{ color: '#1e293b' }}>Sug:</strong> {f.suggestions}
+                                    </div>
+                                )}
+                            </div>
+                        ))}
+                    </div>
+                )}
             </div>
         </motion.div>
     );
@@ -252,7 +308,7 @@ const PackageDetailsSkeleton = () => (
 );
 
 // Styles
-const containerStyle = { padding: "40px 5%", maxWidth: "1400px", margin: "0 auto" };
+const containerStyle = { padding: "15px 2%", maxWidth: "100%", margin: "0 auto" };
 
 const backLinkStyle = {
     display: 'inline-flex',
@@ -265,25 +321,70 @@ const backLinkStyle = {
 
 const packageLayout = {
     display: "grid",
-    gridTemplateColumns: "1fr 1.2fr",
-    gap: "60px",
-    alignItems: "start"
+    gridTemplateColumns: "1fr 1.2fr 1fr",
+    gap: "25px",
+    alignItems: "start",
+    '@media (max-width: 1100px)': {
+        gridTemplateColumns: "1fr 1fr"
+    },
+    '@media (max-width: 800px)': {
+        gridTemplateColumns: "1fr"
+    }
 };
 
 const imageContainerStyle = {
     backgroundColor: '#fff',
     borderRadius: '24px',
-    padding: '40px',
+    padding: '20px',
     boxShadow: '0 10px 30px rgba(0,0,0,0.05)',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    minHeight: '450px',
+    minHeight: '350px',
     border: '1px solid #f3f4f6',
-    overflow: 'hidden'
+    overflow: 'hidden',
+    position: 'relative'
 };
 
-const imageStyle = { width: "100%", maxHeight: "550px", objectFit: "contain" };
+const leftArrowStyle = {
+    position: 'absolute',
+    left: '10px',
+    top: '50%',
+    transform: 'translateY(-50%)',
+    backgroundColor: 'rgba(255, 255, 255, 0.7)',
+    border: 'none',
+    borderRadius: '50%',
+    width: '35px',
+    height: '35px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    cursor: 'pointer',
+    boxShadow: '0 2px 5px rgba(0,0,0,0.1)',
+    zIndex: 10,
+    color: 'var(--primary-green)'
+};
+
+const rightArrowStyle = {
+    position: 'absolute',
+    right: '10px',
+    top: '50%',
+    transform: 'translateY(-50%)',
+    backgroundColor: 'rgba(255, 255, 255, 0.7)',
+    border: 'none',
+    borderRadius: '50%',
+    width: '35px',
+    height: '35px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    cursor: 'pointer',
+    boxShadow: '0 2px 5px rgba(0,0,0,0.1)',
+    zIndex: 10,
+    color: 'var(--primary-green)'
+};
+
+const imageStyle = { width: "100%", maxHeight: "400px", objectFit: "contain" };
 
 const infoContainerStyle = { display: "flex", flexDirection: "column" };
 
@@ -309,10 +410,10 @@ const stockBadgeStyle = {
 };
 
 const titleStyle = {
-    fontSize: '3rem',
+    fontSize: '2rem',
     color: 'var(--text-dark)',
     lineHeight: '1.1',
-    marginBottom: '20px',
+    marginBottom: '15px',
     fontWeight: '800'
 };
 
@@ -325,7 +426,7 @@ const priceContainerStyle = {
 
 const bundlePriceStyle = {
     color: "var(--primary-green)",
-    fontSize: "2.8rem",
+    fontSize: "2rem",
     fontWeight: "900",
     margin: 0
 };
@@ -333,7 +434,7 @@ const bundlePriceStyle = {
 const totalPriceStyle = {
     color: '#94a3b8',
     textDecoration: 'line-through',
-    fontSize: '1.5rem',
+    fontSize: '1.2rem',
     fontWeight: '600'
 };
 
@@ -348,49 +449,49 @@ const saveBadgeStyle = {
 
 const offerBoxStyle = {
     backgroundColor: '#f0fdf4',
-    padding: '20px',
-    borderRadius: '16px',
+    padding: '15px',
+    borderRadius: '12px',
     border: '1px solid #bbf7d0',
-    marginBottom: '35px'
+    marginBottom: '25px'
 };
 
 const actionButtonsContainerStyle = {
     display: 'flex',
-    gap: '20px',
-    marginBottom: '50px'
+    gap: '15px',
+    marginBottom: '30px'
 };
 
 const addToCartBtnStyle = {
     flex: 1,
-    padding: "18px 24px",
+    padding: "14px 20px",
     border: "none",
     background: "var(--primary-green)",
     color: "white",
-    borderRadius: "14px",
-    fontSize: '1.2rem',
+    borderRadius: "10px",
+    fontSize: '1rem',
     fontWeight: '700',
     cursor: "pointer",
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: '12px',
+    gap: '10px',
     boxShadow: '0 4px 14px rgba(5, 150, 105, 0.4)'
 };
 
 const buyNowBtnStyle = {
     flex: 1,
-    padding: "18px 24px",
+    padding: "14px 20px",
     border: "none",
     background: "var(--secondary-bg)",
     color: "#000",
-    borderRadius: "14px",
-    fontSize: '1.2rem',
+    borderRadius: "10px",
+    fontSize: '1rem',
     fontWeight: '700',
     cursor: "pointer",
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: '12px',
+    gap: '10px',
     boxShadow: '0 4px 14px rgba(251, 191, 36, 0.3)'
 };
 
@@ -407,9 +508,9 @@ const productListStyle = {
 const productCardLinkStyle = {
     display: 'flex',
     alignItems: 'center',
-    padding: '16px',
+    padding: '10px',
     backgroundColor: '#fff',
-    borderRadius: '16px',
+    borderRadius: '12px',
     border: '1.5px solid #f1f5f9',
     textDecoration: 'none',
     transition: 'all 0.2s ease',
@@ -420,11 +521,11 @@ const productCardLinkStyle = {
 };
 
 const productThumbnailStyle = {
-    width: '60px',
-    height: '60px',
-    borderRadius: '10px',
+    width: '45px',
+    height: '45px',
+    borderRadius: '8px',
     overflow: 'hidden',
-    marginRight: '15px',
+    marginRight: '12px',
     flexShrink: 0
 };
 

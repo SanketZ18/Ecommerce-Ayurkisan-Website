@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { FaShoppingCart, FaBolt, FaStar, FaLeaf, FaArrowLeft, FaBox, FaInfoCircle } from 'react-icons/fa';
+import { FaShoppingCart, FaBolt, FaStar, FaLeaf, FaArrowLeft, FaBox, FaInfoCircle, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import { resolveProductImage } from '../utils/imageUtils';
 import customerService from "../utils/customerService";
@@ -15,6 +15,15 @@ const ProductDetails = () => {
     const [loading, setLoading] = useState(true);
     const [quantity, setQuantity] = useState(1);
     const [activeImageIndex, setActiveImageIndex] = useState(0);
+    const productImages = [product?.productImage1, product?.productImage2, product?.productImage3].filter(Boolean);
+
+    const nextImage = () => {
+        setActiveImageIndex((prev) => (prev + 1) % productImages.length);
+    };
+
+    const prevImage = () => {
+        setActiveImageIndex((prev) => (prev - 1 + productImages.length) % productImages.length);
+    };
 
     // User Role context
     const userRole = localStorage.getItem('role') || 'CUSTOMER';
@@ -68,7 +77,7 @@ const ProductDetails = () => {
 
                 // Then fetch feedbacks using the product's ID
                 if (fetchedProduct && fetchedProduct.id) {
-                    return axios.get(`http://localhost:9090/feedback/product/${fetchedProduct.id}`);
+                    return axios.get(`http://localhost:9090/feedbacks/product/${fetchedProduct.id}`);
                 }
                 return null;
             })
@@ -124,13 +133,24 @@ const ProductDetails = () => {
                     <div style={imageContainerStyle}>
                         <motion.img
                             key={activeImageIndex}
-                            src={getImageUrl([product.productImage1, product.productImage2, product.productImage3][activeImageIndex] || product.productImage1)}
+                            src={getImageUrl(productImages[activeImageIndex])}
                             alt={product.productName || product.name}
                             style={imageStyle}
                             initial={{ opacity: 0, scale: 0.9 }}
                             animate={{ opacity: 1, scale: 1 }}
                             transition={{ duration: 0.3 }}
                         />
+
+                        {productImages.length > 1 && (
+                            <>
+                                <button onClick={(e) => { e.preventDefault(); prevImage(); }} style={leftArrowStyle}>
+                                    <FaChevronLeft />
+                                </button>
+                                <button onClick={(e) => { e.preventDefault(); nextImage(); }} style={rightArrowStyle}>
+                                    <FaChevronRight />
+                                </button>
+                            </>
+                        )}
                     </div>
                     
                     {/* Thumbnail Gallery */}
@@ -344,8 +364,8 @@ const ProductSkeleton = () => (
 // STYLES
 
 const containerStyle = {
-    padding: "40px 5%",
-    maxWidth: "1400px",
+    padding: "15px 2%",
+    maxWidth: "100%",
     margin: "0 auto"
 };
 
@@ -362,7 +382,7 @@ const backLinkStyle = {
 const productLayout = {
     display: "grid",
     gridTemplateColumns: "1fr 1fr",
-    gap: "50px",
+    gap: "30px",
     alignItems: "start",
     '@media (max-width: 900px)': {
         gridTemplateColumns: "1fr"
@@ -378,15 +398,61 @@ const imageContainerWrapperStyle = {
 const imageContainerStyle = {
     backgroundColor: '#fff',
     borderRadius: '24px',
-    padding: '30px',
+    padding: '15px',
     boxShadow: '0 10px 30px rgba(0,0,0,0.05)',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    minHeight: '400px',
+    minHeight: '350px',
     border: '1px solid #f3f4f6',
     position: 'relative',
     overflow: 'hidden'
+};
+
+const leftArrowStyle = {
+    position: 'absolute',
+    left: '10px',
+    top: '50%',
+    transform: 'translateY(-50%)',
+    backgroundColor: 'rgba(255, 255, 255, 0.7)',
+    border: 'none',
+    borderRadius: '50%',
+    width: '35px',
+    height: '35px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    cursor: 'pointer',
+    boxShadow: '0 2px 5px rgba(0,0,0,0.1)',
+    zIndex: 10,
+    color: 'var(--primary-green)',
+    transition: 'background-color 0.2s',
+    '&:hover': {
+        backgroundColor: 'rgba(255, 255, 255, 0.9)'
+    }
+};
+
+const rightArrowStyle = {
+    position: 'absolute',
+    right: '10px',
+    top: '50%',
+    transform: 'translateY(-50%)',
+    backgroundColor: 'rgba(255, 255, 255, 0.7)',
+    border: 'none',
+    borderRadius: '50%',
+    width: '35px',
+    height: '35px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    cursor: 'pointer',
+    boxShadow: '0 2px 5px rgba(0,0,0,0.1)',
+    zIndex: 10,
+    color: 'var(--primary-green)',
+    transition: 'background-color 0.2s',
+    '&:hover': {
+        backgroundColor: 'rgba(255, 255, 255, 0.9)'
+    }
 };
 
 const thumbnailGalleryStyle = {
@@ -408,7 +474,7 @@ const thumbnailStyle = {
 
 const imageStyle = {
     width: "100%",
-    maxHeight: "500px",
+    maxHeight: "400px",
     objectFit: "contain",
 };
 
@@ -443,37 +509,37 @@ const stockBadgeStyle = {
 };
 
 const titleStyle = {
-    fontSize: '2.5rem',
+    fontSize: '1.8rem',
     color: 'var(--text-dark)',
     lineHeight: '1.2',
-    marginBottom: '10px'
+    marginBottom: '8px'
 };
 
 const ratingSummaryStyle = {
     display: 'flex',
     alignItems: 'center',
-    marginBottom: '25px'
+    marginBottom: '15px'
 };
 
 const priceStyle = {
     color: "var(--primary-green)",
-    fontSize: "2.2rem",
+    fontSize: "1.8rem",
     fontWeight: "bold",
-    marginBottom: "25px"
+    marginBottom: "15px"
 };
 
 const descriptionStyle = {
     color: 'var(--text-light)',
-    fontSize: '1.05rem',
-    lineHeight: '1.7',
-    marginBottom: '30px'
+    fontSize: '0.95rem',
+    lineHeight: '1.5',
+    marginBottom: '20px'
 };
 
 const benefitsContainerStyle = {
     backgroundColor: '#fafafa',
-    padding: '20px',
-    borderRadius: '16px',
-    marginBottom: '35px',
+    padding: '15px',
+    borderRadius: '12px',
+    marginBottom: '25px',
     border: '1px solid #f0f0f0'
 };
 
@@ -501,43 +567,43 @@ const actionButtonsContainerStyle = {
 
 const addToCartBtnStyle = {
     flex: 1,
-    padding: "16px 24px",
+    padding: "12px 20px",
     border: "none",
     background: "var(--primary-green)",
     color: "white",
-    borderRadius: "12px",
-    fontSize: '1.1rem',
+    borderRadius: "10px",
+    fontSize: '0.95rem',
     fontWeight: '600',
     cursor: "pointer",
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: '10px',
+    gap: '8px',
     boxShadow: '0 4px 14px rgba(5, 150, 105, 0.3)'
 };
 
 const buyNowBtnStyle = {
     flex: 1,
-    padding: "16px 24px",
+    padding: "12px 20px",
     border: "none",
     background: "var(--secondary-bg)",
     color: "#000",
-    borderRadius: "12px",
-    fontSize: '1.1rem',
+    borderRadius: "10px",
+    fontSize: '0.95rem',
     fontWeight: '600',
     cursor: "pointer",
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: '10px',
+    gap: '8px',
     boxShadow: '0 4px 14px rgba(250, 204, 21, 0.3)'
 };
 
 // REVIEW STYLES
 const reviewsSectionStyle = {
-    marginTop: "80px",
+    marginTop: "40px",
     borderTop: "1px solid #e5e7eb",
-    paddingTop: "40px"
+    paddingTop: "30px"
 };
 
 const sectionDividerTitleStyle = {
