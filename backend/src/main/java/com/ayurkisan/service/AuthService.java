@@ -118,8 +118,14 @@ public String registerAdmin(AdminSignupRequest request) {
         Optional<Login> loginOptional =
                 loginRepository.findByEmailAndRole(request.getEmail(), request.getRole().toUpperCase());
 
-        if (loginOptional.isEmpty())
-            throw new CustomException("Invalid email or role");
+        if (loginOptional.isEmpty()) {
+            // Try searching case-insensitively for role just in case
+            loginOptional = loginRepository.findByEmail(request.getEmail());
+            if (loginOptional.isPresent() && !loginOptional.get().getRole().equalsIgnoreCase(request.getRole())) {
+                 throw new CustomException("Invalid email or role");
+            }
+            if (loginOptional.isEmpty()) throw new CustomException("Invalid email or role");
+        }
 
         Login login = loginOptional.get();
 

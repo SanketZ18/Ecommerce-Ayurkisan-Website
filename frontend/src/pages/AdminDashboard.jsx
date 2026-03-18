@@ -182,7 +182,7 @@ const AdminDashboard = () => {
                         <h2 style={{ fontSize: '1.4rem', color: 'var(--text-dark)', margin: 0, fontWeight: '700', display: 'flex', alignItems: 'center', gap: '10px' }}>
                             <FaChartLine style={{ color: 'var(--primary-green)' }} /> Recent Activity
                         </h2>
-                        <button className="btn-outline" style={{ padding: '0.6rem 1.2rem', fontSize: '0.85rem', borderRadius: '10px' }}>Global Log</button>
+                        <button onClick={() => navigate('/admin/reports')} className="btn-outline" style={{ padding: '0.6rem 1.2rem', fontSize: '0.85rem', borderRadius: '10px' }}>Global Log</button>
                     </div>
 
                     <div style={{ overflowX: 'auto' }}>

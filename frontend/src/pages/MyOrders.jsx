@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
-import { FaBoxOpen, FaBan, FaCheckCircle, FaMapMarkerAlt, FaEye, FaTruck, FaUndo, FaExclamationTriangle } from 'react-icons/fa';
+import axios from 'axios';
+import { FaBoxOpen, FaBan, FaCheckCircle, FaMapMarkerAlt, FaEye, FaTruck, FaUndo, FaExclamationTriangle, FaStar, FaCommentDots } from 'react-icons/fa';
 import customerService from '../utils/customerService';
 import retailerService from '../utils/retailerService';
 import { toast } from 'react-toastify';
@@ -14,6 +15,14 @@ const MyOrders = () => {
     const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
     const [orderToCancel, setOrderToCancel] = useState(null);
     const [isCancelling, setIsCancelling] = useState(false);
+    
+    // Feedback states
+    const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false);
+    const [orderForFeedback, setOrderForFeedback] = useState(null);
+    const [feedbackItem, setFeedbackItem] = useState(null);
+    const [feedbackForm, setFeedbackForm] = useState({ rating: 5, comments: '', suggestions: '' });
+    const [isSubmittingFeedback, setIsSubmittingFeedback] = useState(false);
+
     const navigate = useNavigate();
 
     const userRole = localStorage.getItem('role') || 'CUSTOMER';
@@ -22,7 +31,25 @@ const MyOrders = () => {
 
     useEffect(() => {
         fetchOrders();
+        fetchUserInfo();
     }, []);
+
+    const fetchUserInfo = async () => {
+        const storedName = localStorage.getItem('userName') || localStorage.getItem('name');
+        if (!storedName) {
+            const userId = localStorage.getItem('userId');
+            if (userId) {
+                try {
+                    const res = await activeService.getProfile(userId);
+                    const name = res.data.name || res.data.retailerName || 'User';
+                    localStorage.setItem('userName', name);
+                    console.log("Logged in user name fetched and stored:", name);
+                } catch (e) {
+                    console.error("Failed to fetch user profile for name:", e);
+                }
+            }
+        }
+    };
 
     const fetchOrders = async () => {
         setLoading(true);
@@ -59,6 +86,69 @@ const MyOrders = () => {
             toast.error(errMessage);
         } finally {
             setIsCancelling(false);
+        }
+    };
+
+    const openFeedbackModal = (order) => {
+        setOrderForFeedback(order);
+        setFeedbackItem(null);
+        setFeedbackForm({ rating: 5, comments: '', suggestions: '' });
+        setIsFeedbackModalOpen(true);
+    };
+
+    const submitFeedback = async () => {
+        if (!feedbackItem) return;
+        setIsSubmittingFeedback(true);
+        try {
+            const userName = localStorage.getItem('userName') || localStorage.getItem('name') || 'User';
+            const userId = localStorage.getItem('userId');
+            
+            if (!userId) {
+                toast.error("User session expired. Please login again.");
+                return;
+            }
+
+            const data = {
+                userId: userId,
+                userName: userName,
+                productId: feedbackItem.productId || feedbackItem.id, // Fallback to id if productId missing
+                role: userRole.charAt(0).toUpperCase() + userRole.slice(1).toLowerCase(), // Normalize to "Customer" or "Retailer"
+                rating: feedbackForm.rating,
+                comments: feedbackForm.comments,
+                suggestions: feedbackForm.suggestions
+            };
+
+            console.log("Submitting feedback data:", data);
+
+            await axios.post('http://localhost:9090/feedbacks/add', data);
+            toast.success('Feedback submitted successfully!');
+            setFeedbackItem(null); 
+            if (orderForFeedback && orderForFeedback.items && orderForFeedback.items.length === 1) {
+                setIsFeedbackModalOpen(false);
+            }
+        } catch (error) {
+            console.error('Failed to submit feedback error object:', error.response?.data);
+            
+            let msg = 'Failed to submit feedback. Please try again.';
+            
+            if (error.response?.data) {
+                const data = error.response.data;
+                if (data.message) {
+                    msg = data.message;
+                } else if (data.messages) {
+                    // Handle validation errors map
+                    const errors = Object.values(data.messages).join(', ');
+                    msg = `Validation Error: ${errors}`;
+                } else if (data.error) {
+                    msg = data.error;
+                }
+            } else {
+                msg = error.message;
+            }
+            
+            toast.error(msg);
+        } finally {
+            setIsSubmittingFeedback(false);
         }
     };
 
@@ -234,9 +324,21 @@ const MyOrders = () => {
                             style={orderCardStyle}
                         >
                             <div style={orderHeaderStyle}>
-                                <div>
-                                    <span style={{ fontSize: '0.85rem', color: '#64748b', display: 'block' }}>Order ID</span>
-                                    <strong style={{ fontSize: '1.1rem', color: '#1e293b' }}>{order.orderId}</strong>
+                                <div style={{ flex: 2, minWidth: '250px' }}>
+                                    <span style={{ fontSize: '0.85rem', color: '#64748b', display: 'block' }}>Order for</span>
+                                    <strong style={{ 
+                                        fontSize: '1rem', 
+                                        color: '#1e293b', 
+                                        display: 'block',
+                                        whiteSpace: 'nowrap',
+                                        overflow: 'hidden',
+                                        textOverflow: 'ellipsis' 
+                                    }}>
+                                        {order.items?.map(i => i.productName).join(', ') || 'N/A'}
+                                    </strong>
+                                    <span style={{ fontSize: '0.75rem', color: '#94a3b8', display: 'block', marginTop: '2px' }}>
+                                        ID: {order.orderId}
+                                    </span>
                                 </div>
                                 <div>
                                     <span style={{ fontSize: '0.85rem', color: '#64748b', display: 'block' }}>Date</span>
@@ -253,12 +355,20 @@ const MyOrders = () => {
 
                             <div style={orderActionsStyle}>
                                 {order.orderStatus === 'DELIVERED' && (
-                                    <button
-                                        onClick={() => navigate(`${basePath}/returns/request/${order.orderId}`)}
-                                        style={{ ...actionBtnStyle, color: '#f59e0b', border: '1px solid #fcd34d' }}
-                                    >
-                                        <FaUndo /> Return Item
-                                    </button>
+                                    <>
+                                        <button
+                                            onClick={() => navigate(`${basePath}/returns/request/${order.orderId}`)}
+                                            style={{ ...actionBtnStyle, color: '#f59e0b', border: '1px solid #fcd34d' }}
+                                        >
+                                            <FaUndo /> Return Item
+                                        </button>
+                                        <button
+                                            onClick={() => openFeedbackModal(order)}
+                                            style={{ ...actionBtnStyle, color: '#059669', border: '1px solid #6ee7b7' }}
+                                        >
+                                            <FaCommentDots /> Give Feedback
+                                        </button>
+                                    </>
                                 )}
 
                                 {['PLACED', 'PENDING', 'CONFIRMED', 'PROCESSING'].includes(order.orderStatus?.toUpperCase()) && (
@@ -378,6 +488,108 @@ const MyOrders = () => {
                                     </button>
                                 </div>
                             </div>
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
+
+            {/* FEEDBACK MODAL */}
+            <AnimatePresence>
+                {isFeedbackModalOpen && orderForFeedback && (
+                    <div style={modalOverlayStyle}>
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            style={modalBackdropStyle}
+                            onClick={() => !isSubmittingFeedback && setIsFeedbackModalOpen(false)}
+                        />
+                        <motion.div
+                            initial={{ scale: 0.9, opacity: 0, y: 20 }}
+                            animate={{ scale: 1, opacity: 1, y: 0 }}
+                            exit={{ scale: 0.9, opacity: 0, y: 20 }}
+                            style={{ ...modalContentStyle, maxWidth: '500px', padding: '24px' }}
+                        >
+                            {!feedbackItem ? (
+                                <div>
+                                    <h3 style={{ fontSize: '1.25rem', color: '#1e293b', marginBottom: '1rem' }}>Select Product to Review</h3>
+                                    <p style={{ color: '#64748b', fontSize: '0.9rem', marginBottom: '1.5rem' }}>Which item from Order #{orderForFeedback.orderId} would you like to review?</p>
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', maxHeight: '300px', overflowY: 'auto' }}>
+                                        {orderForFeedback.items.map((item, idx) => (
+                                            <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', border: '1px solid #e2e8f0', borderRadius: '8px', cursor: 'pointer' }} onClick={() => setFeedbackItem(item)} className="hover-bg-slate-50">
+                                                <img 
+                                                    src={item.itemType === 'PACKAGE' ? resolvePackageImage(item.productImage) : resolveProductImage(item.productImage, item.productId)} 
+                                                    alt={item.productName} 
+                                                    style={{ width: '40px', height: '40px', objectFit: 'cover', borderRadius: '4px' }} 
+                                                />
+                                                <span style={{ fontWeight: '500', color: '#334155', flex: 1 }}>{item.productName}</span>
+                                                <button style={{ padding: '6px 12px', background: 'var(--primary-green)', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '0.8rem' }}>Review</button>
+                                            </div>
+                                        ))}
+                                    </div>
+                                    <button onClick={() => setIsFeedbackModalOpen(false)} style={{ width: '100%', padding: '10px', marginTop: '1.5rem', background: '#f1f5f9', border: 'none', borderRadius: '8px', color: '#475569', fontWeight: '500', cursor: 'pointer' }}>Cancel</button>
+                                </div>
+                            ) : (
+                                <div>
+                                    <h3 style={{ fontSize: '1.25rem', color: '#1e293b', marginBottom: '0.5rem' }}>Product Feedback</h3>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px', background: '#f8fafc', borderRadius: '8px', marginBottom: '1rem' }}>
+                                        <img src={feedbackItem.itemType === 'PACKAGE' ? resolvePackageImage(feedbackItem.productImage) : resolveProductImage(feedbackItem.productImage, feedbackItem.productId)} alt={feedbackItem.productName} style={{ width: '40px', height: '40px', objectFit: 'cover', borderRadius: '4px' }} />
+                                        <span style={{ fontWeight: '600', color: '#334155' }}>{feedbackItem.productName}</span>
+                                    </div>
+
+                                    <div style={{ marginBottom: '1rem' }}>
+                                        <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500', color: '#475569', fontSize: '0.9rem' }}>Rating</label>
+                                        <div style={{ display: 'flex', gap: '8px' }}>
+                                            {[1, 2, 3, 4, 5].map(star => (
+                                                <FaStar
+                                                    key={star}
+                                                    size={24}
+                                                    color={star <= feedbackForm.rating ? '#fbbf24' : '#cbd5e1'}
+                                                    style={{ cursor: 'pointer' }}
+                                                    onClick={() => setFeedbackForm({ ...feedbackForm, rating: star })}
+                                                />
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    <div style={{ marginBottom: '1rem' }}>
+                                        <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500', color: '#475569', fontSize: '0.9rem' }}>Your Review (Optional)</label>
+                                        <textarea 
+                                            value={feedbackForm.comments}
+                                            onChange={e => setFeedbackForm({ ...feedbackForm, comments: e.target.value })}
+                                            placeholder="What did you like or dislike?"
+                                            style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #cbd5e1', minHeight: '80px', fontFamily: 'inherit', resize: 'vertical' }}
+                                        />
+                                    </div>
+
+                                    <div style={{ marginBottom: '1.5rem' }}>
+                                        <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500', color: '#475569', fontSize: '0.9rem' }}>Suggestions for improvement (Optional)</label>
+                                        <textarea 
+                                            value={feedbackForm.suggestions}
+                                            onChange={e => setFeedbackForm({ ...feedbackForm, suggestions: e.target.value })}
+                                            placeholder="Any ways we can improve?"
+                                            style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #cbd5e1', minHeight: '60px', fontFamily: 'inherit', resize: 'vertical' }}
+                                        />
+                                    </div>
+
+                                    <div style={{ display: 'flex', gap: '1rem' }}>
+                                        <button 
+                                            onClick={() => setFeedbackItem(null)} 
+                                            disabled={isSubmittingFeedback}
+                                            style={{ flex: 1, padding: '10px', background: '#f1f5f9', border: 'none', borderRadius: '8px', color: '#475569', fontWeight: '500', cursor: 'pointer' }}
+                                        >
+                                            Back
+                                        </button>
+                                        <button 
+                                            onClick={submitFeedback} 
+                                            disabled={isSubmittingFeedback}
+                                            style={{ flex: 2, padding: '10px', background: 'var(--primary-green)', border: 'none', borderRadius: '8px', color: '#fff', fontWeight: '600', cursor: isSubmittingFeedback ? 'not-allowed' : 'pointer' }}
+                                        >
+                                            {isSubmittingFeedback ? 'Submitting...' : 'Submit Feedback'}
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
                         </motion.div>
                     </div>
                 )}
