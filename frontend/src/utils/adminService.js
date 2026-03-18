@@ -69,7 +69,7 @@ const adminService = {
 
     // Order Management
     getAllOrders: () => axios.get(`${API_BASE_URL}/orders/admin/all`, { headers: getAuthHeader() }),
-    updateOrderStatus: (orderId, status) => axios.put(`${API_BASE_URL}/orders/admin/status/${orderId}?newStatus=${status}`, {}, { headers: getAuthHeader() }),
+    updateOrderStatus: (orderId, status, reason) => axios.put(`${API_BASE_URL}/orders/admin/status/${orderId}?newStatus=${status}${reason ? `&reason=${reason}` : ''}`, {}, { headers: getAuthHeader() }),
 
     // Shipment Management
     getAllShipments: () => axios.get(`${API_BASE_URL}/shipments/admin/all`, { headers: getAuthHeader() }),

@@ -20,11 +20,22 @@ public class GlobalExceptionHandler {
 
         Map<String, Object> error = new HashMap<>();
         error.put("timestamp", LocalDateTime.now());
-        error.put("status", HttpStatus.BAD_REQUEST.value());
-        error.put("error", "Business Exception");
-        error.put("message", ex.getMessage());
+        
+        HttpStatus status = HttpStatus.BAD_REQUEST;
+        String message = ex.getMessage();
+        
+        // If user is deleted or session invalid, return 401 to force logout in frontend
+        if (message != null && (
+            message.contains("Customer not found") || 
+            message.contains("Retailer not found"))) {
+            status = HttpStatus.UNAUTHORIZED;
+        }
 
-        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+        error.put("status", status.value());
+        error.put("error", "Business Exception");
+        error.put("message", message);
+
+        return new ResponseEntity<>(error, status);
     }
 
     // ================= VALIDATION EXCEPTION =================

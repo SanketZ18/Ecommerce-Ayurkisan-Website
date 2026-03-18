@@ -23,6 +23,11 @@ const RetailerNavbar = ({ onOpenProfileModal }) => {
                 }
             } catch (error) {
                 console.error("Failed to fetch retailer data for navbar", error);
+                // If user is not found (deleted) or unauthorized, logout
+                if (error.response && (error.response.status === 401 || 
+                    (error.response.data && error.response.data.message && error.response.data.message.includes("not found")))) {
+                    handleLogout();
+                }
             }
         };
 

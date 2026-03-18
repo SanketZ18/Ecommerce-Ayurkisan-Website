@@ -1,5 +1,7 @@
 package com.ayurkisan.Modules.Chatbot;
 
+import com.ayurkisan.Modules.Packages.ProductPackage;
+import com.ayurkisan.Modules.Packages.ProductPackageRepository;
 import com.ayurkisan.model.Product;
 import com.ayurkisan.repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,12 +20,39 @@ public class ChatbotService {
     @Autowired
     private ProductRepository productRepository;
 
+    @Autowired
+    private ProductPackageRepository packageRepository;
+
     private static final Map<String, List<String>> ADVISOR_STEPS = new HashMap<>();
 
     static {
         ADVISOR_STEPS.put("HAIR_FALL", Arrays.asList("Mild", "Moderate", "Severe"));
         ADVISOR_STEPS.put("ACNE", Arrays.asList("Occasional", "Frequent", "Chronic"));
         ADVISOR_STEPS.put("SKIN_TYPE", Arrays.asList("Oily", "Dry", "Combination"));
+    }
+    
+    private ChatProductDTO mapToDTO(Product p) {
+        return new ChatProductDTO(
+            p.getId(),
+            p.getProductName(),
+            p.getProductImage1(),
+            p.getPrice(),
+            p.getDiscount(),
+            p.getFinalPrice(),
+            "PRODUCT"
+        );
+    }
+
+    private ChatProductDTO mapToDTO(ProductPackage pkg) {
+        return new ChatProductDTO(
+            pkg.getId(),
+            pkg.getName(),
+            pkg.getImageURL(),
+            pkg.getPackagePrice(),
+            0.0, // Packages usually have a fixed packagePrice which is already discounted or special
+            pkg.getPackagePrice(),
+            "PACKAGE"
+        );
     }
 
     public ChatbotResponse processMessage(ChatbotRequest request) {
@@ -70,14 +99,25 @@ public class ChatbotService {
             return startAdvisorFlow(message);
         }
 
-        // 7. General Product Search (Specific name matching)
+        // 7. General Product/Package Search (Specific name matching)
+        List<ChatProductDTO> searchResults = new ArrayList<>();
+        
         List<Product> products = productRepository.findByProductNameContainingIgnoreCase(message);
-        if (!products.isEmpty() && message.length() > 3) {
-            return ChatbotResponse.products("I found " + products.size() + " products matching your query:", products);
+        searchResults.addAll(products.stream().map(this::mapToDTO).collect(Collectors.toList()));
+        
+        List<ProductPackage> packages = packageRepository.findByNameContainingIgnoreCase(message);
+        searchResults.addAll(packages.stream().map(this::mapToDTO).collect(Collectors.toList()));
+
+        if (!searchResults.isEmpty() && message.length() > 3) {
+            String countMsg = searchResults.size() == 1 ? "1 item" : searchResults.size() + " items";
+            return ChatbotResponse.products("I found " + countMsg + " matching your query:", searchResults);
         }
 
         // 8. Fallback / Smart Browse
-        List<Product> topPicks = productRepository.findAll().stream().limit(5).collect(Collectors.toList());
+        List<ChatProductDTO> topPicks = productRepository.findAll().stream()
+                .limit(5)
+                .map(this::mapToDTO)
+                .collect(Collectors.toList());
         return ChatbotResponse.products("I couldn't find a direct match for that. 🌿 Why not explore our **Top Herbal Picks** instead?", topPicks);
     }
 
@@ -108,29 +148,48 @@ public class ChatbotService {
 
     private ChatbotResponse handlePriceQuery(String message) {
         String cleanQuery = message.replaceAll("(?i)price|how|much|cost|of|is|rate|mrp|the", "").trim();
+        
         List<Product> products = productRepository.findByProductNameContainingIgnoreCase(cleanQuery);
-        if (products.isEmpty() || cleanQuery.length() < 3) {
-            return ChatbotResponse.text("Which product's price are you looking for? (e.g., 'Price of Rosemary Oil')");
+        if (!products.isEmpty() && cleanQuery.length() >= 3) {
+            Product p = products.get(0);
+            double discPrice = p.getFinalPrice() > 0 ? p.getFinalPrice() : p.getPrice();
+            return ChatbotResponse.text("💰 The price for **" + p.getProductName() + "** is **₹" + discPrice + "**. " + 
+                (p.getDiscount() > 0 ? "\n\n*(You save ₹" + (p.getPrice() - discPrice) + " with a " + p.getDiscount() + "% discount!)*" : ""));
         }
-        Product p = products.get(0);
-        return ChatbotResponse.text("💰 The live price for **" + p.getProductName() + "** is **₹" + p.getPrice() + "**. \n\n*Generic Discount applied: ₹" + p.getFinalPrice() + "*");
+        
+        List<ProductPackage> packages = packageRepository.findByNameContainingIgnoreCase(cleanQuery);
+        if (!packages.isEmpty() && cleanQuery.length() >= 3) {
+            ProductPackage pkg = packages.get(0);
+            return ChatbotResponse.text("🎁 The price for the **" + pkg.getName() + "** package is **₹" + pkg.getPackagePrice() + "**. \n\nThis package includes multiple items for a better value!");
+        }
+
+        return ChatbotResponse.text("Which product or package's price are you looking for? (e.g., 'Price of Rosemary Oil' or 'Price of Immunity Kit')");
     }
 
     private ChatbotResponse handleRecommendation(String message) {
         String query = message.replaceAll("(?i)suggest|recommend|best|for|good|problem|remedy|cure", "").trim();
         
         final String finalQuery = query;
+        List<ChatProductDTO> recommendations = new ArrayList<>();
+        
         List<Product> products = productRepository.findAll().stream()
                 .filter(p -> p.getDescription().toLowerCase().contains(finalQuery) || 
                              p.getProductName().toLowerCase().contains(finalQuery) ||
                              p.getIngredients().toLowerCase().contains(finalQuery))
-                .limit(4)
+                .limit(3)
                 .collect(Collectors.toList());
+        recommendations.addAll(products.stream().map(this::mapToDTO).collect(Collectors.toList()));
+        
+        List<ProductPackage> packages = packageRepository.findAll().stream()
+                .filter(pkg -> pkg.getName().toLowerCase().contains(finalQuery))
+                .limit(1)
+                .collect(Collectors.toList());
+        recommendations.addAll(packages.stream().map(this::mapToDTO).collect(Collectors.toList()));
 
-        if (products.isEmpty()) {
+        if (recommendations.isEmpty()) {
             return ChatbotResponse.text("I'm here to help! Could you tell me more about your concern? (e.g., hair growth, acne, oily skin)");
         }
-        return ChatbotResponse.products("Based on your concern, here are our highly recommended herbal solutions:", products);
+        return ChatbotResponse.products("Based on your concern, here are our highly recommended herbal solutions:", recommendations);
     }
 
     private ChatbotResponse startAdvisorFlow(String message) {
@@ -198,16 +257,20 @@ public class ChatbotService {
             }
         }
 
-        List<Product> defaults = productRepository.findAll().stream().limit(2).collect(Collectors.toList());
-        return ChatbotResponse.products("I understand. Here are some of our most loved herbal products for overall wellness:", defaults);
+        List<ChatProductDTO> productsDTO = productRepository.findAll().stream()
+                .limit(2)
+                .map(this::mapToDTO)
+                .collect(Collectors.toList());
+        return ChatbotResponse.products("I understand. Here are some of our most loved herbal products for overall wellness:", productsDTO);
     }
 
-    private List<Product> filterProducts(String... keywords) {
+    private List<ChatProductDTO> filterProducts(String... keywords) {
         return productRepository.findAll().stream()
                 .filter(p -> Arrays.stream(keywords).anyMatch(k -> 
                     p.getProductName().toLowerCase().contains(k.toLowerCase()) || 
                     p.getDescription().toLowerCase().contains(k.toLowerCase())))
                 .limit(3)
+                .map(this::mapToDTO)
                 .collect(Collectors.toList());
     }
 

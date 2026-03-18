@@ -97,7 +97,7 @@ public class OrderController {
         // Allow Admin to cancel any, otherwise user must own it. Handled in Service loosely.
         String callerId = "Admin".equalsIgnoreCase(role) ? "Admin" : userId;
 
-        orderService.cancelOrder(orderId, callerId);
+        orderService.cancelOrder(orderId, callerId, null);
 
         Map<String, String> response = new HashMap<>();
         response.put("message", "Order cancelled successfully. Stock refunded.");
@@ -121,14 +121,15 @@ public class OrderController {
     public ResponseEntity<Map<String, String>> updateOrderStatus(
             @RequestHeader("Authorization") String authHeader,
             @PathVariable String orderId,
-            @RequestParam String newStatus) {
+            @RequestParam String newStatus,
+            @RequestParam(required = false) String reason) {
 
         Map<String, String> userDetails = extractUserFromToken(authHeader);
         if (!"Admin".equalsIgnoreCase(userDetails.get("role"))) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Admin access required");
         }
 
-        orderService.updateOrderStatus(orderId, newStatus);
+        orderService.updateOrderStatus(orderId, newStatus, reason);
 
         Map<String, String> response = new HashMap<>();
         response.put("message", "Order status updated to " + newStatus);

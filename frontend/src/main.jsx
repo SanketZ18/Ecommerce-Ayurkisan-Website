@@ -4,6 +4,7 @@ import { BrowserRouter } from 'react-router-dom';
 import App from './App.jsx';
 import './index.css';
 import { initializeSession } from './utils/auth';
+import './utils/axiosConfig'; // Register interceptors
 
 // Clear persistent login on fresh browser/tab opening
 initializeSession();

@@ -9,7 +9,7 @@ import i114 from '../assets/images/114.jpg';
 import i115 from '../assets/images/115.jpg';
 import axios from 'axios';
 import customerService from '../utils/customerService';
-import { getDecodedToken } from '../utils/auth';
+import { getDecodedToken, clearAuthData } from '../utils/auth';
 import { toast } from 'react-toastify';
 import { resolveProductImage, resolvePackageImage } from '../utils/imageUtils';
 
@@ -120,6 +120,12 @@ const CustomerDashboard = () => {
             }
         } catch (error) {
             console.error("Dashboard fetch error:", error);
+            // If user is not found (deleted) or unauthorized, logout
+            if (error.response && (error.response.status === 401 || 
+                (error.response.data && error.response.data.message && error.response.data.message.includes("not found")))) {
+                clearAuthData();
+                window.location.href = '/';
+            }
         } finally {
             setLoading(false);
         }

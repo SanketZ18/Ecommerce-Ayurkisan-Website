@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import customerService from '../utils/customerService';
 import retailerService from '../utils/retailerService';
 import { toast } from 'react-toastify';
+import { clearAuthData } from '../utils/auth';
 
 const Checkout = () => {
     const navigate = useNavigate();
@@ -57,6 +58,12 @@ const Checkout = () => {
             }
         } catch (error) {
             console.error("Checkout data fetch error:", error);
+            // If user is not found (deleted) or unauthorized, logout
+            if (error.response && (error.response.status === 401 || 
+                (error.response.data && error.response.data.message && error.response.data.message.includes("not found")))) {
+                clearAuthData();
+                window.location.href = '/';
+            }
         }
     };
 

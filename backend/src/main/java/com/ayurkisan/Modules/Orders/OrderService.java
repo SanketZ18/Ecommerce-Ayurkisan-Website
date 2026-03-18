@@ -163,7 +163,7 @@ public class OrderService {
     }
 
     @Transactional
-    public Order cancelOrder(String orderId, String userId) {
+    public Order cancelOrder(String orderId, String userId, String reason) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Order not found"));
 
@@ -190,12 +190,12 @@ public class OrderService {
         order.setOrderStatus("CANCELLED");
         Order savedOrder = orderRepository.save(order);
 
-        emailService.sendOrderCancellation(order.getContactEmail(), savedOrder);
+        emailService.sendOrderCancellation(order.getContactEmail(), savedOrder, reason);
 
         return savedOrder;
     }
 
-    public Order updateOrderStatus(String orderId, String newStatus) {
+    public Order updateOrderStatus(String orderId, String newStatus, String reason) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Order not found"));
 
@@ -205,16 +205,30 @@ public class OrderService {
 
         order.setOrderStatus(newStatus);
         
-        if ("CONFIRMED".equalsIgnoreCase(newStatus)) {
-            // Shipment already exists, update its status
-            shipmentService.updateShipmentStatus(orderId, "CONFIRMED", "Order has been confirmed by admin.");
-        } else if ("SHIPPED".equalsIgnoreCase(newStatus)) {
+        // Synchronize the status with ShipmentService for all relevant logistics statuses
+        if (!"RETURNED".equalsIgnoreCase(newStatus)) {
+            try {
+                // Determine comments/remarks based on status
+                String remarks = (reason != null && !reason.isEmpty()) ? reason : "Order status updated to " + newStatus;
+                if ("CONFIRMED".equalsIgnoreCase(newStatus) && (reason == null || reason.isEmpty())) {
+                    remarks = "Order has been confirmed by admin.";
+                }
+                shipmentService.updateShipmentStatus(orderId, newStatus, remarks);
+            } catch (Exception e) {
+                // If it fails, or it's just PLACED (where shipment might not need manual update yet)
+                System.err.println("Note: Shipment sync skipped or already handled: " + e.getMessage());
+            }
+        }
+
+        if ("SHIPPED".equalsIgnoreCase(newStatus)) {
             order.setShippedAt(java.time.LocalDateTime.now());
         } else if ("DELIVERED".equalsIgnoreCase(newStatus)) {
             order.setDeliveredAt(java.time.LocalDateTime.now());
             order.setReturnDeadline(java.time.LocalDateTime.now().plusDays(5));
             order.setPaymentStatus("COMPLETED");
             emailService.sendOrderDelivered(order.getContactEmail(), order);
+        } else if ("CANCELLED".equalsIgnoreCase(newStatus)) {
+            emailService.sendOrderCancellation(order.getContactEmail(), order, reason);
         } else if ("RETURNED".equalsIgnoreCase(newStatus)) {
             // Add back physical stock when return is complete
             for (OrderItem item : order.getItems()) {

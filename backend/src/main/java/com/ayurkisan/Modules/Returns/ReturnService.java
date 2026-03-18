@@ -71,7 +71,7 @@ public class ReturnService {
 
         // Update overall order status to RETURN_REQUESTED (Optional, but good for tracking)
         try {
-            orderService.updateOrderStatus(orderId, "RETURN_REQUESTED");
+            orderService.updateOrderStatus(orderId, "RETURN_REQUESTED", null);
         } catch(Exception e) {
             // Log but don't fail return process
         }
@@ -126,15 +126,15 @@ public class ReturnService {
             
             if ("ACCEPTED".equalsIgnoreCase(newStatus)) {
                 emailService.sendReturnAccepted(order.getContactEmail(), order);
-                orderService.updateOrderStatus(orderId, "RETURN_ACCEPTED");
+                orderService.updateOrderStatus(orderId, "RETURN_ACCEPTED", remarks);
             } else if ("REJECTED".equalsIgnoreCase(newStatus)) {
                 emailService.sendReturnRejected(order.getContactEmail(), order);
-                orderService.updateOrderStatus(orderId, "DELIVERED"); // Revert main status if rejected
+                orderService.updateOrderStatus(orderId, "DELIVERED", remarks); // Revert main status if rejected
             } else if ("PICKED_UP".equalsIgnoreCase(newStatus)) {
-                orderService.updateOrderStatus(orderId, "RETURN_PICKUP");
+                orderService.updateOrderStatus(orderId, "RETURN_PICKUP", remarks);
             } else if ("REFUNDED".equalsIgnoreCase(newStatus)) {
                 emailService.sendReturnRefunded(order.getContactEmail(), order);
-                orderService.updateOrderStatus(orderId, "RETURNED"); // This handles stock restitution
+                orderService.updateOrderStatus(orderId, "RETURNED", remarks); // This handles stock restitution
             }
 
         } catch (Exception e) {
