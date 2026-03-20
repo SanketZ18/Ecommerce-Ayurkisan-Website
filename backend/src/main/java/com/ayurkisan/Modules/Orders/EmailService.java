@@ -12,6 +12,9 @@ public class EmailService {
     @Autowired
     private JavaMailSender mailSender;
 
+    @org.springframework.beans.factory.annotation.Value("${spring.mail.username}")
+    private String fromEmail;
+
     @Async
     public void sendOrderConfirmation(String toEmail, Order order) {
         if (toEmail == null || toEmail.isEmpty()) {
@@ -20,6 +23,7 @@ public class EmailService {
 
         try {
             SimpleMailMessage message = new SimpleMailMessage();
+            message.setFrom(fromEmail);
             message.setTo(toEmail);
             message.setSubject("Order Confirmation - Ayurkisan");
             
@@ -58,6 +62,7 @@ public class EmailService {
 
         try {
             SimpleMailMessage message = new SimpleMailMessage();
+            message.setFrom(fromEmail);
             message.setTo(toEmail);
             message.setSubject("Order Cancelled - Ayurkisan");
             
@@ -88,6 +93,7 @@ public class EmailService {
 
         try {
             SimpleMailMessage message = new SimpleMailMessage();
+            message.setFrom(fromEmail);
             message.setTo(toEmail);
             message.setSubject("Order Delivered - Ayurkisan");
             
@@ -110,6 +116,7 @@ public class EmailService {
         if (toEmail == null || toEmail.isEmpty()) return;
         try {
             SimpleMailMessage message = new SimpleMailMessage();
+            message.setFrom(fromEmail);
             message.setTo(toEmail);
             message.setSubject("Return Requested - Ayurkisan");
             message.setText("Dear " + order.getUserName() + ",\n\nWe have received your return request for Order ID: " + order.getId() + ".\nOur team is reviewing it and will update you shortly.\n\nBest Regards,\nAyurkisan Team");
@@ -122,6 +129,7 @@ public class EmailService {
         if (toEmail == null || toEmail.isEmpty()) return;
         try {
             SimpleMailMessage message = new SimpleMailMessage();
+            message.setFrom(fromEmail);
             message.setTo(toEmail);
             message.setSubject("Return Accepted - Ayurkisan");
             message.setText("Dear " + order.getUserName() + ",\n\nYour return request for Order ID: " + order.getId() + " has been accepted.\nOur delivery agent will contact you for pickup.\n\nBest Regards,\nAyurkisan Team");
@@ -134,6 +142,7 @@ public class EmailService {
         if (toEmail == null || toEmail.isEmpty()) return;
         try {
             SimpleMailMessage message = new SimpleMailMessage();
+            message.setFrom(fromEmail);
             message.setTo(toEmail);
             message.setSubject("Return Rejected - Ayurkisan");
             message.setText("Dear " + order.getUserName() + ",\n\nUnfortunately, your return request for Order ID: " + order.getId() + " has been rejected after review.\nIf you have questions, please contact our support team.\n\nBest Regards,\nAyurkisan Team");
@@ -146,6 +155,7 @@ public class EmailService {
         if (toEmail == null || toEmail.isEmpty()) return;
         try {
             SimpleMailMessage message = new SimpleMailMessage();
+            message.setFrom(fromEmail);
             message.setTo(toEmail);
             message.setSubject("Return Refunded - Ayurkisan");
             message.setText("Dear " + order.getUserName() + ",\n\nYour return for Order ID: " + order.getId() + " is complete.\nA cash refund has been issued during the pickup process.\n\nThank you for choosing Ayurkisan.\n\nBest Regards,\nAyurkisan Team");
@@ -158,6 +168,7 @@ public class EmailService {
         if (toEmail == null || toEmail.isEmpty()) return;
         try {
             SimpleMailMessage message = new SimpleMailMessage();
+            message.setFrom(fromEmail);
             message.setTo(toEmail);
             message.setSubject("Re: " + subject);
             message.setText(replyBody + "\n\nBest Regards,\nAyurkisan Team");

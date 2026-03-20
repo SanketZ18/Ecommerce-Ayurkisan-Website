@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { FaCheckCircle, FaTruck, FaBox, FaHome, FaArrowLeft, FaBan, FaUndo, FaInfoCircle } from 'react-icons/fa';
 import customerService from '../utils/customerService';
+import { getUserRole } from '../utils/auth';
 import { toast } from 'react-toastify';
 
 const OrderTracking = () => {
     const { orderId } = useParams();
+    const navigate = useNavigate();
+    const userRole = getUserRole() || 'CUSTOMER';
     const [trackingData, setTrackingData] = useState(null);
     const [loading, setLoading] = useState(true);
 
@@ -86,7 +89,7 @@ const OrderTracking = () => {
 
     const handleReturn = async () => {
         // Navigate to return request page
-        navigate(`/customer/returns/request/${orderId}`);
+        navigate(userRole === 'RETAILER' ? `/retailer/returns/request/${orderId}` : `/customer/returns/request/${orderId}`);
     };
 
     const getProgressLevel = (status) => {
@@ -121,7 +124,7 @@ const OrderTracking = () => {
         return (
             <div style={{ padding: '4rem', textAlign: 'center' }}>
                 <h2>Tracking information not found for {orderId}</h2>
-                <Link to="/customer/orders" style={{ color: 'var(--primary-green)' }}>Back to Orders</Link>
+                <Link to={userRole === 'RETAILER' ? "/retailer/orders" : "/customer/orders"} style={{ color: 'var(--primary-green)' }}>Back to Orders</Link>
             </div>
         );
     }
@@ -132,7 +135,7 @@ const OrderTracking = () => {
         <div style={{ padding: '2rem 5%', maxWidth: '900px', margin: '0 auto', minHeight: '60vh' }}>
 
             <div style={{ marginBottom: '2rem', display: 'flex', alignItems: 'center', gap: '15px' }}>
-                <Link to="/customer/orders" style={{ color: 'var(--text-light)', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                <Link to={userRole === 'RETAILER' ? "/retailer/orders" : "/customer/orders"} style={{ color: 'var(--text-light)', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '5px' }}>
                     <FaArrowLeft /> Back
                 </Link>
                 <h1 style={{ color: '#1e293b', fontSize: '2rem', margin: 0 }}>Track Package</h1>

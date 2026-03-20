@@ -267,7 +267,7 @@ const RetailerDashboard = () => {
                             </div>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', flex: 1 }}>
                                 {recentOrders.length > 0 ? recentOrders.map((order, i) => (
-                                    <div key={i} style={{ ...styles.orderRowStyle, backgroundColor: isDarkMode ? 'rgba(51, 65, 85, 0.7)' : 'rgba(255, 255, 255, 0.7)', borderColor: isDarkMode ? '#475569' : '#f1f5f9' }} onClick={() => navigate(`/customer/tracking/${order.orderId}`)}>
+                                    <div key={i} style={{ ...styles.orderRowStyle, backgroundColor: isDarkMode ? 'rgba(51, 65, 85, 0.7)' : 'rgba(255, 255, 255, 0.7)', borderColor: isDarkMode ? '#475569' : '#f1f5f9' }} onClick={() => navigate(`/retailer/tracking/${order.orderId}`)}>
                                         <div style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
                                             <div style={{ backgroundColor: '#f0fdf4', padding: '10px', borderRadius: '8px', color: '#10b981' }}>
                                                 <FaBox size={20} />

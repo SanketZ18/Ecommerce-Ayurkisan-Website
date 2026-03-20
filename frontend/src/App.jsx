@@ -196,7 +196,7 @@ function App() {
                             <Route path="dashboard" element={<RetailerDashboard />} />
                             <Route path="orders" element={<MyOrders />} />
                             <Route path="tracking/:orderId" element={<OrderTracking />} />
-                            <Route path="returns" element={<ManageReturns />} />
+                            <Route path="returns" element={<CustomerReturns />} />
                             <Route path="returns/request/:orderId" element={<RequestReturn />} />
                         </Routes>
                     </RetailerLayout>
