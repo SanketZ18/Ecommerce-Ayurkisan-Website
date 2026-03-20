@@ -22,11 +22,7 @@ const RequestReturn = () => {
     useEffect(() => {
         const fetchOrderDetailsForReturn = async () => {
             try {
-                // In a real application, you'd fetch the specific order details to:
-                // 1. Verify it exists
-                // 2. Verify it's in DELIVERED state
-                // 3. Verify it's within the 5-day return window.
-
+                // In a real application, you'd fetch the specific order details
                 // For demonstration, simulating a fetch that returns a valid order:
                 setOrderInfo({
                     orderId: orderId,
@@ -41,14 +37,14 @@ const RequestReturn = () => {
                 });
             } catch (error) {
                 toast.error("Could not load order details.");
-                navigate('/customer/orders');
+                navigate(userRole === 'RETAILER' ? '/retailer/orders' : '/customer/orders');
             } finally {
                 setLoading(false);
             }
         };
 
         if (orderId) fetchOrderDetailsForReturn();
-    }, [orderId, navigate]);
+    }, [orderId, navigate, userRole]);
 
     const calculateDaysSinceDelivery = (deliveryDate) => {
         const today = new Date();
@@ -76,12 +72,12 @@ const RequestReturn = () => {
         try {
             await activeService.initiateReturn(orderId, reason, comments);
             toast.success("Return request submitted successfully!");
-            navigate('/customer/returns');
+            navigate(userRole === 'RETAILER' ? '/retailer/returns' : '/customer/returns');
         } catch (error) {
             console.error('Failed to submit return:', error);
             // Simulating success anyway for visual development flow
             toast.success("Return request submitted successfully! (Simulated)");
-            navigate('/customer/returns');
+            navigate(userRole === 'RETAILER' ? '/retailer/returns' : '/customer/returns');
         } finally {
             setIsSubmitting(false);
         }
@@ -95,7 +91,7 @@ const RequestReturn = () => {
                 <FaExclamationCircle size={48} color="#ef4444" style={{ marginBottom: '1rem' }} />
                 <h2 style={{ color: '#991b1b', marginBottom: '1rem' }}>Return Not Eligible</h2>
                 <p style={{ color: '#475569', marginBottom: '2rem' }}>This order is not eligible for a return. Returns can only be requested for delivered orders.</p>
-                <Link to="/customer/orders" className="btn-primary" style={{ textDecoration: 'none' }}>Back to Orders</Link>
+                <Link to={userRole === 'RETAILER' ? "/retailer/orders" : "/customer/orders"} className="btn-primary" style={{ textDecoration: 'none' }}>Back to Orders</Link>
             </div>
         );
     }
@@ -105,7 +101,7 @@ const RequestReturn = () => {
     return (
         <div style={{ padding: '2rem 5%', maxWidth: '800px', margin: '0 auto', minHeight: '60vh' }}>
             <div style={{ marginBottom: '2rem', display: 'flex', alignItems: 'center', gap: '15px' }}>
-                <Link to="/customer/orders" style={{ color: 'var(--text-light)', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                <Link to={userRole === 'RETAILER' ? "/retailer/orders" : "/customer/orders"} style={{ color: 'var(--text-light)', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '5px' }}>
                     <FaArrowLeft /> Back to Orders
                 </Link>
             </div>

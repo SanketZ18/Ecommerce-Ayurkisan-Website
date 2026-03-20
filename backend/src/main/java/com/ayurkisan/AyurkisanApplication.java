@@ -1,6 +1,5 @@
 package com.ayurkisan;
 
-import io.github.cdimascio.dotenv.Dotenv;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
@@ -8,17 +7,28 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class AyurkisanApplication {
 
     public static void main(String[] args) {
-        // Load .env variables into System properties for Spring Boot to pick them up
-        Dotenv dotenv = Dotenv.configure()
-                .directory("./")
-                .ignoreIfMissing()
-                .load();
-        
-        dotenv.entries().forEach(entry -> {
-            if (System.getProperty(entry.getKey()) == null) {
-                System.setProperty(entry.getKey(), entry.getValue());
+        // Manual .env loading to bypass library issues and ensure file precedence
+        try {
+            java.io.File envFile = new java.io.File("./.env");
+            if (envFile.exists()) {
+                java.util.List<String> lines = java.nio.file.Files.readAllLines(envFile.toPath());
+                for (String line : lines) {
+                    line = line.trim();
+                    if (line.isEmpty() || line.startsWith("#") || !line.contains("=")) continue;
+                    
+                    String[] parts = line.split("=", 2);
+                    if (parts.length == 2) {
+                        String key = parts[0].trim();
+                        String value = parts[1].trim();
+                        System.setProperty(key, value);
+                    }
+                }
+            } else {
+                System.out.println(">>> [Warning] .env file not found in " + envFile.getCanonicalPath());
             }
-        });
+        } catch (Exception e) {
+            System.err.println(">>> [Error] Failed to load .env manually: " + e.getMessage());
+        }
 
         SpringApplication.run(AyurkisanApplication.class, args);
         System.out.println("✅ MongoDB connected | Ayurkisan backend running");

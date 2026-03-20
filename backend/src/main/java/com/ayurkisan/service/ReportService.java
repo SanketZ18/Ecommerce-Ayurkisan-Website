@@ -34,10 +34,11 @@ public class ReportService {
     public SalesReportDTO generateOrderSalesReport(LocalDateTime start, LocalDateTime end) {
         try {
             Criteria dateCriteria = Criteria.where("createdAt").gte(start).lte(end);
+            Criteria statusCriteria = Criteria.where("orderStatus").nin("CANCELLED", "RETURNED");
             
             // General Stats
             Aggregation agg = newAggregation(
-                match(dateCriteria),
+                match(new Criteria().andOperator(dateCriteria, statusCriteria)),
                 group()
                     .count().as("totalOrders")
                     .sum("totalDiscountedPrice").as("totalSalesAmount")
@@ -79,8 +80,9 @@ public class ReportService {
         try {
             // Case-insensitive role match
             Criteria roleCriteria = Criteria.where("role").regex("^" + role + "$", "i");
+            Criteria statusCriteria = Criteria.where("orderStatus").nin("CANCELLED", "RETURNED");
             Aggregation agg = newAggregation(
-                match(new Criteria().andOperator(dateCriteria, roleCriteria)),
+                match(new Criteria().andOperator(dateCriteria, roleCriteria, statusCriteria)),
                 group()
                     .count().as("orderCount")
                     .sum("totalDiscountedPrice").as("salesAmount")
@@ -123,8 +125,9 @@ public class ReportService {
 
     private Map<String, Double> getRegionBreakdown(Criteria dateCriteria) {
         try {
+            Criteria statusCriteria = Criteria.where("orderStatus").nin("CANCELLED", "RETURNED");
             Aggregation agg = newAggregation(
-                match(dateCriteria),
+                match(new Criteria().andOperator(dateCriteria, statusCriteria)),
                 group("shippingAddress").sum("totalDiscountedPrice").as("sales")
             );
             AggregationResults<Map<String, Object>> results = mongoTemplate.aggregate(agg, "Orders", getMapClass());
@@ -142,6 +145,7 @@ public class ReportService {
     public List<ProductSalesReportDTO> generateProductSalesReport() {
         try {
             Aggregation agg = newAggregation(
+                match(Criteria.where("orderStatus").nin("CANCELLED", "RETURNED")),
                 unwind("items"),
                 match(Criteria.where("items.itemType").regex("^PRODUCT$", "i")),
                 group("items.productId")
@@ -201,6 +205,7 @@ public class ReportService {
     public List<PackageReportDTO> generatePackageSalesReport() {
         try {
             Aggregation agg = newAggregation(
+                match(Criteria.where("orderStatus").nin("CANCELLED", "RETURNED")),
                 unwind("items"),
                 match(Criteria.where("items.itemType").regex("^PACKAGE$", "i")),
                 group("items.productId")
@@ -264,6 +269,7 @@ public class ReportService {
             }
 
             Aggregation agg = newAggregation(
+                match(Criteria.where("orderStatus").nin("CANCELLED", "RETURNED")),
                 unwind("items"),
                 match(itemCriteria),
                 // Projection stage 1: Ensure fields are available and mapped
@@ -342,7 +348,8 @@ public class ReportService {
     private double getTotalSalesInPeriod(LocalDateTime start, LocalDateTime end) {
         try {
             Aggregation agg = newAggregation(
-                match(Criteria.where("createdAt").gte(start).lte(end)),
+                match(Criteria.where("createdAt").gte(start).lte(end)
+                    .and("orderStatus").nin("CANCELLED", "RETURNED")),
                 group().sum("totalDiscountedPrice").as("total")
             );
             AggregationResults<Map<String, Object>> results = mongoTemplate.aggregate(agg, "Orders", getMapClass());

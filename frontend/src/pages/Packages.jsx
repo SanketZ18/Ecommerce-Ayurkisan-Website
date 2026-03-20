@@ -47,7 +47,7 @@ const Packages = () => {
                 await customerService.placeOrder('COD');
                 toast.success("Order Placed Successfully!");
                 window.dispatchEvent(new Event('cartUpdated'));
-                navigate('/customer/orders');
+                navigate(role === 'RETAILER' ? '/retailer/orders' : '/customer/orders');
             } else {
                 toast.success(`${pkg.name} added to cart!`);
                 window.dispatchEvent(new Event('cartUpdated'));

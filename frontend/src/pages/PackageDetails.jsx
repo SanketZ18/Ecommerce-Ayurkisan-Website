@@ -98,7 +98,7 @@ const PackageDetails = () => {
             await customerService.placeOrder('COD');
             toast.success("Order Placed Successfully!");
             window.dispatchEvent(new Event('cartUpdated'));
-            navigate('/customer/orders');
+            navigate(role === 'RETAILER' ? '/retailer/orders' : '/customer/orders');
         } catch (error) {
             console.error(error);
             toast.error("Failed to place order.");
