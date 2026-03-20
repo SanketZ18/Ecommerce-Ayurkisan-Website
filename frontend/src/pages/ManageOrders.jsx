@@ -64,9 +64,16 @@ const ManageOrders = () => {
     const stats = useMemo(() => {
         const customerOrders = orders.filter(o => o.role?.toLowerCase() === 'customer');
         const retailerOrders = orders.filter(o => o.role?.toLowerCase() === 'retailer');
-
-        const customerTotal = customerOrders.reduce((sum, o) => sum + (o.totalDiscountedPrice || 0), 0);
-        const retailerTotal = retailerOrders.reduce((sum, o) => sum + (o.totalDiscountedPrice || 0), 0);
+        
+        const activeCustomerOrders = customerOrders.filter(o => 
+            o.orderStatus !== 'CANCELLED' && o.orderStatus !== 'RETURNED'
+        );
+        const activeRetailerOrders = retailerOrders.filter(o => 
+            o.orderStatus !== 'CANCELLED' && o.orderStatus !== 'RETURNED'
+        );
+        
+        const customerTotal = activeCustomerOrders.reduce((sum, o) => sum + (o.totalDiscountedPrice || 0), 0);
+        const retailerTotal = activeRetailerOrders.reduce((sum, o) => sum + (o.totalDiscountedPrice || 0), 0);
 
         return {
             customer: { count: customerOrders.length, total: customerTotal },

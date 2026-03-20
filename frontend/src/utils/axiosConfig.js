@@ -19,7 +19,11 @@ axios.interceptors.response.use(
                                  !error.config.url.includes('/all');
 
         if (error.response && error.response.status === 401) {
-            if (isUserNotFoundMessage || isProfileEndpoint) {
+            const role = localStorage.getItem('role') || 'CUSTOMER';
+            const isRoleMismatch = (role === 'RETAILER' && error.response.data?.message?.includes("Customer not found")) ||
+                                  (role === 'CUSTOMER' && error.response.data?.message?.includes("Retailer not found"));
+
+            if ((isUserNotFoundMessage || isProfileEndpoint) && !isRoleMismatch) {
                 console.warn("Deleted user or stale profile session detected. Redirecting...");
                 
                 // Only redirect if not already on public pages

@@ -31,7 +31,12 @@ const CustomerNavbar = ({ onOpenProfileModal }) => {
                 // If user is not found (deleted) or unauthorized, logout
                 if (error.response && (error.response.status === 401 || 
                     (error.response.data && error.response.data.message && error.response.data.message.includes("not found")))) {
-                    handleLogout();
+                    const role = localStorage.getItem('role') || 'CUSTOMER';
+                    if (role === 'CUSTOMER') {
+                        handleLogout();
+                    } else {
+                        console.info("Retailer accessed customer profile; ignoring logout.");
+                    }
                 }
             }
         };
@@ -55,7 +60,12 @@ const CustomerNavbar = ({ onOpenProfileModal }) => {
                 // If user is not found (deleted) or unauthorized, logout
                 if (error.response && (error.response.status === 401 || 
                     (error.response.data && error.response.data.message && error.response.data.message.includes("not found")))) {
-                    handleLogout();
+                    const role = localStorage.getItem('role') || 'CUSTOMER';
+                    if (role === 'CUSTOMER') {
+                        handleLogout();
+                    } else {
+                        console.info("Retailer on customer page; ignoring logout for counts fetch.");
+                    }
                 }
             }
         };

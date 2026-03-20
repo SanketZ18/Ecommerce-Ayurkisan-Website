@@ -199,27 +199,29 @@ public class OrderService {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Order not found"));
 
-        if (order.getOrderStatus().equals(newStatus)) {
-            return order; // Prevent recursive loops when ShipmentService -> OrderService call happens
-        }
-
-        order.setOrderStatus(newStatus);
+        boolean orderStatusChanged = !order.getOrderStatus().equals(newStatus);
         
-        // Synchronize the status with ShipmentService for all relevant logistics statuses
-        if (!"RETURNED".equalsIgnoreCase(newStatus)) {
-            try {
-                // Determine comments/remarks based on status
-                String remarks = (reason != null && !reason.isEmpty()) ? reason : "Order status updated to " + newStatus;
-                if ("CONFIRMED".equalsIgnoreCase(newStatus) && (reason == null || reason.isEmpty())) {
-                    remarks = "Order has been confirmed by admin.";
-                }
-                shipmentService.updateShipmentStatus(orderId, newStatus, remarks);
-            } catch (Exception e) {
-                // If it fails, or it's just PLACED (where shipment might not need manual update yet)
-                System.err.println("Note: Shipment sync skipped or already handled: " + e.getMessage());
-            }
+        if (orderStatusChanged) {
+            order.setOrderStatus(newStatus);
         }
 
+        // Synchronize the status with ShipmentService for all relevant logistics statuses
+        try {
+            // Determine comments/remarks based on status
+            String remarks = (reason != null && !reason.isEmpty()) ? reason : "Order status updated to " + newStatus;
+            if ("CONFIRMED".equalsIgnoreCase(newStatus) && (reason == null || reason.isEmpty())) {
+                remarks = "Order has been confirmed by admin.";
+            }
+            shipmentService.updateShipmentStatus(orderId, newStatus, remarks);
+        } catch (Exception e) {
+            // If it fails, or it's just PLACED (where shipment might not need manual update yet)
+            System.err.println("Note: Shipment sync skipped or already handled: " + e.getMessage());
+        }
+
+        if (!orderStatusChanged) {
+            return order; // If status didn't change, we just did the sync and can return
+        }
+        
         if ("SHIPPED".equalsIgnoreCase(newStatus)) {
             order.setShippedAt(java.time.LocalDateTime.now());
         } else if ("DELIVERED".equalsIgnoreCase(newStatus)) {

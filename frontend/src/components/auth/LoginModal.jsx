@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { setAuthData } from '../../utils/auth';
 import { useNavigate } from 'react-router-dom';
-import { FaEye, FaEyeSlash } from "react-icons/fa";
+import { FaEye, FaEyeSlash, FaUsers, FaStore, FaUserShield } from "react-icons/fa";
 import { motion } from 'framer-motion';
 
 const LoginModal = ({ onClose, onSwitchToSignUp }) => {
@@ -101,18 +101,43 @@ const LoginModal = ({ onClose, onSwitchToSignUp }) => {
 
             <form onSubmit={handleSubmit}>
                 <div className="form-group">
-                    <label>Login As</label>
-                    <select
-                        name="role"
-                        value={formData.role}
-                        onChange={handleChange}
-                        required
-                        style={inputStyle}
-                    >
-                        <option value="CUSTOMER">Customer</option>
-                        <option value="RETAILER">Retailer</option>
-                        <option value="ADMIN">Admin</option>
-                    </select>
+                    <label style={{ marginBottom: '1rem', display: 'block' }}>Login As</label>
+                    <div style={roleContainerStyle}>
+                        {[
+                            { id: 'CUSTOMER', label: 'Customer', icon: FaUsers },
+                            { id: 'RETAILER', label: 'Retailer', icon: FaStore },
+                            { id: 'ADMIN', label: 'Admin', icon: FaUserShield },
+                        ].map((role) => (
+                            <div
+                                key={role.id}
+                                onClick={() => setFormData({ ...formData, role: role.id })}
+                                style={{
+                                    ...roleBoxStyle,
+                                    border: formData.role === role.id ? '2px solid var(--primary-green)' : '1px solid #e5e7eb',
+                                    backgroundColor: formData.role === role.id ? '#f0fdf4' : '#fff',
+                                    color: formData.role === role.id ? 'var(--primary-green)' : '#4b5563'
+                                }}
+                            >
+                                <role.icon style={{ fontSize: '1.4rem', marginBottom: '0.5rem' }} />
+                                <span style={{ fontSize: '0.85rem', fontWeight: '600' }}>{role.label}</span>
+                                {formData.role === role.id && (
+                                    <motion.div
+                                        layoutId="activeRole"
+                                        style={{
+                                            position: 'absolute',
+                                            top: -2,
+                                            left: -2,
+                                            right: -2,
+                                            bottom: -2,
+                                            border: '2px solid var(--primary-green)',
+                                            borderRadius: '16px',
+                                            zIndex: -1
+                                        }}
+                                    />
+                                )}
+                            </div>
+                        ))}
+                    </div>
                 </div>
 
                 <div className="form-group">
@@ -205,6 +230,25 @@ const eyeIconStyle = {
     cursor: 'pointer',
     fontSize: '18px',
     color: '#6b7280'
+};
+
+const roleContainerStyle = {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(3, 1fr)',
+    gap: '1rem',
+    marginBottom: '1rem'
+};
+
+const roleBoxStyle = {
+    padding: '1rem 0.5rem',
+    borderRadius: '16px',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    cursor: 'pointer',
+    transition: 'all 0.2s ease',
+    position: 'relative',
+    textAlign: 'center'
 };
 
 export default LoginModal;
