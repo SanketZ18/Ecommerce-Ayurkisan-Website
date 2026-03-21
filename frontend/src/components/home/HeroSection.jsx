@@ -8,7 +8,7 @@ const HeroSection = () => {
     const navigate = useNavigate();
 
     const [heroData] = useState({
-        heading: "Natural Healing Starts From Within",
+        heading: "Nature’s Goodness, Delivered to You.",
         subtext: "Experience the purity of Aloe Vera, Moringa, Tulsi and Ayurvedic blends crafted for complete wellness and vitality."
     });
 
