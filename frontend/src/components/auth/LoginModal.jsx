@@ -64,10 +64,39 @@ const LoginModal = ({ onClose, onSwitchToSignUp }) => {
         }
     };
 
+    const getRoleTheme = (role) => {
+        switch (role) {
+            case 'RETAILER':
+                return {
+                    primary: '#8b5cf6',
+                    light: '#f5f3ff',
+                    text: '#7c3aed'
+                };
+            case 'ADMIN':
+                return {
+                    primary: '#f97316',
+                    light: '#fff7ed',
+                    text: '#ea580c'
+                };
+            default: // CUSTOMER
+                return {
+                    primary: '#059669',
+                    light: '#f0fdf4',
+                    text: '#059669'
+                };
+        }
+    };
+
+    const theme = getRoleTheme(formData.role);
+
     return (
         <motion.div
             className="auth-modal"
-            style={modalStyle}
+            style={{
+                ...modalStyle,
+                borderTop: `6px solid ${theme.primary}`,
+                backgroundColor: theme.light
+            }}
             initial={{ opacity: 0, scale: 0.9, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: 20 }}
@@ -81,7 +110,7 @@ const LoginModal = ({ onClose, onSwitchToSignUp }) => {
                 &times;
             </span>
 
-            <h2 style={{ marginBottom: '1.5rem', color: 'var(--primary-green)', textAlign: 'center' }}>
+            <h2 style={{ marginBottom: '1.5rem', color: theme.primary, textAlign: 'center' }}>
                 Welcome Back
             </h2>
 
@@ -113,9 +142,10 @@ const LoginModal = ({ onClose, onSwitchToSignUp }) => {
                                 onClick={() => setFormData({ ...formData, role: role.id })}
                                 style={{
                                     ...roleBoxStyle,
-                                    border: formData.role === role.id ? '2px solid var(--primary-green)' : '1px solid #e5e7eb',
-                                    backgroundColor: formData.role === role.id ? '#f0fdf4' : '#fff',
-                                    color: formData.role === role.id ? 'var(--primary-green)' : '#4b5563'
+                                    border: formData.role === role.id ? `2px solid ${theme.primary}` : '1px solid #e5e7eb',
+                                    backgroundColor: formData.role === role.id ? '#ffffff' : 'transparent',
+                                    color: formData.role === role.id ? theme.primary : '#4b5563',
+                                    boxShadow: formData.role === role.id ? `0 4px 12px ${theme.primary}20` : 'none'
                                 }}
                             >
                                 <role.icon style={{ fontSize: '1.4rem', marginBottom: '0.5rem' }} />
@@ -129,7 +159,7 @@ const LoginModal = ({ onClose, onSwitchToSignUp }) => {
                                             left: -2,
                                             right: -2,
                                             bottom: -2,
-                                            border: '2px solid var(--primary-green)',
+                                            border: `2px solid ${theme.primary}`,
                                             borderRadius: '16px',
                                             zIndex: -1
                                         }}
@@ -149,7 +179,10 @@ const LoginModal = ({ onClose, onSwitchToSignUp }) => {
                         onChange={handleChange}
                         required
                         placeholder="Enter your email"
-                        style={inputStyle}
+                        style={{
+                            ...inputStyle,
+                            backgroundColor: '#ffffff'
+                        }}
                     />
                 </div>
 
@@ -162,7 +195,10 @@ const LoginModal = ({ onClose, onSwitchToSignUp }) => {
                         onChange={handleChange}
                         required
                         placeholder="Enter your password"
-                        style={inputStyle}
+                        style={{
+                            ...inputStyle,
+                            backgroundColor: '#ffffff'
+                        }}
                     />
                     <span
                         onClick={togglePassword}
@@ -175,7 +211,16 @@ const LoginModal = ({ onClose, onSwitchToSignUp }) => {
                 <button
                     type="submit"
                     className="btn-primary"
-                    style={{ width: '100%', marginTop: '1rem', padding: '0.85rem', fontSize: '1rem', borderRadius: '12px' }}
+                    style={{ 
+                        width: '100%', 
+                        marginTop: '1rem', 
+                        padding: '0.85rem', 
+                        fontSize: '1rem', 
+                        borderRadius: '12px',
+                        backgroundColor: theme.primary,
+                        border: 'none',
+                        boxShadow: `0 4px 14px 0 ${theme.primary}33`
+                    }}
                     disabled={loading}
                 >
                     {loading ? 'Logging in...' : 'Login'}
@@ -184,7 +229,7 @@ const LoginModal = ({ onClose, onSwitchToSignUp }) => {
 
             <div style={{ marginTop: '1.5rem', fontSize: '0.9rem', textAlign: 'center', color: 'var(--text-light)' }}>
                 Don't have an account?{' '}
-                <span onClick={onSwitchToSignUp} style={{ color: 'var(--primary-green)', cursor: 'pointer', fontWeight: 'bold' }}>
+                <span onClick={onSwitchToSignUp} style={{ color: theme.primary, cursor: 'pointer', fontWeight: 'bold' }}>
                     Sign up
                 </span>
             </div>
@@ -196,10 +241,10 @@ const modalStyle = {
     padding: '2.5rem',
     borderRadius: '24px',
     boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
-    backgroundColor: '#ffffff',
-    borderTop: '6px solid var(--primary-green)',
     width: '500px',
-    maxWidth: '90vw'
+    maxWidth: '90vw',
+    transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+    position: 'relative'
 };
 
 const inputStyle = {

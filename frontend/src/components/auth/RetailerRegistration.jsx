@@ -52,15 +52,15 @@ const RetailerRegistration = ({ onClose, onSwitchToLogin }) => {
             transition={{ duration: 0.3 }}
         >
             <span className="close-btn" onClick={onClose} style={closeBtnStyle}>&times;</span>
-            <h2 style={{ marginBottom: '1.5rem', color: 'var(--primary-green)', textAlign: 'center' }}>Retailer Sign Up</h2>
+            <h2 style={{ marginBottom: '1.5rem', color: '#8b5cf6', textAlign: 'center' }}>Retailer Sign Up</h2>
 
             {status.message && (
                 <div style={{
                     padding: '0.75rem',
                     marginBottom: '1rem',
                     borderRadius: '8px',
-                    backgroundColor: status.type === 'success' ? '#f0fdf4' : '#fef2f2',
-                    color: status.type === 'success' ? '#16a34a' : '#b91c1c',
+                    backgroundColor: status.type === 'success' ? '#f5f3ff' : '#fef2f2',
+                    color: status.type === 'success' ? '#7c3aed' : '#b91c1c',
                     textAlign: 'center',
                     fontSize: '0.9rem'
                 }}>
@@ -107,13 +107,27 @@ const RetailerRegistration = ({ onClose, onSwitchToLogin }) => {
                     </span>
                 </div>
 
-                <button type="submit" className="btn-primary" style={{ width: '100%', marginTop: '1rem', padding: '0.85rem', fontSize: '1rem', borderRadius: '12px' }} disabled={loading}>
+                <button 
+                    type="submit" 
+                    className="btn-primary" 
+                    style={{ 
+                        width: '100%', 
+                        marginTop: '1rem', 
+                        padding: '0.85rem', 
+                        fontSize: '1rem', 
+                        borderRadius: '12px',
+                        backgroundColor: '#8b5cf6',
+                        border: 'none',
+                        boxShadow: '0 4px 14px 0 rgba(139, 92, 246, 0.2)'
+                    }} 
+                    disabled={loading}
+                >
                     {loading ? 'Registering...' : 'Sign Up as Retailer'}
                 </button>
             </form>
 
             <div style={{ marginTop: '1.5rem', fontSize: '0.9rem', textAlign: 'center', color: 'var(--text-light)' }}>
-                Already have an account? <span onClick={onSwitchToLogin} style={{ color: 'var(--primary-green)', cursor: 'pointer', fontWeight: 'bold' }}>Login here</span>
+                Already have an account? <span onClick={onSwitchToLogin} style={{ color: '#8b5cf6', cursor: 'pointer', fontWeight: 'bold' }}>Login here</span>
             </div>
         </motion.div>
     );
@@ -123,12 +137,13 @@ const modalStyle = {
     padding: '2.5rem',
     borderRadius: '24px',
     boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
-    backgroundColor: '#ffffff',
-    borderTop: '6px solid var(--primary-green)',
+    backgroundColor: '#f5f3ff',
+    borderTop: '6px solid #8b5cf6',
     maxHeight: '90vh',
     overflowY: 'auto',
     width: '600px',
-    maxWidth: '90vw'
+    maxWidth: '90vw',
+    transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)'
 };
 
 const closeBtnStyle = {
@@ -161,6 +176,7 @@ const inputStyle = {
     fontFamily: 'inherit',
     transition: 'border-color 0.2s',
     outline: 'none',
+    backgroundColor: '#ffffff'
 };
 
 const eyeIconStyle = {
