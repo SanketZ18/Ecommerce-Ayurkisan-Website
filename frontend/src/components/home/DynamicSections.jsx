@@ -3,6 +3,7 @@ import axios from 'axios';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { FaArrowRight, FaStar, FaQuoteLeft } from 'react-icons/fa';
+import { toast } from 'react-toastify';
 
 // Import the video correctly for Vite
 import AdvertisementVideo from "../../assets/Advertisement.mp4";
@@ -118,6 +119,41 @@ const TextMediaSection = ({ section }) => {
                 <p style={{ fontSize: '1.15rem', color: 'var(--text-light)', lineHeight: '1.7', margin: 0 }}>
                     {section.subtitle}
                 </p>
+                {section.promoCode && section.showPromoCode && (
+                    <div style={{ 
+                        marginTop: '5px', 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        gap: '8px',
+                        background: 'rgba(16, 185, 129, 0.05)',
+                        padding: '6px 14px',
+                        borderRadius: '10px',
+                        width: 'fit-content',
+                        border: '1px solid rgba(16, 185, 129, 0.2)'
+                    }}>
+                        <span style={{ fontSize: '0.8rem', color: 'var(--text-light)', fontWeight: '600' }}>Use Code:</span>
+                        <span style={{ fontSize: '0.9rem', color: 'var(--primary-green)', fontWeight: '800' }}>{section.promoCode}</span>
+                        <button 
+                            onClick={() => {
+                                navigator.clipboard.writeText(section.promoCode);
+                                toast.success('Code copied!');
+                            }}
+                            style={{
+                                background: 'var(--primary-green)',
+                                border: 'none',
+                                color: '#fff',
+                                cursor: 'pointer',
+                                fontSize: '0.7rem',
+                                fontWeight: '700',
+                                padding: '2px 8px',
+                                borderRadius: '4px',
+                                marginLeft: '5px'
+                            }}
+                        >
+                            Copy
+                        </button>
+                    </div>
+                )}
                 {section.ctaText && (
                     <Link to={section.ctaLink || '#'} style={{ textDecoration: 'none', marginTop: '10px' }}>
                         <motion.button

@@ -41,6 +41,7 @@ import ManageOrders from './pages/ManageOrders';
 import ManageReturns from './pages/ManageReturns';
 import ManageShipments from './pages/ManageShipments';
 import ManageReports from './pages/ManageReports';
+import ManageOffers from './pages/ManageOffers';
 import CustomerDashboard from './pages/CustomerDashboard';
 import CustomerProfile from './pages/customer/CustomerProfile';
 import RetailerDashboard from './pages/RetailerDashboard';
@@ -49,6 +50,7 @@ import MyOrders from './pages/MyOrders';
 import OrderTracking from './pages/OrderTracking';
 import RequestReturn from './pages/RequestReturn';
 import CustomerReturns from './pages/CustomerReturns';
+import LegalPolicies from './pages/LegalPolicies';
 
 import { getUserRole, isAuthenticated } from './utils/auth';
 
@@ -155,6 +157,12 @@ function App() {
                     </GlobalLayout>
                 } />
 
+                {/* LEGAL POLICIES */}
+                <Route path="/policy" element={<GlobalLayout><LegalPolicies /></GlobalLayout>} />
+                <Route path="/terms" element={<GlobalLayout><LegalPolicies /></GlobalLayout>} />
+                <Route path="/shipping" element={<GlobalLayout><LegalPolicies /></GlobalLayout>} />
+                <Route path="/returns" element={<GlobalLayout><LegalPolicies /></GlobalLayout>} />
+
                 {/* DASHBOARDS */}
                 {/* Admin wrapped in AdminLayout */}
                 <Route path="/admin/*" element={
@@ -170,6 +178,7 @@ function App() {
                             <Route path="shipment" element={<ManageShipments />} />
                             <Route path="returns" element={<ManageReturns />} />
                             <Route path="reports" element={<ManageReports />} />
+                            <Route path="offers" element={<ManageOffers />} />
                             {/* Other admin routes will go here */}
                         </Routes>
                     </AdminLayout>

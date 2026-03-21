@@ -18,6 +18,8 @@ public class HomePageSection {
     private String ctaText;
     private String ctaLink;
     private String alignment;
+    private String promoCode; // Linked promo code for special_offers
+    private boolean showPromoCode; // Toggle to show/hide promo code on banner
     private boolean isNew;
     private int orderIndex;
 
@@ -52,6 +54,12 @@ public class HomePageSection {
 
     public String getAlignment() { return alignment; }
     public void setAlignment(String alignment) { this.alignment = alignment; }
+
+    public String getPromoCode() { return promoCode; }
+    public void setPromoCode(String promoCode) { this.promoCode = promoCode; }
+
+    public boolean isShowPromoCode() { return showPromoCode; }
+    public void setShowPromoCode(boolean showPromoCode) { this.showPromoCode = showPromoCode; }
 
     public boolean isNew() { return isNew; }
     public void setNew(boolean isNew) { this.isNew = isNew; }

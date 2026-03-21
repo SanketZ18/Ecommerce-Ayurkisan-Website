@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import { FaCheckCircle, FaTruck, FaMapMarkerAlt, FaCreditCard, FaReceipt } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import customerService from '../utils/customerService';
@@ -12,6 +13,9 @@ const Checkout = () => {
     const [loading, setLoading] = useState(false);
     const [orderDone, setOrderDone] = useState(false);
     const [orderInfo, setOrderInfo] = useState(null);
+    const [promoCode, setPromoCode] = useState('');
+    const [appliedOffer, setAppliedOffer] = useState(null);
+    const [discountAmount, setDiscountAmount] = useState(0);
 
     const [formData, setFormData] = useState({
         name: '',
@@ -19,6 +23,35 @@ const Checkout = () => {
         address: '',
         paymentMethod: 'COD'
     });
+
+    const handleApplyPromo = async () => {
+        if (!promoCode.trim()) return toast.error("Enter a code first");
+        try {
+            const subtotalAmount = cartData?.totalDiscountedPrice || 0;
+            const res = await axios.get(`http://localhost:9090/api/offers/validate?code=${promoCode}&orderAmount=${subtotalAmount}`);
+            const offer = res.data;
+            
+            let disc = 0;
+            if (offer.discountType === 'PERCENTAGE') {
+                disc = (subtotalAmount * offer.discountValue) / 100;
+            } else {
+                disc = offer.discountValue;
+            }
+            
+            setAppliedOffer(offer);
+            setDiscountAmount(disc);
+            toast.success("Promo code applied!");
+        } catch (err) {
+            toast.error(err.response?.data?.message || "Invalid or expired promo code");
+        }
+    };
+
+    const handleRemovePromo = () => {
+        setAppliedOffer(null);
+        setDiscountAmount(0);
+        setPromoCode('');
+        toast.info("Promo code removed");
+    };
 
     useEffect(() => {
         fetchCheckoutData();
@@ -75,7 +108,8 @@ const Checkout = () => {
                 formData.paymentMethod,
                 formData.name,
                 formData.phone,
-                formData.address
+                formData.address,
+                appliedOffer?.code
             );
             if (res.status === 200 || res.status === 201) {
                 setOrderInfo(res.data);
@@ -119,7 +153,7 @@ const Checkout = () => {
 
     const subtotal = cartData?.totalDiscountedPrice || 0;
     const deliveryCharge = 50.0;
-    const grandTotal = subtotal + deliveryCharge;
+    const grandTotal = subtotal + deliveryCharge - discountAmount;
 
     return (
         <div style={{ padding: '40px 5%', backgroundColor: '#f3f4f6', minHeight: '100vh' }}>
@@ -225,6 +259,12 @@ const Checkout = () => {
                                     <span>Items Subtotal:</span>
                                     <span>₹{subtotal}</span>
                                 </div>
+                                {appliedOffer && (
+                                    <div style={{ ...summaryRowStyle, color: '#10b981', fontWeight: '700' }}>
+                                        <span>Promo Discount ({appliedOffer.code}):</span>
+                                        <span>- ₹{discountAmount}</span>
+                                    </div>
+                                )}
                                 <div style={summaryRowStyle}>
                                     <span>Delivery Charge:</span>
                                     <span style={{ color: '#10b981', fontWeight: '700' }}>₹{deliveryCharge}</span>
@@ -245,17 +285,36 @@ const Checkout = () => {
                                 </button>
                                 
                                 <div style={{ marginTop: '25px', padding: '20px', backgroundColor: '#f9fafb', borderRadius: '12px', border: '1px solid #f1f5f9' }}>
-                                    <h4 style={{ margin: '0 0 10px 0', fontSize: '0.9rem', fontWeight: '700' }}>Applied Offers</h4>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: '#10b981', fontSize: '0.85rem' }}>
-                                        <FaCheckCircle size={14} /> Platform-wide delivery discount enabled
-                                    </div>
-                                    <div style={{ marginTop: '15px' }}>
+                                    <h4 style={{ margin: '0 0 10px 0', fontSize: '0.9rem', fontWeight: '700' }}>Apply Promo Code</h4>
+                                    <div style={{ display: 'flex', gap: '8px' }}>
                                         <input 
-                                            placeholder="Promo Code" 
-                                            style={{ ...inputStyle, width: '100%', padding: '8px 12px', fontSize: '0.85rem' }} 
+                                            placeholder="Enter Code" 
+                                            style={{ ...inputStyle, flex: 1, padding: '8px 12px', fontSize: '0.85rem' }} 
+                                            value={promoCode}
+                                            onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
+                                            disabled={appliedOffer}
                                         />
-                                        <button style={{ width: '100%', marginTop: '8px', padding: '8px', background: '#fff', border: '1px solid #e5e7eb', borderRadius: '8px', fontSize: '0.85rem', fontWeight: '700', cursor: 'pointer' }}>Apply</button>
+                                        {appliedOffer ? (
+                                            <button 
+                                                onClick={handleRemovePromo}
+                                                style={{ padding: '8px 12px', background: '#fee2e2', color: '#ef4444', border: 'none', borderRadius: '8px', fontSize: '0.85rem', fontWeight: '700', cursor: 'pointer' }}
+                                            >
+                                                Remove
+                                            </button>
+                                        ) : (
+                                            <button 
+                                                onClick={handleApplyPromo}
+                                                style={{ padding: '8px 15px', background: '#111827', color: '#fff', border: 'none', borderRadius: '8px', fontSize: '0.85rem', fontWeight: '700', cursor: 'pointer' }}
+                                            >
+                                                Apply
+                                            </button>
+                                        )}
                                     </div>
+                                    {appliedOffer && (
+                                        <div style={{ marginTop: '10px', display: 'flex', alignItems: 'center', gap: '8px', color: '#10b981', fontSize: '0.8rem', fontWeight: '600' }}>
+                                            <FaCheckCircle size={12} /> {appliedOffer.description}
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         </div>
