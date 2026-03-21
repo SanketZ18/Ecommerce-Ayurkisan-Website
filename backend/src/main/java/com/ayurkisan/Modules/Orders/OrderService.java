@@ -43,6 +43,9 @@ public class OrderService {
     private ProductPackageService packageService;
 
     @Autowired
+    private com.ayurkisan.service.OfferService offerService;
+
+    @Autowired
     private EmailService emailService;
 
     @Autowired
@@ -50,7 +53,7 @@ public class OrderService {
     private ShipmentService shipmentService;
 
     @Transactional
-    public Order placeOrder(String userId, String role, String paymentMethod, String customName, String customPhone, String customAddress) {
+    public Order placeOrder(String userId, String role, String paymentMethod, String customName, String customPhone, String customAddress, String promoCode) {
 
         // 1. Fetch Cart
         Cart cart = cartService.getCart(userId, role);
@@ -92,9 +95,29 @@ public class OrderService {
         order.setShippingAddress(address);
 
         double deliveryFee = 50.0;
+        double subtotal = cart.getTotalDiscountedPrice();
+        double promoDiscount = 0.0;
+
+        if (promoCode != null && !promoCode.isBlank()) {
+            try {
+                com.ayurkisan.model.Offer offer = offerService.validateOffer(promoCode, subtotal);
+                if (offer.getDiscountType().equals("PERCENTAGE")) {
+                    promoDiscount = subtotal * (offer.getDiscountValue() / 100.0);
+                } else {
+                    promoDiscount = offer.getDiscountValue();
+                }
+                order.setPromoCode(promoCode);
+                order.setPromoDiscount(promoDiscount);
+            } catch (Exception e) {
+                // If promo code is invalid, we could either fail or ignore. 
+                // In a real app, we should probably fail if the user explicitly provided it.
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+            }
+        }
+
         order.setDeliveryCharge(deliveryFee);
         order.setTotalOriginalPrice(cart.getTotalOriginalPrice() + deliveryFee);
-        order.setTotalDiscountedPrice(cart.getTotalDiscountedPrice() + deliveryFee);
+        order.setTotalDiscountedPrice(subtotal + deliveryFee - promoDiscount);
 
         order.setPaymentMethod(paymentMethod);
         if ("COD".equalsIgnoreCase(paymentMethod)) {

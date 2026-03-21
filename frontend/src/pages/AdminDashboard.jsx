@@ -6,7 +6,7 @@ import { toast } from 'react-toastify';
 import { 
     FaRupeeSign, FaShoppingCart, FaBoxOpen, FaLayerGroup, 
     FaStore, FaUsers, FaChartLine, FaUserShield, 
-    FaEnvelope, FaReply, FaTrash, FaTimes 
+    FaEnvelope, FaReply, FaTrash, FaTimes, FaTag
 } from 'react-icons/fa';
 import adminService from '../utils/adminService';
 
@@ -255,6 +255,7 @@ const AdminDashboard = () => {
                             { label: 'Manage Products', path: '/admin/products', icon: FaBoxOpen },
                             { label: 'Category Settings', path: '/admin/categories', icon: FaChartLine },
                             { label: 'Bundles & Packages', path: '/admin/packages', icon: FaShoppingCart },
+                            { label: 'Promo & Special Offers', path: '/admin/offers', icon: FaTag },
                             { label: 'Administrator Team', path: '/admin/manage-admins', icon: FaUsers }
                         ].map((btn, i) => (
                             <motion.button

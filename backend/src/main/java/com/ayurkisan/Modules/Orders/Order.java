@@ -40,7 +40,16 @@ public class Order {
     private LocalDateTime deliveredAt;
     private LocalDateTime returnDeadline;
 
+    private String promoCode;
+    private double promoDiscount;
+
     // ===== GETTERS & SETTERS =====
+
+    public String getPromoCode() { return promoCode; }
+    public void setPromoCode(String promoCode) { this.promoCode = promoCode; }
+
+    public double getPromoDiscount() { return promoDiscount; }
+    public void setPromoDiscount(double promoDiscount) { this.promoDiscount = promoDiscount; }
 
     public String getId() { return id; }
     public void setId(String id) { this.id = id; }
