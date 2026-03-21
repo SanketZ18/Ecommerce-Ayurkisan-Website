@@ -39,6 +39,8 @@ public class HomePageSectionService {
             // New fields
             section.setProductIds(newSectionData.getProductIds());
             section.setItems(newSectionData.getItems());
+            section.setPromoCode(newSectionData.getPromoCode());
+            section.setShowPromoCode(newSectionData.isShowPromoCode());
             return repository.save(section);
         }
         return null;
