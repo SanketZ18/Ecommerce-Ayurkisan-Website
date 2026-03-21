@@ -50,6 +50,7 @@ import MyOrders from './pages/MyOrders';
 import OrderTracking from './pages/OrderTracking';
 import RequestReturn from './pages/RequestReturn';
 import CustomerReturns from './pages/CustomerReturns';
+import LegalPolicies from './pages/LegalPolicies';
 
 import { getUserRole, isAuthenticated } from './utils/auth';
 
@@ -155,6 +156,12 @@ function App() {
                         <Contact />
                     </GlobalLayout>
                 } />
+
+                {/* LEGAL POLICIES */}
+                <Route path="/policy" element={<GlobalLayout><LegalPolicies /></GlobalLayout>} />
+                <Route path="/terms" element={<GlobalLayout><LegalPolicies /></GlobalLayout>} />
+                <Route path="/shipping" element={<GlobalLayout><LegalPolicies /></GlobalLayout>} />
+                <Route path="/returns" element={<GlobalLayout><LegalPolicies /></GlobalLayout>} />
 
                 {/* DASHBOARDS */}
                 {/* Admin wrapped in AdminLayout */}
