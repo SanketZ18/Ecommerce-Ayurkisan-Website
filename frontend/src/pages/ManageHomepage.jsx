@@ -15,14 +15,17 @@ const ManageHomepage = () => {
     const [bestSellersSection, setBestSellersSection] = useState(null);
     const [offersSection, setOffersSection] = useState(null);
     const [testimonialsSection, setTestimonialsSection] = useState(null);
+    const [offers, setOffers] = useState([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         Promise.all([
             axios.get(`${API}/products/all`),
-            axios.get(`${API}/api/homepage/sections`)
-        ]).then(([prodRes, secRes]) => {
+            axios.get(`${API}/api/homepage/sections`),
+            axios.get(`${API}/api/offers`)
+        ]).then(([prodRes, secRes, offerRes]) => {
             if (Array.isArray(prodRes.data)) setAllProducts(prodRes.data);
+            if (Array.isArray(offerRes.data)) setOffers(offerRes.data);
 
             const sections = secRes.data || [];
             const bs = sections.find(s => s.type === 'bestsellers');
@@ -136,6 +139,7 @@ const ManageHomepage = () => {
                         <SpecialOffersTab
                             section={offersSection}
                             setSection={setOffersSection}
+                            offers={offers}
                             onSave={() => saveSection(offersSection, setOffersSection)}
                         />
                     </motion.div>
@@ -298,7 +302,7 @@ const ProductCard = ({ product, selected, onToggle }) => (
 );
 
 // ========== SPECIAL OFFERS TAB ==========
-const SpecialOffersTab = ({ section, setSection, onSave }) => {
+const SpecialOffersTab = ({ section, setSection, offers, onSave }) => {
     const update = (field, value) => setSection({ ...section, [field]: value });
 
     return (
@@ -321,11 +325,34 @@ const SpecialOffersTab = ({ section, setSection, onSave }) => {
                     <input type="text" style={inputSt} value={section.title || ''} onChange={e => update('title', e.target.value)} placeholder="Special Summer Offers! 🌿" />
                 </div>
                 <div>
-                    <label style={labelSt}>Alignment</label>
-                    <select style={inputSt} value={section.alignment || 'left'} onChange={e => update('alignment', e.target.value)}>
-                        <option value="left">Text Left, Image Right</option>
-                        <option value="right">Text Right, Image Left</option>
-                    </select>
+                    <label style={labelSt}>Promo Code</label>
+                    <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                        <input 
+                            type="text" 
+                            style={{ ...inputSt, flex: 1 }} 
+                            value={section.promoCode || ''} 
+                            onChange={e => update('promoCode', e.target.value.toUpperCase())} 
+                            placeholder="e.g. AYUR50" 
+                        />
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }} onClick={() => update('showPromoCode', !section.showPromoCode)}>
+                            <div style={{
+                                width: '40px', height: '20px', 
+                                borderRadius: '10px', 
+                                background: section.showPromoCode ? 'var(--primary-green)' : '#d1d5db',
+                                position: 'relative', transition: '0.3s'
+                            }}>
+                                <div style={{
+                                    width: '16px', height: '16px', borderRadius: '50%',
+                                    background: '#fff', position: 'absolute',
+                                    top: '2px', left: section.showPromoCode ? '22px' : '2px',
+                                    transition: '0.3s'
+                                }} />
+                            </div>
+                            <span style={{ fontSize: '0.8rem', fontWeight: '600', color: section.showPromoCode ? 'var(--primary-green)' : 'var(--text-light)' }}>
+                                {section.showPromoCode ? 'Active' : 'Hidden'}
+                            </span>
+                        </div>
+                    </div>
                 </div>
                 <div style={{ gridColumn: '1 / span 2' }}>
                     <label style={labelSt}>Subtitle / Description</label>
@@ -355,6 +382,16 @@ const SpecialOffersTab = ({ section, setSection, onSave }) => {
                 <p style={{ fontSize: '0.8rem', color: 'var(--text-light)', marginTop: 0, marginBottom: '0.5rem' }}>📌 Preview</p>
                 <h2 style={{ fontSize: '1.8rem', color: 'var(--text-dark)', margin: '0 0 0.5rem' }}>{section.title || 'Section Title'}</h2>
                 <p style={{ color: 'var(--text-light)', margin: '0 0 1rem' }}>{section.subtitle || 'Section subtitle...'}</p>
+                
+                {section.promoCode && section.showPromoCode && (
+                    <div style={{ marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <span style={{ fontSize: '0.9rem', color: 'var(--text-light)' }}>Promo Code:</span>
+                        <span style={{ background: '#fff', padding: '4px 12px', borderRadius: '6px', border: '1px dashed var(--primary-green)', color: 'var(--primary-green)', fontWeight: 'bold' }}>
+                            {section.promoCode}
+                        </span>
+                    </div>
+                )}
+
                 {section.ctaText && (
                     <button style={{ padding: '10px 24px', background: 'var(--primary-green)', color: '#fff', border: 'none', borderRadius: '25px', fontWeight: 'bold', cursor: 'default' }}>
                         {section.ctaText}

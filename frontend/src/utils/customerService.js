@@ -16,11 +16,12 @@ const customerService = {
     // Order Management
     getMyOrders: () => axios.get(`${API_BASE_URL}/orders/my-orders`, { headers: getAuthHeader() }),
     getOrderHistory: (userId) => axios.get(`${API_BASE_URL}/orders/my-orders`, { headers: getAuthHeader() }), // Alias for consistency
-    placeOrder: (paymentMethod, customName, customPhone, customAddress) => {
+    placeOrder: (paymentMethod, customName, customPhone, customAddress, promoCode) => {
         let url = `${API_BASE_URL}/orders/place-order?paymentMethod=${paymentMethod}`;
         if (customName) url += `&customName=${encodeURIComponent(customName)}`;
         if (customPhone) url += `&customPhone=${encodeURIComponent(customPhone)}`;
         if (customAddress) url += `&customAddress=${encodeURIComponent(customAddress)}`;
+        if (promoCode) url += `&promoCode=${encodeURIComponent(promoCode)}`;
         return axios.post(url, {}, { headers: getAuthHeader() });
     },
     cancelOrder: (orderId) => axios.put(`${API_BASE_URL}/orders/cancel/${orderId}`, {}, { headers: getAuthHeader() }),

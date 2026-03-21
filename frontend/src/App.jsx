@@ -41,6 +41,7 @@ import ManageOrders from './pages/ManageOrders';
 import ManageReturns from './pages/ManageReturns';
 import ManageShipments from './pages/ManageShipments';
 import ManageReports from './pages/ManageReports';
+import ManageOffers from './pages/ManageOffers';
 import CustomerDashboard from './pages/CustomerDashboard';
 import CustomerProfile from './pages/customer/CustomerProfile';
 import RetailerDashboard from './pages/RetailerDashboard';
@@ -170,6 +171,7 @@ function App() {
                             <Route path="shipment" element={<ManageShipments />} />
                             <Route path="returns" element={<ManageReturns />} />
                             <Route path="reports" element={<ManageReports />} />
+                            <Route path="offers" element={<ManageOffers />} />
                             {/* Other admin routes will go here */}
                         </Routes>
                     </AdminLayout>

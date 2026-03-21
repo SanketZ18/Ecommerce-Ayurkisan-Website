@@ -23,7 +23,7 @@ const SignUpSelection = ({ onClose, onSelectCustomer, onSelectRetailer, onSwitch
                 <motion.div
                     style={cardStyle}
                     onClick={onSelectCustomer}
-                    whileHover={{ scale: 1.02, borderColor: 'var(--secondary-bg)' }}
+                    whileHover={{ scale: 1.02, borderColor: '#059669', backgroundColor: '#f0fdf4' }}
                     whileTap={{ scale: 0.98 }}
                 >
                     <div style={{ ...iconContainerStyle, backgroundColor: '#f0fdf4', color: '#16a34a' }}>
@@ -38,10 +38,10 @@ const SignUpSelection = ({ onClose, onSelectCustomer, onSelectRetailer, onSwitch
                 <motion.div
                     style={cardStyle}
                     onClick={onSelectRetailer}
-                    whileHover={{ scale: 1.02, borderColor: 'var(--secondary-bg)' }}
+                    whileHover={{ scale: 1.02, borderColor: '#8b5cf6', backgroundColor: '#f5f3ff' }}
                     whileTap={{ scale: 0.98 }}
                 >
-                    <div style={{ ...iconContainerStyle, backgroundColor: '#fef3c7', color: '#d97706' }}>
+                    <div style={{ ...iconContainerStyle, backgroundColor: '#f5f3ff', color: '#8b5cf6' }}>
                         <FaStore size={32} />
                     </div>
                     <div>
@@ -65,8 +65,10 @@ const modalStyle = {
     padding: '2.5rem',
     borderRadius: '24px',
     boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
-    borderTop: '6px solid var(--secondary-bg)',
-    backgroundColor: '#ffffff'
+    borderTop: '6px solid var(--primary-green)',
+    backgroundColor: '#ffffff',
+    width: '500px',
+    maxWidth: '90vw'
 };
 
 const headerStyle = {

@@ -195,12 +195,15 @@ const ManagePackages = () => {
 
                         <div style={{ backgroundColor: '#f9fafb', borderRadius: '16px', padding: '1rem', marginBottom: '1.5rem' }}>
                             <div style={{ fontSize: '0.8rem', fontWeight: '700', color: 'var(--text-light)', marginBottom: '8px', textTransform: 'uppercase' }}>Package Content</div>
-                            {pkg.items?.map((item, i) => (
-                                <div key={i} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem', marginBottom: '4px', color: '#4b5563' }}>
-                                    <span>{item.productName || 'Product'}</span>
-                                    <span style={{ fontWeight: '700' }}>x{item.quantity}</span>
-                                </div>
-                            ))}
+                            {pkg.items?.map((item, i) => {
+                                const product = products.find(p => p.id === item.productId);
+                                return (
+                                    <div key={i} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem', marginBottom: '4px', color: '#4b5563' }}>
+                                        <span>{product ? product.productName : (item.productName || 'Product')}</span>
+                                        <span style={{ fontWeight: '700' }}>x{item.quantity}</span>
+                                    </div>
+                                );
+                            })}
                         </div>
 
                         <div style={{ marginTop: 'auto', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
@@ -278,9 +281,13 @@ const ManagePackages = () => {
                                             </div>
                                         ) : (
                                             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                                                {formData.items.map((item, i) => (
-                                                    <div key={i} style={{ display: 'flex', alignItems: 'center', backgroundColor: '#fff', padding: '0.75rem 1rem', borderRadius: '14px', boxShadow: '0 2px 4px rgba(0,0,0,0.03)' }}>
-                                                        <span style={{ flex: 1, fontSize: '0.85rem', fontWeight: '600', color: 'var(--text-dark)' }}>{item.productName}</span>
+                                                {formData.items.map((item, i) => {
+                                                    const product = products.find(p => p.id === item.productId);
+                                                    return (
+                                                        <div key={i} style={{ display: 'flex', alignItems: 'center', backgroundColor: '#fff', padding: '0.75rem 1rem', borderRadius: '14px', boxShadow: '0 2px 4px rgba(0,0,0,0.03)' }}>
+                                                            <span style={{ flex: 1, fontSize: '0.85rem', fontWeight: '600', color: 'var(--text-dark)' }}>
+                                                                {product ? product.productName : (item.productName || 'Product')}
+                                                            </span>
                                                         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                                                             <input
                                                                 type="number"
@@ -295,9 +302,10 @@ const ManagePackages = () => {
                                                             >
                                                                 <FaMinus />
                                                             </button>
+                                                            </div>
                                                         </div>
-                                                    </div>
-                                                ))}
+                                                    );
+                                                })}
                                             </div>
                                         )}
                                     </div>
