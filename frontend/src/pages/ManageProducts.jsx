@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FaPlus, FaEdit, FaTrash, FaTimes, FaSearch, FaFilter, FaCapsules, FaChevronRight, FaChevronLeft } from 'react-icons/fa';
+import { FaPlus, FaEdit, FaTrash, FaTimes, FaSearch, FaFilter, FaCapsules, FaChevronRight, FaChevronLeft, FaReply } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import adminService from '../utils/adminService';
 
@@ -245,7 +245,12 @@ const ManageProducts = () => {
                                     </td>
                                     <td style={{ padding: '1.2rem 1.5rem', textAlign: 'right' }}>
                                         <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
-                                            <button onClick={() => handleOpenModal(prod)} style={{ background: '#f3f4f6', border: 'none', color: '#4b5563', padding: '10px', borderRadius: '10px', cursor: 'pointer' }}><FaEdit /></button>
+                                            <button
+                                                onClick={() => handleOpenModal(prod)}
+                                                style={{ background: 'var(--primary-green)', border: 'none', color: '#fff', padding: '10px 15px', borderRadius: '12px', cursor: 'pointer', fontWeight: '600', display: 'inline-flex', alignItems: 'center', gap: '8px' }}
+                                            >
+                                                <FaReply /> Process
+                                            </button>
                                             <button onClick={() => handleDelete(prod.id)} style={{ background: '#fee2e2', border: 'none', color: '#ef4444', padding: '10px', borderRadius: '10px', cursor: 'pointer' }}><FaTrash /></button>
                                         </div>
                                     </td>
