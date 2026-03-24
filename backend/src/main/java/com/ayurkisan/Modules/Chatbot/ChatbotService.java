@@ -70,12 +70,22 @@ public class ChatbotService {
             return ChatbotResponse.text("🚀 **Retailer Order Detected!**\n\nFor bulk purchases (10+ units), we offer exclusive wholesale pricing and GST invoicing. \n\n**Total Price for your query:** (Fetching wholesale rates...)\nWould you like to speak with our business team?");
         }
 
-        // 2. FAQ Check
-        List<FAQ> faqs = faqRepository.findAll();
-        for (FAQ faq : faqs) {
-            String q = faq.getQuestion().toLowerCase();
-            if (message.contains(q) || q.contains(message)) {
+        // 2. FAQ Check (Exact Match First)
+        List<FAQ> allFaqs = faqRepository.findAll();
+        for (FAQ faq : allFaqs) {
+            if (message.equalsIgnoreCase(faq.getQuestion().trim())) {
                 return ChatbotResponse.text("💡 " + faq.getAnswer());
+            }
+        }
+
+        // 3. Keyword/Disease Match
+        for (FAQ faq : allFaqs) {
+            if (faq.getKeywords() != null) {
+                for (String kw : faq.getKeywords()) {
+                    if (message.contains(kw.toLowerCase().trim())) {
+                        return ChatbotResponse.text("🌿 **Related to your query:**\n\n" + faq.getAnswer());
+                    }
+                }
             }
         }
 
@@ -102,10 +112,22 @@ public class ChatbotService {
         // 7. General Product/Package Search (Specific name matching)
         List<ChatProductDTO> searchResults = new ArrayList<>();
         
+        // Exact name check first
         List<Product> products = productRepository.findByProductNameContainingIgnoreCase(message);
-        searchResults.addAll(products.stream().map(this::mapToDTO).collect(Collectors.toList()));
-        
         List<ProductPackage> packages = packageRepository.findByNameContainingIgnoreCase(message);
+
+        if (containsAny(message, "detail", "info", "tell me", "about", "show", "what is")) {
+            if (!products.isEmpty()) {
+                Product p = products.get(0);
+                return ChatbotResponse.text("🌿 **" + p.getProductName() + "**\n\n" + p.getDescription() + "\n\n💰 Price: ₹" + p.getFinalPrice() + "\n✨ Benefits: " + p.getIngredients());
+            }
+            if (!packages.isEmpty()) {
+                ProductPackage pkg = packages.get(0);
+                return ChatbotResponse.text("🎁 **" + pkg.getName() + "**\n\nThis package includes specialized items for a total value of ₹" + pkg.getPackagePrice() + ".");
+            }
+        }
+
+        searchResults.addAll(products.stream().map(this::mapToDTO).collect(Collectors.toList()));
         searchResults.addAll(packages.stream().map(this::mapToDTO).collect(Collectors.toList()));
 
         if (!searchResults.isEmpty() && message.length() > 3) {
@@ -118,7 +140,7 @@ public class ChatbotService {
                 .limit(5)
                 .map(this::mapToDTO)
                 .collect(Collectors.toList());
-        return ChatbotResponse.products("I couldn't find a direct match for that. 🌿 Why not explore our **Top Herbal Picks** instead?", topPicks);
+        return ChatbotResponse.products("I couldn't find a direct match. 🌿 Try asking about a health concern (like 'hair fall') or browse our **Top Herbal Picks**:", topPicks);
     }
 
     private boolean isRetailerIntent(String message) {

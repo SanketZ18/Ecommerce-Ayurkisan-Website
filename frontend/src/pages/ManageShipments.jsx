@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FaTruck, FaRegAddressCard, FaInfoCircle, FaCheckCircle, FaExclamationTriangle, FaEdit, FaTimes, FaSearch, FaFilter, FaCalendarAlt, FaUserFriends, FaStore, FaUndo, FaBoxOpen } from 'react-icons/fa';
+import { FaTruck, FaRegAddressCard, FaInfoCircle, FaCheckCircle, FaExclamationTriangle, FaEdit, FaTimes, FaSearch, FaFilter, FaCalendarAlt, FaUserFriends, FaStore, FaUndo, FaBoxOpen, FaReply, FaBox } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import adminService from '../utils/adminService';
 
@@ -9,6 +9,8 @@ const ManageShipments = () => {
     const [loading, setLoading] = useState(true);
     const [showModal, setShowModal] = useState(false);
     const [selectedShipment, setSelectedShipment] = useState(null);
+    const [selectedOrderDetails, setSelectedOrderDetails] = useState(null);
+    const [fetchingOrder, setFetchingOrder] = useState(false);
     const [statusUpdating, setStatusUpdating] = useState(false);
     const [remarks, setRemarks] = useState('');
 
@@ -20,6 +22,19 @@ const ManageShipments = () => {
     useEffect(() => {
         fetchShipments();
     }, []);
+
+    const fetchOrderDetails = async (orderId) => {
+        try {
+            setFetchingOrder(true);
+            const res = await adminService.getOrderById(orderId);
+            setSelectedOrderDetails(res.data);
+        } catch (err) {
+            console.error("Failed to fetch order details:", err);
+            toast.error("Could not retrieve order specifics");
+        } finally {
+            setFetchingOrder(false);
+        }
+    };
 
     const fetchShipments = async () => {
         try {
@@ -56,6 +71,7 @@ const ManageShipments = () => {
         switch (s) {
             case 'PLACED': return { bg: '#eff6ff', color: '#1e40af', icon: FaInfoCircle }; // Light Blue
             case 'CONFIRMED': return { bg: '#ecfdf5', color: '#059669', icon: FaCheckCircle }; // Emerald
+            case 'PROCESSING': return { bg: '#fef08a', color: '#854d0e', icon: FaBox }; // Yellowish
             case 'SHIPPED': return { bg: '#dbeafe', color: '#1e40af', icon: FaTruck }; // Blue
             case 'OUT_FOR_DELIVERY': return { bg: '#fef3c7', color: '#d97706', icon: FaTruck }; // Amber
             case 'DELIVERED': return { bg: '#dcfce7', color: '#166534', icon: FaCheckCircle }; // Green
@@ -213,10 +229,15 @@ const ManageShipments = () => {
                                         </td>
                                         <td style={{ padding: '1.2rem 1.5rem', textAlign: 'right' }}>
                                             <button
-                                                onClick={() => { setSelectedShipment(shipment); setRemarks(shipment.remarks || ''); setShowModal(true); }}
-                                                style={{ background: '#f3f4f6', border: 'none', color: '#4b5563', padding: '10px', borderRadius: '10px', cursor: 'pointer' }}
+                                                onClick={() => { 
+                                                    setSelectedShipment(shipment); 
+                                                    setRemarks(shipment.remarks || ''); 
+                                                    fetchOrderDetails(shipment.orderId);
+                                                    setShowModal(true); 
+                                                }}
+                                                style={{ background: 'var(--primary-green)', border: 'none', color: '#fff', padding: '10px 15px', borderRadius: '12px', cursor: 'pointer', fontWeight: '600', display: 'inline-flex', alignItems: 'center', gap: '8px' }}
                                             >
-                                                <FaEdit />
+                                                <FaReply /> Process
                                             </button>
                                         </td>
                                     </tr>
@@ -240,54 +261,109 @@ const ManageShipments = () => {
                             initial={{ opacity: 0, scale: 0.9, y: 30 }}
                             animate={{ opacity: 1, scale: 1, y: 0 }}
                             exit={{ opacity: 0, scale: 0.9, y: 30 }}
-                            style={{ backgroundColor: '#fff', borderRadius: '28px', padding: '2.5rem', width: '95%', maxWidth: '500px', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)' }}
+                            style={{ backgroundColor: '#fff', borderRadius: '28px', padding: '2.5rem', width: '95%', maxWidth: '650px', maxHeight: '90vh', overflowY: 'auto', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)' }}
                         >
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
                                 <h2 style={{ margin: 0, color: 'var(--text-dark)', fontWeight: '800' }}>Logistics Override</h2>
-                                <button onClick={() => setShowModal(false)} style={{ background: '#f3f4f6', border: 'none', width: '36px', height: '36px', borderRadius: '50%', cursor: 'pointer' }}><FaTimes /></button>
+                                <button onClick={() => { setShowModal(false); setSelectedOrderDetails(null); }} style={{ background: '#f3f4f6', border: 'none', width: '36px', height: '36px', borderRadius: '50%', cursor: 'pointer' }}><FaTimes /></button>
                             </div>
 
-                             <div style={{ marginBottom: '2rem' }}>
-                                 <label style={labelStyle}>Update Status</label>
-                                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-                                     {['CONFIRMED', 'SHIPPED', 'OUT_FOR_DELIVERY', 'DELIVERED', 'CANCELLED'].map(status => (
-                                         <button
-                                             key={status}
-                                             disabled={statusUpdating || selectedShipment.status === status || selectedShipment.status === 'DELIVERED' || selectedShipment.status === 'CANCELLED'}
-                                             onClick={() => handleUpdateStatus(selectedShipment.orderId, status)}
-                                             style={{
-                                                 padding: '0.7rem',
-                                                 borderRadius: '12px',
-                                                 border: '1px solid #e2e8f0',
-                                                 backgroundColor: selectedShipment.status === status ? 'var(--primary-green)' : '#fff',
-                                                 color: selectedShipment.status === status ? '#fff' : 'var(--text-dark)',
-                                                 fontWeight: '800',
-                                                 fontSize: '0.75rem',
-                                                 cursor: 'pointer',
-                                                 transition: 'all 0.2s',
-                                                 opacity: (statusUpdating || selectedShipment.status === 'DELIVERED' || selectedShipment.status === 'CANCELLED') ? 0.7 : 1
-                                             }}
-                                         >
-                                             {status}
-                                         </button>
-                                     ))}
-                                 </div>
-                             </div>
+                            {fetchingOrder ? (
+                                <div style={{ padding: '2rem', textAlign: 'center', color: '#64748b' }}>
+                                    <FaTruck className="animate-spin" style={{ fontSize: '2rem', marginBottom: '1rem', color: 'var(--primary-green)' }} />
+                                    <p>Synchronizing order data...</p>
+                                </div>
+                            ) : selectedOrderDetails && (
+                                <>
+                                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem', marginBottom: '2rem' }}>
+                                        <div>
+                                            <label style={labelStyle}>Order summary</label>
+                                            <div style={{ padding: '1rem', backgroundColor: '#f9fafb', borderRadius: '16px' }}>
+                                                <p style={{ margin: '0 0 5px 0', fontSize: '0.9rem' }}><strong>ID:</strong> #{selectedOrderDetails.id}</p>
+                                                <p style={{ margin: '0 0 5px 0', fontSize: '0.9rem' }}><strong>Date:</strong> {new Date(selectedOrderDetails.createdAt).toLocaleString()}</p>
+                                                <p style={{ margin: '0', fontSize: '1.2rem', color: 'var(--primary-green)', fontWeight: '800' }}><strong>Total:</strong> ₹{selectedOrderDetails.totalDiscountedPrice}</p>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label style={labelStyle}>{activeTab} Information</label>
+                                            <div style={{ padding: '1rem', backgroundColor: '#f9fafb', borderRadius: '16px' }}>
+                                                <p style={{ margin: '0 0 5px 0', fontSize: '0.9rem' }}><strong>Name:</strong> {selectedOrderDetails.userName}</p>
+                                                <p style={{ margin: '0 0 5px 0', fontSize: '0.9rem' }}><strong>Role:</strong> {selectedOrderDetails.role}</p>
+                                                <p style={{ margin: '0', fontSize: '0.9rem' }}><strong>Payment:</strong> {selectedOrderDetails.paymentMethod} ({selectedOrderDetails.paymentStatus})</p>
+                                            </div>
+                                        </div>
+                                    </div>
 
-                            <div>
-                                <label style={labelStyle}>Operational Remarks</label>
-                                <textarea
-                                    style={{ ...inputAreaStyle, resize: 'none' }}
-                                    rows={3}
-                                    placeholder="Enter dispatch notes, carrier info, or delay reasons..."
-                                    value={remarks}
-                                    onChange={(e) => setRemarks(e.target.value)}
-                                />
-                            </div>
+                                    <div style={{ marginBottom: '2rem' }}>
+                                        <label style={labelStyle}>Shipping Address</label>
+                                        <div style={{ padding: '1rem', backgroundColor: '#f9fafb', borderRadius: '16px', fontSize: '0.9rem', color: '#4b5563', lineHeight: '1.5' }}>
+                                            {selectedShipment.shippingAddress}
+                                        </div>
+                                    </div>
 
-                            <div style={{ marginTop: '2rem', textAlign: 'center', fontSize: '0.8rem', color: '#9ca3af' }}>
-                                ID: {selectedShipment.orderId} | AyurKisan Logistics Core
-                            </div>
+                                    <div style={{ marginBottom: '2.5rem' }}>
+                                        <label style={labelStyle}>Update Shipment Status</label>
+                                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
+                                            {['PROCESSING', 'SHIPPED', 'OUT_FOR_DELIVERY', 'DELIVERED'].map(status => (
+                                                <button
+                                                    key={status}
+                                                    disabled={statusUpdating || selectedShipment.status === status || selectedShipment.status === 'DELIVERED' || selectedShipment.status === 'CANCELLED'}
+                                                    onClick={() => handleUpdateStatus(selectedShipment.orderId, status)}
+                                                    style={{
+                                                        padding: '0.6rem 1.25rem',
+                                                        borderRadius: '12px',
+                                                        border: '1px solid #e2e8f0',
+                                                        backgroundColor: selectedShipment.status === status ? 'var(--primary-green)' : '#fff',
+                                                        color: selectedShipment.status === status ? '#fff' : 'var(--text-dark)',
+                                                        fontWeight: '700',
+                                                        fontSize: '0.8rem',
+                                                        cursor: 'pointer',
+                                                        transition: 'all 0.2s',
+                                                        opacity: (statusUpdating || selectedShipment.status === 'DELIVERED' || selectedShipment.status === 'CANCELLED') ? 0.7 : 1
+                                                    }}
+                                                >
+                                                    {status}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    <div style={{ marginBottom: '2rem' }}>
+                                        <label style={labelStyle}>Order Items</label>
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                                            {selectedOrderDetails.items?.map((item, idx) => (
+                                                <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 15px', backgroundColor: '#f8fafc', borderRadius: '12px', border: '1px solid #f1f5f9' }}>
+                                                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                                        <div style={{ width: '40px', height: '40px', backgroundColor: '#e2e8f0', borderRadius: '8px', overflow: 'hidden' }}>
+                                                            <img src={item.productImage1 || item.productImage} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                                        </div>
+                                                        <div>
+                                                            <div style={{ fontWeight: '700', fontSize: '0.9rem' }}>{item.productName}</div>
+                                                            <div style={{ fontSize: '0.75rem', color: '#64748b' }}>Qty: {item.quantity} x ₹{item.discountedPrice}</div>
+                                                        </div>
+                                                    </div>
+                                                    <div style={{ fontWeight: '800', color: 'var(--primary-green)' }}>₹{item.totalItemPrice}</div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <label style={labelStyle}>Operational Remarks</label>
+                                        <textarea
+                                            style={{ ...inputAreaStyle, resize: 'none' }}
+                                            rows={3}
+                                            placeholder="Enter dispatch notes, carrier info, or delay reasons..."
+                                            value={remarks}
+                                            onChange={(e) => setRemarks(e.target.value)}
+                                        />
+                                    </div>
+
+                                    <div style={{ marginTop: '2rem', textAlign: 'center', fontSize: '0.8rem', color: '#9ca3af' }}>
+                                        ID: {selectedShipment.orderId} | AyurKisan Logistics Core
+                                    </div>
+                                </>
+                            )}
                         </motion.div>
                     </div>
                 )}

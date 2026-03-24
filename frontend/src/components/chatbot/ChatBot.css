@@ -231,3 +231,31 @@
         right: 10px;
     }
 }
+.header-actions {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.btn-clear-chat, .btn-close-chat {
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+    font-size: 22px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    opacity: 0.9;
+}
+
+.btn-clear-chat:hover, .btn-close-chat:hover {
+    transform: scale(1.1);
+    opacity: 1;
+}
+
+.btn-close-chat {
+    font-size: 26px;
+}

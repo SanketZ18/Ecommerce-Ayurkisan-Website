@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FaPlus, FaEdit, FaTrash, FaTimes, FaLayerGroup, FaCheckCircle, FaTimesCircle } from 'react-icons/fa';
+import { FaPlus, FaEdit, FaTrash, FaTimes, FaLayerGroup, FaCheckCircle, FaTimesCircle, FaReply } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import adminService from '../utils/adminService';
 
@@ -144,9 +144,9 @@ const ManageCategories = () => {
                                     <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
                                         <button
                                             onClick={() => handleOpenModal(cat)}
-                                            style={{ background: '#f3f4f6', border: 'none', color: '#4b5563', padding: '8px', borderRadius: '8px', cursor: 'pointer' }}
+                                            style={{ background: 'var(--primary-green)', border: 'none', color: '#fff', padding: '10px 15px', borderRadius: '12px', cursor: 'pointer', fontWeight: '600', display: 'inline-flex', alignItems: 'center', gap: '8px' }}
                                         >
-                                            <FaEdit />
+                                            <FaReply /> Process
                                         </button>
                                         <button
                                             onClick={() => handleDelete(cat.categoryName)}
