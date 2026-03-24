@@ -28,7 +28,11 @@ const Checkout = () => {
         if (!promoCode.trim()) return toast.error("Enter a code first");
         try {
             const subtotalAmount = cartData?.totalDiscountedPrice || 0;
-            const res = await axios.get(`http://localhost:9090/api/offers/validate?code=${promoCode}&orderAmount=${subtotalAmount}`);
+            // Changed from GET to POST to match backend and fixed parameter name
+            const res = await axios.post(`http://localhost:9090/api/offers/validate`, {
+                code: promoCode,
+                amount: subtotalAmount
+            });
             const offer = res.data;
             
             let disc = 0;
