@@ -11,13 +11,14 @@ public class FAQ {
     private String question;
     private String answer;
     private List<String> tags;
+    private List<String> keywords;
 
     public FAQ() {}
 
-    public FAQ(String question, String answer, List<String> tags) {
+    public FAQ(String question, String answer, List<String> keywords) {
         this.question = question;
         this.answer = answer;
-        this.tags = tags;
+        this.keywords = keywords;
     }
 
     // Getters and Setters
@@ -29,4 +30,7 @@ public class FAQ {
     public void setAnswer(String answer) { this.answer = answer; }
     public List<String> getTags() { return tags; }
     public void setTags(List<String> tags) { this.tags = tags; }
+
+    public List<String> getKeywords() { return keywords; }
+    public void setKeywords(List<String> keywords) { this.keywords = keywords; }
 }

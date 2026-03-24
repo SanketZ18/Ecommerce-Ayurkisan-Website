@@ -16,12 +16,33 @@ public class OfferService {
     @Autowired
     private OfferRepository offerRepository;
 
+    @Autowired
+    private HomePageSectionService homePageSectionService;
+
     public List<Offer> getAllOffers() {
         return offerRepository.findAll();
     }
 
     public Offer saveOffer(Offer offer) {
-        return offerRepository.save(offer);
+        Offer savedOffer = offerRepository.save(offer);
+        
+        // Automatically sync with Homepage "special_offers" section
+        try {
+            com.ayurkisan.model.HomePageSection section = homePageSectionService.getSectionByType("special_offers");
+            if (section != null) {
+                section.setPromoCode(savedOffer.getCode());
+                // If the offer is active, we should probably show it
+                if (savedOffer.isActive()) {
+                    section.setShowPromoCode(true);
+                }
+                homePageSectionService.updateSection(section.getId(), section);
+            }
+        } catch (Exception e) {
+            // Log error but don't fail the offer save
+            System.err.println("Failed to sync offer with homepage: " + e.getMessage());
+        }
+        
+        return savedOffer;
     }
 
     public void deleteOffer(String id) {

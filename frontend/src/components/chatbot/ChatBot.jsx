@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
-import { IoCloseOutline, IoSend, IoChatbubbleEllipsesSharp } from "react-icons/io5";
+import { IoCloseOutline, IoSend, IoChatbubbleEllipsesSharp, IoTrashOutline } from "react-icons/io5";
 import './ChatBot.css';
 import './ChatProductCard.css';
 import ChatProductCard from './ChatProductCard';
@@ -105,6 +105,19 @@ const ChatBot = () => {
         }
     };
 
+    const handleClearChat = () => {
+        const token = getDecodedToken();
+        const name = token?.name || token?.sub || 'there';
+        setUserName(name);
+        setMessages([{ 
+            type: 'bot', 
+            text: `Hello **${name}**! I have cleared our previous conversation. How else can I help you?`, 
+            products: [], 
+            options: ["About Ayurkisan", "Hair Care", "Skin Care", "Contact Us"] 
+        }]);
+        setContext('');
+    };
+
     const handleOptionSelect = (option) => {
         handleSendMessage(null, option, true);
     };
@@ -124,9 +137,14 @@ const ChatBot = () => {
                             <h3>Ayurkisan AI</h3>
                             <span>Herbal Expert</span>
                         </div>
-                        <button className="btn-close-chat" onClick={() => setIsOpen(false)} style={{ background: 'none', border: 'none', color: 'white', cursor: 'pointer', fontSize: '24px' }}>
-                            <IoCloseOutline />
-                        </button>
+                        <div className="header-actions">
+                            <button className="btn-clear-chat" title="Clear Chat" onClick={handleClearChat}>
+                                <IoTrashOutline />
+                            </button>
+                            <button className="btn-close-chat" onClick={() => setIsOpen(false)}>
+                                <IoCloseOutline />
+                            </button>
+                        </div>
                     </div>
 
                     <div className="chatbot-messages">
