@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FaShoppingCart, FaSearch, FaEye, FaTimes, FaCheckCircle, FaTruck, FaBox, FaTimesCircle, FaFilter, FaCalendarAlt, FaUserFriends, FaStore } from 'react-icons/fa';
+import { FaShoppingCart, FaSearch, FaEye, FaTimes, FaCheckCircle, FaTruck, FaBox, FaTimesCircle, FaFilter, FaCalendarAlt, FaUserFriends, FaStore, FaReply } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import adminService from '../utils/adminService';
 
@@ -53,6 +53,7 @@ const ManageOrders = () => {
     const getStatusStyle = (status) => {
         switch (status?.toUpperCase()) {
             case 'DELIVERED': return { bg: '#dcfce7', color: '#166534', icon: FaCheckCircle };
+            case 'CONFIRMED': return { bg: '#ecfdf5', color: '#059669', icon: FaCheckCircle };
             case 'PROCESSING': case 'PENDING': return { bg: '#fef08a', color: '#854d0e', icon: FaBox };
             case 'SHIPPED': return { bg: '#dbeafe', color: '#1e40af', icon: FaTruck };
             case 'CANCELLED': return { bg: '#fee2e2', color: '#991b1b', icon: FaTimesCircle };
@@ -270,9 +271,9 @@ const ManageOrders = () => {
                                                 <td style={{ padding: '1rem 1.5rem', textAlign: 'right' }}>
                                                     <button
                                                         onClick={() => { setSelectedOrder(order); setShowModal(true); }}
-                                                        style={{ background: '#f3f4f6', border: 'none', color: '#4b5563', padding: '8px', borderRadius: '10px', cursor: 'pointer' }}
+                                                        style={{ background: 'var(--primary-green)', border: 'none', color: '#fff', padding: '10px 15px', borderRadius: '12px', cursor: 'pointer', fontWeight: '600', display: 'inline-flex', alignItems: 'center', gap: '8px' }}
                                                     >
-                                                        <FaEye />
+                                                        <FaReply /> Process
                                                     </button>
                                                 </td>
                                             </tr>
@@ -328,7 +329,7 @@ const ManageOrders = () => {
                             <div style={{ marginBottom: '2.5rem' }}>
                                 <label style={labelStyle}>Update Order Status</label>
                                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
-                                    {['PENDING', 'PROCESSING', 'SHIPPED', 'DELIVERED', 'CANCELLED'].map(status => (
+                                    {['PENDING', 'CONFIRMED', 'CANCELLED'].map(status => (
                                         <button
                                             key={status}
                                             disabled={statusUpdating || selectedOrder.orderStatus === status}

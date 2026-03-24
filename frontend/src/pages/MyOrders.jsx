@@ -161,18 +161,24 @@ const MyOrders = () => {
     };
 
     const getStatusStyle = (status) => {
-        const baseStyle = { padding: '6px 12px', borderRadius: '20px', fontSize: '0.85rem', fontWeight: 'bold' };
+        const baseStyle = { 
+            padding: '5px 14px', 
+            borderRadius: '12px', 
+            fontSize: '0.75rem', 
+            fontWeight: '700', 
+            textTransform: 'uppercase',
+            letterSpacing: '0.03em',
+            boxShadow: '0 2px 6px rgba(0,0,0,0.05)'
+        };
         switch (status?.toUpperCase()) {
-            case 'PENDING': return { ...baseStyle, backgroundColor: '#fef3c7', color: '#d97706' }; // Yellow
-            case 'SHIPPED': return { ...baseStyle, backgroundColor: '#dbeafe', color: '#2563eb' }; // Blue
-            case 'OUT_FOR_DELIVERY': return { ...baseStyle, backgroundColor: '#e0e7ff', color: '#4f46e5' }; // Indigo
-            case 'DELIVERED': return { ...baseStyle, backgroundColor: '#d1fae5', color: '#059669' }; // Green
-            case 'CANCELLED': return { ...baseStyle, backgroundColor: '#fee2e2', color: '#ef4444' }; // Red
-            case 'RETURN_REQUESTED': return { ...baseStyle, backgroundColor: '#fff7ed', color: '#ea580c' }; // Orange
-            case 'RETURN_ACCEPTED': return { ...baseStyle, backgroundColor: '#ecfdf5', color: '#059669' }; // Emerald
-            case 'RETURN_PICKUP': return { ...baseStyle, backgroundColor: '#eff6ff', color: '#2563eb' }; // Blue
-            case 'RETURNED': return { ...baseStyle, backgroundColor: '#f0fdf4', color: '#16a34a' }; // Green
-            default: return { ...baseStyle, backgroundColor: '#f3f4f6', color: '#4b5563' }; // Gray
+            case 'PENDING': return { ...baseStyle, backgroundColor: '#fffbeb', color: '#d97706', border: '1px solid #fef3c7' };
+            case 'CONFIRMED': return { ...baseStyle, backgroundColor: '#f0fdf4', color: '#16a34a', border: '1px solid #dcfce7' };
+            case 'SHIPPED': return { ...baseStyle, backgroundColor: '#eff6ff', color: '#2563eb', border: '1px solid #dbeafe' };
+            case 'OUT_FOR_DELIVERY': return { ...baseStyle, backgroundColor: '#f5f3ff', color: '#7c3aed', border: '1px solid #ede9fe' };
+            case 'DELIVERED': return { ...baseStyle, backgroundColor: '#f0fdf4', color: '#059669', border: '1px solid #d1fae5' };
+            case 'CANCELLED': return { ...baseStyle, backgroundColor: '#fef2f2', color: '#ef4444', border: '1px solid #fee2e2' };
+            case 'RETURN_REQUESTED': return { ...baseStyle, backgroundColor: '#fff7ed', color: '#ea580c', border: '1px solid #ffedd5' };
+            default: return { ...baseStyle, backgroundColor: '#f8fafc', color: '#64748b', border: '1px solid #f1f5f9' };
         }
     };
 
@@ -324,31 +330,77 @@ const MyOrders = () => {
                             style={orderCardStyle}
                         >
                             <div style={orderHeaderStyle}>
-                                <div style={{ flex: 2, minWidth: '250px' }}>
-                                    <span style={{ fontSize: '0.85rem', color: '#64748b', display: 'block' }}>Order for</span>
+                                {/* Visual Product Thumbnails - Enlarged */}
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', minWidth: '180px' }}>
+                                    {order.items?.slice(0, 3).map((item, i) => (
+                                        <div key={i} style={{ 
+                                            width: '80px', 
+                                            height: '80px', 
+                                            borderRadius: '16px', 
+                                            border: '3px solid #fff',
+                                            boxShadow: '0 8px 20px rgba(0,0,0,0.1)',
+                                            overflow: 'hidden',
+                                            backgroundColor: '#f8fafc',
+                                            flexShrink: 0,
+                                            transition: 'all 0.3s ease'
+                                        }} className="order-thumb-hover">
+                                            <img 
+                                                src={item.itemType === 'PACKAGE' ? resolvePackageImage(item.productImage) : resolveProductImage(item.productImage, item.productId)} 
+                                                alt="" 
+                                                style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+                                            />
+                                        </div>
+                                    ))}
+                                    {order.items?.length > 3 && (
+                                        <div style={{ 
+                                            width: '40px', 
+                                            height: '40px', 
+                                            borderRadius: '50%', 
+                                            backgroundColor: '#f1f5f9', 
+                                            color: '#64748b', 
+                                            display: 'flex', 
+                                            alignItems: 'center', 
+                                            justifyContent: 'center',
+                                            fontSize: '0.8rem',
+                                            fontWeight: 'bold',
+                                            border: '2px solid #fff',
+                                            marginLeft: '-10px',
+                                            boxShadow: '0 4px 10px rgba(0,0,0,0.05)'
+                                        }}>
+                                            +{order.items.length - 3}
+                                        </div>
+                                    )}
+                                </div>
+
+                                <div style={{ flex: 1.5, minWidth: '220px', paddingLeft: '20px' }}>
+                                    <span style={{ fontSize: '0.9rem', color: '#94a3b8', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Order for</span>
                                     <strong style={{ 
-                                        fontSize: '1rem', 
+                                        fontSize: '1.2rem', 
                                         color: '#1e293b', 
                                         display: 'block',
+                                        marginTop: '4px',
                                         whiteSpace: 'nowrap',
                                         overflow: 'hidden',
                                         textOverflow: 'ellipsis' 
                                     }}>
                                         {order.items?.map(i => i.productName).join(', ') || 'N/A'}
                                     </strong>
-                                    <span style={{ fontSize: '0.75rem', color: '#94a3b8', display: 'block', marginTop: '2px' }}>
+                                    <span style={{ fontSize: '0.8rem', color: '#cbd5e1', display: 'block', marginTop: '4px' }}>
                                         ID: {order.orderId}
                                     </span>
                                 </div>
-                                <div>
-                                    <span style={{ fontSize: '0.85rem', color: '#64748b', display: 'block' }}>Date</span>
-                                    <strong style={{ color: '#475569' }}>{new Date(order.orderDate).toLocaleDateString()}</strong>
+
+                                <div style={{ minWidth: '130px' }}>
+                                    <span style={{ fontSize: '0.9rem', color: '#94a3b8', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Date</span>
+                                    <strong style={{ display: 'block', color: '#475569', fontSize: '1.1rem', marginTop: '4px' }}>{new Date(order.orderDate).toLocaleDateString()}</strong>
                                 </div>
-                                <div>
-                                    <span style={{ fontSize: '0.85rem', color: '#64748b', display: 'block' }}>Total</span>
-                                    <strong style={{ color: 'var(--primary-green)' }}>₹{order.totalAmount}</strong>
+
+                                <div style={{ minWidth: '140px' }}>
+                                    <span style={{ fontSize: '0.9rem', color: '#94a3b8', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Total</span>
+                                    <strong style={{ display: 'block', color: 'var(--primary-green)', fontSize: '1.3rem', marginTop: '4px', fontWeight: '900' }}>₹{order.totalAmount}</strong>
                                 </div>
-                                <div style={{ textAlign: 'right' }}>
+
+                                <div style={{ textAlign: 'right', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '8px' }}>
                                     <span style={getStatusStyle(order.orderStatus)}>{order.orderStatus}</span>
                                 </div>
                             </div>
@@ -381,63 +433,140 @@ const MyOrders = () => {
                                 )}
 
                                 <button 
-                                    className="btn-primary" 
-                                    style={{ ...actionBtnStyle, padding: '8px 20px', backgroundColor: expandedOrderId === order.orderId ? '#1e293b' : 'var(--primary-green)', color: '#fff' }}
+                                    style={{ 
+                                        ...actionBtnStyle, 
+                                        padding: '10px 24px', 
+                                        backgroundColor: expandedOrderId === order.orderId ? '#1e293b' : 'var(--primary-green)', 
+                                        color: '#fff',
+                                        border: 'none',
+                                        boxShadow: expandedOrderId === order.orderId ? '0 4px 12px rgba(30, 41, 59, 0.2)' : '0 4px 12px rgba(16, 185, 129, 0.2)'
+                                    }}
                                     onClick={() => toggleDetails(order.orderId)}
                                 >
                                     <FaEye /> {expandedOrderId === order.orderId ? 'Hide Details' : 'View Details'}
                                 </button>
                             </div>
 
-                            {/* EXPANEDED DETAILS SECTION */}
+                            {/* EXPANEDED DETAILS SECTION - ADVANCED DASHBOARD LAYOUT */}
                             {expandedOrderId === order.orderId && (
                                 <motion.div 
                                     initial={{ height: 0, opacity: 0 }}
                                     animate={{ height: 'auto', opacity: 1 }}
-                                    style={{ padding: '0 20px 20px 20px', backgroundColor: '#f9fafb', borderTop: '1px solid #e2e8f0' }}
+                                    style={{ padding: '20px', backgroundColor: '#fdfdfd', borderTop: '1px solid #edf2f7' }}
                                 >
-                                    <div style={{ backgroundColor: '#fff', padding: '10px 20px', margin: '20px 0', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
-                                        <h4 style={{ margin: '10px 0', color: '#334155' }}>Order Tracking</h4>
+                                    {/* COMPACT STEPPER AT THE TOP */}
+                                    <div style={{ marginBottom: '20px', background: '#fff', padding: '15px 20px', borderRadius: '16px', boxShadow: '0 2px 10px rgba(0,0,0,0.03)', border: '1px solid #f1f5f9' }}>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                                            <h4 style={{ margin: 0, fontSize: '0.9rem', color: '#64748b', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Order Status</h4>
+                                            <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>Updated: {new Date(order.orderDate).toLocaleDateString()}</span>
+                                        </div>
                                         {renderStepper(order.orderStatus)}
                                     </div>
-                                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '20px', marginBottom: '20px' }}>
-                                        <div style={{ backgroundColor: '#fff', padding: '15px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
-                                            <h4 style={{ margin: '0 0 10px 0', fontSize: '0.95rem', color: '#334155' }}>Shipping Address</h4>
-                                            <p style={{ margin: 0, fontSize: '0.9rem', color: '#64748b', lineHeight: '1.5' }}>
-                                                {order.shippingAddress || 'Stored Profile Address'}
-                                            </p>
-                                        </div>
-                                        <div style={{ backgroundColor: '#fff', padding: '15px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
-                                            <h4 style={{ margin: '0 0 10px 0', fontSize: '0.95rem', color: '#334155' }}>Payment Details</h4>
-                                            <p style={{ margin: 0, fontSize: '0.9rem', color: '#64748b' }}>
-                                                Method: <strong>{order.paymentMethod || 'COD'}</strong><br/>
-                                                Status: {order.paymentStatus || 'Pending'}
-                                            </p>
-                                        </div>
-                                    </div>
 
-                                    <h4 style={{ margin: '0 0 15px 0', color: '#1e293b' }}>Order Items</h4>
-                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                                        {order.items && order.items.length > 0 ? order.items.map((item, idxx) => (
-                                            <div key={idxx} style={{ display: 'flex', gap: '15px', alignItems: 'center', backgroundColor: '#fff', padding: '15px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
-                                                <img 
-                                                    src={item.itemType === 'PACKAGE' ? resolvePackageImage(item.productImage) : resolveProductImage(item.productImage, item.productId)} 
-                                                    alt={item.productName} 
-                                                    style={{ width: '50px', height: '50px', objectFit: 'cover', borderRadius: '4px' }} 
-                                                />
-                                                <div style={{ flex: 1 }}>
-                                                    <Link to={item.itemType === 'PACKAGE' ? `/package/${item.productId}` : `/product/${item.productId}`} style={{ fontWeight: 'bold', color: 'var(--primary-green)', textDecoration: 'none', fontSize: '1rem', display: 'block', marginBottom: '2px' }}>
-                                                        {item.productName || 'Unknown Product'}
-                                                    </Link>
-                                                    <div style={{ fontSize: '0.85rem', color: '#64748b' }}>Qty: {item.quantity || 1}</div>
+                                    {/* 3-COLUMN DASHBOARD GRID */}
+                                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px' }}>
+                                        
+                                        {/* COLUMN 1: CUSTOMER INFO */}
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                                            <div style={{ background: '#fff', padding: '15px', borderRadius: '16px', border: '1px solid #f1f5f9', boxShadow: '0 2px 10px rgba(0,0,0,0.02)' }}>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
+                                                    <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: '#f0fdf4', color: '#10b981', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                                        <FaMapMarkerAlt size={14} />
+                                                    </div>
+                                                    <h4 style={{ margin: 0, fontSize: '0.95rem', color: '#1e293b' }}>Shipping Address</h4>
                                                 </div>
-                                                <div style={{ fontWeight: 'bold', color: '#1e293b' }}>
-                                                    ₹{item.price * (item.quantity || 1)}
+                                                <p style={{ margin: 0, fontSize: '0.85rem', color: '#64748b', lineHeight: '1.6' }}>
+                                                    {order.shippingAddress || 'Stored Profile Address'}
+                                                </p>
+                                            </div>
+
+                                            <div style={{ background: '#fff', padding: '15px', borderRadius: '16px', border: '1px solid #f1f5f9', boxShadow: '0 2px 10px rgba(0,0,0,0.02)' }}>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
+                                                    <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: '#eff6ff', color: '#3b82f6', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                                        <FaBoxOpen size={14} />
+                                                    </div>
+                                                    <h4 style={{ margin: 0, fontSize: '0.95rem', color: '#1e293b' }}>Payment Details</h4>
+                                                </div>
+                                                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                                                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem' }}>
+                                                        <span style={{ color: '#94a3b8' }}>Method:</span>
+                                                        <span style={{ fontWeight: '600', color: '#475569' }}>{order.paymentMethod || 'COD'}</span>
+                                                    </div>
+                                                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem' }}>
+                                                        <span style={{ color: '#94a3b8' }}>Status:</span>
+                                                        <span style={{ 
+                                                            color: order.paymentStatus === 'SUCCESS' ? '#10b981' : '#f59e0b',
+                                                            fontWeight: '600'
+                                                        }}>{order.paymentStatus || 'Pending'}</span>
+                                                    </div>
                                                 </div>
                                             </div>
-                                        )) : (
-                                            <div style={{ fontSize: '0.9rem', color: '#64748b' }}>No item details available.</div>
-                                        )}
+                                        </div>
+
+                                        {/* COLUMN 2: ITEMS LIST */}
+                                        <div style={{ background: '#fff', padding: '15px', borderRadius: '16px', border: '1px solid #f1f5f9', boxShadow: '0 2px 10px rgba(0,0,0,0.02)', display: 'flex', flexDirection: 'column' }}>
+                                            <h4 style={{ margin: '0 0 15px 0', fontSize: '0.95rem', color: '#1e293b' }}>Order Items ({order.items?.length || 0})</h4>
+                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', maxHeight: '250px', overflowY: 'auto', paddingRight: '5px' }}>
+                                                {order.items?.map((item, idxx) => (
+                                                    <div key={idxx} style={{ display: 'flex', gap: '12px', alignItems: 'center', background: '#f8fafc', padding: '10px', borderRadius: '12px', border: '1px solid #f1f5f9' }}>
+                                                        <img 
+                                                            src={item.itemType === 'PACKAGE' ? resolvePackageImage(item.productImage) : resolveProductImage(item.productImage, item.productId)} 
+                                                            alt={item.productName} 
+                                                            style={{ width: '40px', height: '40px', objectFit: 'cover', borderRadius: '8px' }} 
+                                                        />
+                                                        <div style={{ flex: 1, minWidth: 0 }}>
+                                                            <Link 
+                                                                to={item.itemType === 'PACKAGE' ? `/package/${item.productId}` : `/product/${item.productId}`} 
+                                                                style={{ fontWeight: '600', color: '#334155', textDecoration: 'none', fontSize: '0.85rem', display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
+                                                            >
+                                                                {item.productName}
+                                                            </Link>
+                                                            <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>Qty: {item.quantity || 1} • ₹{item.price}</span>
+                                                        </div>
+                                                        <div style={{ fontWeight: '700', color: '#1e293b', fontSize: '0.85rem' }}>
+                                                            ₹{item.price * (item.quantity || 1)}
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+
+                                        {/* COLUMN 3: ORDER SUMMARY */}
+                                        <div style={{ background: '#fff', padding: '15px', borderRadius: '16px', border: '1px solid #f1f5f9', boxShadow: '0 4px 20px rgba(16, 185, 129, 0.08)', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                                            <div>
+                                                <h4 style={{ margin: '0 0 15px 0', fontSize: '0.95rem', color: '#1e293b' }}>Order Summary</h4>
+                                                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                                                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', color: '#64748b' }}>
+                                                        <span>Subtotal:</span>
+                                                        <span>₹{order.totalAmount - (order.deliveryCharge || 50) + (order.promoDiscount || 0)}</span>
+                                                    </div>
+                                                    {order.promoDiscount > 0 && (
+                                                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', color: '#10b981', fontWeight: '500' }}>
+                                                            <span>Promo ({order.promoCode}):</span>
+                                                            <span>-₹{order.promoDiscount}</span>
+                                                        </div>
+                                                    )}
+                                                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', color: '#64748b' }}>
+                                                        <span>Delivery:</span>
+                                                        <span>₹{order.deliveryCharge || 50}</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            
+                                            <div style={{ marginTop: '15px' }}>
+                                                <div style={{ paddingTop: '10px', borderTop: '1px solid #f1f5f9', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+                                                    <span style={{ fontWeight: '700', color: '#1e293b', fontSize: '1rem' }}>Total</span>
+                                                    <div style={{ textAlign: 'right' }}>
+                                                        <div style={{ fontSize: '1.4rem', fontWeight: '800', color: '#10b981', lineHeight: 1 }}>₹{order.totalAmount}</div>
+                                                        <span style={{ fontSize: '0.65rem', color: '#94a3b8' }}>Inc. GST</span>
+                                                    </div>
+                                                </div>
+                                                <p style={{ fontSize: '0.65rem', color: '#cbd5e1', fontStyle: 'italic', marginTop: '12px', lineHeight: '1.4', textAlign: 'center' }}>
+                                                    AyurKisan — Natural Wellness for a Better Tomorrow.
+                                                </p>
+                                            </div>
+                                        </div>
+
                                     </div>
                                 </motion.div>
                             )}
@@ -601,19 +730,20 @@ const MyOrders = () => {
 // Styles
 const orderCardStyle = {
     backgroundColor: '#fff',
-    borderRadius: '12px',
-    boxShadow: '0 4px 6px rgba(0,0,0,0.02), 0 1px 3px rgba(0,0,0,0.05)',
+    borderRadius: '20px',
+    boxShadow: '0 10px 30px -5px rgba(0,0,0,0.03), 0 4px 6px -2px rgba(0,0,0,0.02)',
     border: '1px solid #f1f5f9',
-    overflow: 'hidden'
+    overflow: 'hidden',
+    transition: 'transform 0.2s ease'
 };
 
 const orderHeaderStyle = {
     display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(100px, 1fr))',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
     gap: '1rem',
-    padding: '1.5rem',
-    backgroundColor: '#f8fafc',
-    borderBottom: '1px solid #e2e8f0',
+    padding: '1.75rem 2rem',
+    backgroundColor: '#fff',
+    borderBottom: '1px solid #f8fafc',
     alignItems: 'center'
 };
 
@@ -630,15 +760,15 @@ const actionBtnStyle = {
     display: 'flex',
     alignItems: 'center',
     gap: '8px',
-    padding: '8px 16px',
-    borderRadius: '6px',
-    fontSize: '0.9rem',
-    fontWeight: '500',
+    padding: '10px 20px',
+    borderRadius: '14px',
+    fontSize: '0.85rem',
+    fontWeight: '600',
     cursor: 'pointer',
-    transition: 'all 0.2s',
-    border: '1px solid #cbd5e1',
+    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+    border: '1px solid #e2e8f0',
     backgroundColor: '#fff',
-    color: '#334155'
+    color: '#475569'
 };
 
 const emptyStateStyle = {
