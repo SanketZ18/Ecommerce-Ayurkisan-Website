@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { FaTruck, FaRegAddressCard, FaInfoCircle, FaCheckCircle, FaExclamationTriangle, FaEdit, FaTimes, FaSearch, FaFilter, FaCalendarAlt, FaUserFriends, FaStore, FaUndo, FaBoxOpen, FaReply, FaBox } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import adminService from '../utils/adminService';
+import { resolveProductImage, resolvePackageImage } from '../utils/imageUtils';
 
 const ManageShipments = () => {
     const [shipments, setShipments] = useState([]);
@@ -335,7 +336,11 @@ const ManageShipments = () => {
                                                 <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 15px', backgroundColor: '#f8fafc', borderRadius: '12px', border: '1px solid #f1f5f9' }}>
                                                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                                                         <div style={{ width: '40px', height: '40px', backgroundColor: '#e2e8f0', borderRadius: '8px', overflow: 'hidden' }}>
-                                                            <img src={item.productImage1 || item.productImage} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                                            <img 
+                                                                src={item.itemType === 'PACKAGE' ? resolvePackageImage(item.productImage) : resolveProductImage(item.productImage, item.productId)} 
+                                                                alt={item.productName} 
+                                                                style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+                                                            />
                                                         </div>
                                                         <div>
                                                             <div style={{ fontWeight: '700', fontSize: '0.9rem' }}>{item.productName}</div>

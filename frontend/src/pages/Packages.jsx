@@ -13,19 +13,19 @@ const Packages = () => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
+        window.scrollTo(0, 0);
         fetchPackages();
     }, []);
 
     const fetchPackages = async () => {
         try {
-            const response = await fetch("http://localhost:9090/packages/all");
-            setTimeout(async () => {
-                const data = await response.json();
-                setPackages(data);
-                setLoading(false);
-            }, 800);
+            const response = await customerService.getAllPackages();
+            const data = Array.isArray(response.data) ? response.data : [];
+            setPackages(data);
         } catch (error) {
-            console.error("Error:", error);
+            console.error("Failed to fetch packages:", error);
+            setPackages([]);
+        } finally {
             setLoading(false);
         }
     };

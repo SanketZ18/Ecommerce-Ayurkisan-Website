@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { FaUndo, FaCheckCircle, FaTimesCircle, FaClock, FaCommentDots, FaReply, FaTimes, FaUser, FaCalendarAlt, FaUserFriends, FaStore, FaSearch } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import adminService from '../utils/adminService';
+import { resolveProductImage, resolvePackageImage } from '../utils/imageUtils';
 
 const ManageReturns = () => {
     const [returns, setReturns] = useState([]);
@@ -303,7 +304,11 @@ const ManageReturns = () => {
                                             {selectedOrderDetails.items.map((item, idx) => (
                                                 <div key={idx} style={{ padding: '10px 15px', borderBottom: idx === selectedOrderDetails.items.length - 1 ? 'none' : '1px solid #f1f5f9', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                                     <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                                        <img src={item.productImage} alt="" style={{ width: '32px', height: '32px', borderRadius: '6px', objectFit: 'cover' }} />
+                                                        <img 
+                                                            src={item.itemType === 'PACKAGE' ? resolvePackageImage(item.productImage) : resolveProductImage(item.productImage, item.productId)} 
+                                                            alt={item.productName} 
+                                                            style={{ width: '32px', height: '32px', borderRadius: '6px', objectFit: 'cover' }} 
+                                                        />
                                                         <div>
                                                             <div style={{ fontWeight: '600', fontSize: '0.85rem' }}>{item.productName}</div>
                                                             <div style={{ fontSize: '0.75rem', color: '#64748b' }}>Qty: {item.quantity}</div>
