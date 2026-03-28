@@ -6,6 +6,7 @@ import customerService from '../utils/customerService';
 import retailerService from '../utils/retailerService';
 import { toast } from 'react-toastify';
 import { clearAuthData } from '../utils/auth';
+import { resolveProductImage, resolvePackageImage } from '../utils/imageUtils';
 
 const Checkout = () => {
     const navigate = useNavigate();
@@ -212,7 +213,7 @@ const Checkout = () => {
                                     <div key={item.id} style={{ display: 'flex', gap: '20px', paddingBottom: '20px', borderBottom: '1px solid #f3f4f6' }}>
                                         <div style={{ width: '100px', height: '100px', backgroundColor: '#f9fafb', borderRadius: '12px', padding: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid #f1f5f9' }}>
                                             <img 
-                                                src={item.productImage?.startsWith('http') ? item.productImage : `/assets/Product_Images/${item.productImage}`} 
+                                                src={item.itemType === 'PACKAGE' ? resolvePackageImage(item.productImage) : resolveProductImage(item.productImage, item.productId)} 
                                                 alt={item.productName} 
                                                 style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }}
                                                 onError={(e) => e.target.src = 'https://via.placeholder.com/100?text=Product'}

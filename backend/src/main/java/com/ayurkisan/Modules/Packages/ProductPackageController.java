@@ -90,7 +90,6 @@ public class ProductPackageController {
 
 
     // 🔓 VIEW SINGLE (All roles) - BY ID
-    @PreAuthorize("hasAnyRole('ADMIN','CUSTOMER','RETAILER')")
     @GetMapping("/view/id/{id}")
     public ResponseEntity<?> getById(@PathVariable @org.springframework.lang.NonNull String id) {
         try {
@@ -104,7 +103,6 @@ public class ProductPackageController {
     }
 
     // 🔓 VIEW ALL
-    @PreAuthorize("hasAnyRole('ADMIN','CUSTOMER','RETAILER')")
     @GetMapping("/all")
     public ResponseEntity<?> getAllPackages() {
 
