@@ -79,6 +79,7 @@ public class CartService {
             // Using actual package ID instead of name
             ProductPackage pkg = packageService.getPackageById(itemId);
             itemName = pkg.getName();
+            itemImage = pkg.getImageURL();
             
             originalPrice = pkg.getTotalPrice();
             discountedPrice = pkg.getPackagePrice();

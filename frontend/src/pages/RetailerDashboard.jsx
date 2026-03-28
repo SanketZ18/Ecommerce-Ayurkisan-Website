@@ -177,8 +177,8 @@ const RetailerDashboard = () => {
     }, [navigate]);
 
     const filteredItems = useMemo(() => {
-        const source = suggestionTab === 'products' ? products : packages;
-        return source
+        const source = suggestionTab === 'products' ? (Array.isArray(products) ? products : []) : (Array.isArray(packages) ? packages : []);
+        return (source || [])
             .filter(item => {
                 const itemName = (item.productName || item.packageName || item.name || '').toLowerCase();
                 const matchesSearch = itemName.includes(searchQuery.toLowerCase());

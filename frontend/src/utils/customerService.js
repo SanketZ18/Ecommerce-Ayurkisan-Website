@@ -27,9 +27,9 @@ const customerService = {
     cancelOrder: (orderId) => axios.put(`${API_BASE_URL}/orders/cancel/${orderId}`, {}, { headers: getAuthHeader() }),
 
     // Product & Category Management
-    getAllProducts: () => axios.get(`${API_BASE_URL}/products/all`),
-    getAllPackages: () => axios.get(`${API_BASE_URL}/packages/all`),
-    getAllCategories: () => axios.get(`${API_BASE_URL}/categories/all`),
+    getAllProducts: () => axios.get(`${API_BASE_URL}/products/all`, { headers: getAuthHeader() }),
+    getAllPackages: () => axios.get(`${API_BASE_URL}/packages/all`, { headers: getAuthHeader() }),
+    getAllCategories: () => axios.get(`${API_BASE_URL}/categories/all`, { headers: getAuthHeader() }),
 
     // Cart Management
     getCart: (userId, role) => axios.get(`${API_BASE_URL}/cart/${userId}?role=${role}`, { headers: getAuthHeader() }),

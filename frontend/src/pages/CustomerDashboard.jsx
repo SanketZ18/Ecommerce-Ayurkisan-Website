@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaBox, FaHeart, FaTruck, FaUndo, FaUserCircle, FaMapMarkerAlt, FaShoppingCart, FaSearch, FaChevronDown, FaLeaf, FaBurn, FaSpa, FaMoon, FaSun, FaArrowRight } from 'react-icons/fa';
 import { Link, useNavigate } from 'react-router-dom';
@@ -21,6 +21,13 @@ const CustomerDashboard = () => {
     const [offers, setOffers] = useState([]);
     const [products, setProducts] = useState([]);
     const [packages, setPackages] = useState([]);
+    
+    const items = useMemo(() => {
+        const pArr = Array.isArray(products) ? products : [];
+        const pkgArr = Array.isArray(packages) ? packages : [];
+        return [...pArr, ...pkgArr].sort(() => Math.random() - 0.5);
+    }, [products, packages]);
+
     const [suggestionTab, setSuggestionTab] = useState('products');
     const [loading, setLoading] = useState(true);
     const [wishlistCount, setWishlistCount] = useState(0);
@@ -46,29 +53,50 @@ const CustomerDashboard = () => {
         fetchDashboardData();
     }, []);
 
+    // Handle cart updates separately to ensure proper cleanup
+    useEffect(() => {
+        const userId = localStorage.getItem('userId');
+        const role = localStorage.getItem('role');
+        if (!userId) return;
+
+        const fetchCartCount = async () => {
+            try {
+                const res = await customerService.getCart(userId, role);
+                setCartCount(res.data?.items?.length || 0);
+            } catch (e) {
+                setCartCount(0);
+            }
+        };
+
+        fetchCartCount();
+        const handleCartUpdated = () => fetchCartCount();
+        window.addEventListener('cartUpdated', handleCartUpdated);
+        return () => window.removeEventListener('cartUpdated', handleCartUpdated);
+    }, []);
+
     const fetchDashboardData = async () => {
         setLoading(true);
         try {
             const userId = localStorage.getItem('userId');
             const role = localStorage.getItem('role');
             if (userId) {
-                const [profileRes, ordersRes, offersRes, productsRes, packagesRes, cartRes, categoriesRes] = await Promise.all([
+                const [profileRes, ordersRes, offersRes, productsRes, packagesRes, categoriesRes] = await Promise.all([
                     customerService.getProfile(userId),
                     customerService.getOrderHistory(userId),
                     axios.get('http://localhost:9090/api/homepage/sections').catch(() => ({ data: [] })),
                     customerService.getAllProducts().catch(() => ({ data: [] })),
                     customerService.getAllPackages().catch(() => ({ data: [] })),
-                    customerService.getCart(userId, role).catch(() => ({ data: { items: [] } })),
                     customerService.getAllCategories().catch(() => ({ data: [] }))
                 ]);
 
                 setProfile(profileRes.data);
                 const orderData = Array.isArray(ordersRes.data) ? ordersRes.data : [];
                 const top5Orders = orderData.slice(0, 5);
-                const trackingPromises = top5Orders.map(order => 
-                    customerService.trackShipment(order.id).catch(() => null)
+                
+                // Track shipments for those 5 orders
+                const trackingResults = await Promise.all(
+                    top5Orders.map(order => customerService.trackShipment(order.id).catch(() => null))
                 );
-                const trackingResults = await Promise.all(trackingPromises);
 
                 setRecentOrders(top5Orders.map((order, index) => {
                     const trackingData = trackingResults[index]?.data;
@@ -81,7 +109,6 @@ const CustomerDashboard = () => {
                     };
                 }));
 
-                // Process offers - synchronize with homepage special_offers
                 const fetchedOffers = Array.isArray(offersRes.data) ? offersRes.data.filter(s => s.type === 'special_offers') : [];
                 setOffers(fetchedOffers.length > 0 ? fetchedOffers : [
                     {
@@ -98,29 +125,12 @@ const CustomerDashboard = () => {
                 setPackages(Array.isArray(packagesRes.data) ? packagesRes.data : []);
                 setCategoriesList(Array.isArray(categoriesRes.data) ? categoriesRes.data : []);
 
-                // Real counts
                 const wishlist = JSON.parse(localStorage.getItem('wishlist') || '[]');
                 setWishlistItems(wishlist);
                 setWishlistCount(wishlist.length);
-                
-                const fetchCartCount = async () => {
-                    try {
-                        const res = await customerService.getCart(userId, role);
-                        setCartCount(res.data?.items?.length || 0);
-                    } catch (e) {
-                        setCartCount(0);
-                    }
-                };
-                
-                await fetchCartCount();
-                
-                const handleCartUpdated = () => fetchCartCount();
-                window.addEventListener('cartUpdated', handleCartUpdated);
-                return () => window.removeEventListener('cartUpdated', handleCartUpdated);
             }
         } catch (error) {
             console.error("Dashboard fetch error:", error);
-            // If user is not found (deleted) or unauthorized, logout
             if (error.response && (error.response.status === 401 || 
                 (error.response.data && error.response.data.message && error.response.data.message.includes("not found")))) {
                 clearAuthData();
