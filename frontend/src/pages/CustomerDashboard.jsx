@@ -194,6 +194,7 @@ const CustomerDashboard = () => {
     const productActionRow = { display: 'flex', gap: '10px' };
     const cartBtnSmall = { flex: 1, padding: '10px', borderRadius: '10px', border: 'none', backgroundColor: '#10b981', color: '#fff', fontWeight: '700', cursor: 'pointer' };
     const buyBtnSmall = { flex: 1, padding: '10px', borderRadius: '10px', border: 'none', backgroundColor: '#fbbf24', color: '#000', fontWeight: '700', cursor: 'pointer' };
+    const discountBadgeStyle = { position: "absolute", backgroundColor: "#ef4444", color: "#fff", padding: "4px 10px", borderRadius: "20px", fontSize: "0.75rem", fontWeight: "800", boxShadow: "0 2px 8px rgba(239, 68, 68, 0.4)", zIndex: 3 };
 
     return (
         <div style={dashboardWrapperStyle}>
