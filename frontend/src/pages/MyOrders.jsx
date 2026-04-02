@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { FaBoxOpen, FaBan, FaCheckCircle, FaMapMarkerAlt, FaEye, FaTruck, FaUndo, FaExclamationTriangle, FaStar, FaCommentDots } from 'react-icons/fa';
+import { FaBoxOpen, FaBan, FaCheckCircle, FaMapMarkerAlt, FaEye, FaTruck, FaUndo, FaExclamationTriangle, FaStar, FaCommentDots, FaFileInvoice } from 'react-icons/fa';
 import customerService from '../utils/customerService';
 import retailerService from '../utils/retailerService';
 import { toast } from 'react-toastify';
@@ -157,6 +157,31 @@ const MyOrders = () => {
             setExpandedOrderId(null);
         } else {
             setExpandedOrderId(orderId);
+        }
+    };
+
+    const handleDownloadInvoice = async (orderId) => {
+        try {
+            const token = localStorage.getItem('token');
+            const response = await axios.get(`http://localhost:9090/orders/${orderId}/invoice`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                },
+                responseType: 'blob', // Important for file downloads
+            });
+            
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', `Invoice_${orderId}.pdf`);
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            
+            toast.success("Invoice downloaded successfully!");
+        } catch (error) {
+            console.error('Failed to download invoice:', error);
+            toast.error("Failed to download invoice. Please try again later.");
         }
     };
 
@@ -408,6 +433,12 @@ const MyOrders = () => {
                             <div style={orderActionsStyle}>
                                 {order.orderStatus === 'DELIVERED' && (
                                     <>
+                                        <button
+                                            onClick={() => handleDownloadInvoice(order.orderId)}
+                                            style={{ ...actionBtnStyle, color: '#3b82f6', border: '1px solid #bfdbfe' }}
+                                        >
+                                            <FaFileInvoice /> Download Invoice
+                                        </button>
                                         <button
                                             onClick={() => navigate(`${basePath}/returns/request/${order.orderId}`)}
                                             style={{ ...actionBtnStyle, color: '#f59e0b', border: '1px solid #fcd34d' }}

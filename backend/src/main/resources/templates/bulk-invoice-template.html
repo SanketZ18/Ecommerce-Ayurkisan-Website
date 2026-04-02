@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Sales Analysis Report</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 0.3in;
+        }
+        body {
+            font-family: 'Helvetica', 'Arial', sans-serif;
+            color: #1f2937;
+            margin: 0;
+            padding: 0;
+            font-size: 11px;
+            background-color: #fff;
+        }
+
+        .report-header {
+            border-bottom: 3px solid #10b981;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        .main-title {
+            text-align: center;
+            font-size: 20px;
+            font-weight: 800;
+            color: #111827;
+            margin: 5px 0;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .meta-info {
+            width: 100%;
+            margin-bottom: 15px;
+            font-size: 11px;
+            color: #4b5563;
+        }
+
+        .sales-table {
+            width: 100%;
+            border-collapse: collapse;
+            border: 1px solid #e5e7eb;
+            margin-bottom: 25px;
+        }
+        .sales-table th {
+            background-color: #10b981;
+            color: white;
+            padding: 10px 6px;
+            font-weight: bold;
+            text-align: left;
+            border: 1px solid #059669;
+            text-transform: uppercase;
+            font-size: 9px;
+        }
+        .sales-table td {
+            padding: 10px 6px;
+            border: 1px solid #e5e7eb;
+            vertical-align: top;
+            font-size: 10.5px;
+        }
+        .sales-table tr:nth-child(even) { background-color: #f9fafb; }
+
+        /* Itemized details within an order row */
+        .item-row { 
+            width: 100%; 
+            border-collapse: collapse; 
+            font-size: 9px; 
+            margin-top: 4px;
+        }
+        .item-row td { 
+            padding: 4px 2px; 
+            border: none; 
+            border-bottom: 1px solid #f3f4f6;
+        }
+        .item-row tr:last-child td { border-bottom: none; }
+        .product-name { font-weight: bold; color: #111827; }
+
+        .summary-container {
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .summary-box {
+            width: 300px;
+            float: right;
+            border: 2px solid #10b981;
+            padding: 15px;
+            border-radius: 8px;
+            background-color: #f0fdf4;
+        }
+        
+        .summary-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .summary-table td {
+            padding: 6px 0;
+            border-bottom: 1px solid #d1fae5;
+        }
+        .summary-table tr:last-child td { border-bottom: none; padding-top: 10px; }
+        .label { color: #065f46; font-weight: bold; font-size: 11px; }
+        .val { text-align: right; font-weight: 800; font-size: 12px; color: #111827; }
+        .net-val { font-size: 15px; color: #10b981; }
+
+        .footer {
+            clear: both;
+            margin-top: 40px;
+            padding-top: 15px;
+            border-top: 1px solid #e5e7eb;
+            text-align: center;
+            font-size: 9px;
+            color: #9ca3af;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="report-header">
+        <table style="width: 100%;">
+            <tr>
+                <td style="width: 25%;">
+                    <img th:if="${logoBase64 != null}" th:src="'data:image/png;base64,' + ${logoBase64}" style="height: 45px;" />
+                </td>
+                <td style="text-align: center; width: 50%;">
+                    <div class="main-title" th:text="${invoiceType.toUpperCase()} + ' SALES ANALYSIS REPORT'">SALES ANALYSIS REPORT</div>
+                </td>
+                <td style="text-align: right; width: 25%; font-size: 10px; color: #6b7280;">
+                    Report Date: <strong th:text="${#temporals.format(exportDate, 'dd-MM-yyyy')}">02-04-2026</strong>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <table class="meta-info">
+        <tr>
+            <td>Total Orders: <strong th:text="${#lists.size(orders)}">3</strong></td>
+            <td style="text-align: right;">Currency: <strong>INR (₹)</strong></td>
+        </tr>
+    </table>
+
+    <table class="sales-table">
+        <thead>
+            <tr>
+                <th style="width: 12%;">Order ID</th>
+                <th style="width: 18%;">Customer</th>
+                <th style="width: 45%;">Product Details (Qty, Rate, GST)</th>
+                <th style="width: 10%; text-align: right;">Subtotal</th>
+                <th style="width: 15%; text-align: right;">Final Amount</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="order : ${orders}">
+                <td th:text="${#strings.substring(order.id, 0, 8).toUpperCase()}">ID</td>
+                <td>
+                    <strong th:text="${order.userName}">Client</strong><br/>
+                    <small style="color: #6b7280;" th:text="${order.role.toUpperCase()}">ROLE</small>
+                </td>
+                <td>
+                    <!-- Itemized details inside a single row per order -->
+                    <table class="item-row">
+                        <tr th:each="item : ${order.items}">
+                            <td style="width: 50%;"><span class="product-name" th:text="${item.productName}">Product</span></td>
+                            <td style="width: 10%; text-align: center;">x<span th:text="${item.quantity}">1</span></td>
+                            <td style="width: 20%; text-align: right;">₹<span th:text="${#numbers.formatDecimal(item.discountedPrice, 1, 2)}">0.00</span></td>
+                            <td style="width: 20%; text-align: right; color: #10b981;">+ GST 18%</td>
+                        </tr>
+                    </table>
+                </td>
+                <td style="text-align: right;" th:text="${#numbers.formatDecimal(order.totalDiscountedPrice, 1, 2)}">761.00</td>
+                <td style="text-align: right; font-weight: bold; background: #f0fdf4;" th:text="${#numbers.formatDecimal(order.totalDiscountedPrice + (order.gstAmount ?: 0) + (order.deliveryCharge ?: 0), 1, 2)}">897.98</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="summary-container">
+        <div class="summary-box">
+            <div style="font-size: 13px; font-weight: 800; border-bottom: 2px solid #10b981; margin-bottom: 10px; padding-bottom: 5px; color: #111827;">AGGREGATE SALES SUMMARY</div>
+            <table class="summary-table">
+                <tr>
+                    <td class="label">Gross Subtotal</td>
+                    <td class="val" th:text="'₹' + ${#numbers.formatDecimal(totalSub, 1, 2)}">₹0.00</td>
+                </tr>
+                <tr>
+                    <td class="label">Tax Collected (GST)</td>
+                    <td class="val" th:text="'₹' + ${#numbers.formatDecimal(totalGst, 1, 2)}">₹0.00</td>
+                </tr>
+                <tr>
+                    <td class="label" style="font-size: 13px; color: #111827;">NET SALES TOTAL</td>
+                    <td class="val net-val" th:text="'₹' + ${#numbers.formatDecimal(totalSales, 1, 2)}">₹0.00</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <div class="footer">
+        Confidential Sales Analysis Report - Ayurkisan Business System<br/>
+        All calculations include standard 18% GST and applicable delivery charges.
+    </div>
+
+</body>
+</html>

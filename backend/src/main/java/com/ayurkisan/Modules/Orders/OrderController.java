@@ -17,6 +17,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 
 import com.ayurkisan.util.JwtUtil;
 
@@ -27,6 +29,9 @@ public class OrderController {
 
     @Autowired
     private OrderService orderService;
+
+    @Autowired
+    private InvoiceService invoiceService;
 
     @Autowired
     private JwtUtil jwtUtil;
@@ -103,6 +108,37 @@ public class OrderController {
         Map<String, String> response = new HashMap<>();
         response.put("message", "Order cancelled successfully. Stock refunded.");
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/{orderId}/invoice")
+    public ResponseEntity<byte[]> getOrderInvoice(
+            @RequestHeader("Authorization") String authHeader,
+            @PathVariable String orderId) {
+
+        Map<String, String> userDetails = extractUserFromToken(authHeader);
+        String userId = userDetails.get("userId");
+        String role = userDetails.get("role");
+
+        Order order = orderService.getOrderById(orderId);
+        
+        // Ownership check
+        if (!order.getUserId().equals(userId) && !"Admin".equalsIgnoreCase(role)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Not authorized to access this invoice");
+        }
+
+        try {
+            byte[] pdfBytes = invoiceService.generateInvoice(order, role);
+            
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_PDF);
+            headers.setContentDispositionFormData("attachment", "Invoice_" + orderId + ".pdf");
+            
+            return ResponseEntity.ok()
+                    .headers(headers)
+                    .body(pdfBytes);
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to generate invoice", e);
+        }
     }
 
     // ================= ADMIN APIs =================

@@ -3,8 +3,11 @@ package com.ayurkisan.Modules.Orders;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import jakarta.mail.internet.MimeMessage;
+import org.springframework.core.io.ByteArrayResource;
 
 @Service
 public class EmailService {
@@ -15,6 +18,9 @@ public class EmailService {
     @org.springframework.beans.factory.annotation.Value("${spring.mail.username}")
     private String fromEmail;
 
+    @Autowired
+    private InvoiceService invoiceService;
+
     @Async
     public void sendOrderConfirmation(String toEmail, Order order) {
         if (toEmail == null || toEmail.isEmpty()) {
@@ -22,10 +28,13 @@ public class EmailService {
         }
 
         try {
-            SimpleMailMessage message = new SimpleMailMessage();
-            message.setFrom(fromEmail);
-            message.setTo(toEmail);
-            message.setSubject("Order Confirmation - Ayurkisan");
+            MimeMessage message = mailSender.createMimeMessage();
+            // true = multipart message
+            MimeMessageHelper helper = new MimeMessageHelper(message, true);
+            
+            helper.setFrom(fromEmail);
+            helper.setTo(toEmail);
+            helper.setSubject("Order Confirmation and Invoice - Ayurkisan");
             
             StringBuilder body = new StringBuilder();
             body.append("Dear ").append(order.getUserName()).append(",\n\n");
@@ -42,10 +51,20 @@ public class EmailService {
             }
 
             body.append("\nShipping Address:\n").append(order.getShippingAddress()).append("\n\n");
+            body.append("Please find your official invoice attached to this email.\n\n");
             body.append("We will notify you once your order is shipped.\n\n");
             body.append("Best Regards,\nAyurkisan Team");
 
-            message.setText(body.toString());
+            helper.setText(body.toString());
+
+            // Generate and attach PDF
+            try {
+                byte[] pdfBytes = invoiceService.generateInvoice(order, order.getRole());
+                helper.addAttachment("Invoice_" + order.getId() + ".pdf", new ByteArrayResource(pdfBytes));
+            } catch (Exception e) {
+                System.err.println("Failed to generate PDF for order " + order.getId() + ": " + e.getMessage());
+            }
+
             mailSender.send(message);
 
         } catch (Exception e) {
