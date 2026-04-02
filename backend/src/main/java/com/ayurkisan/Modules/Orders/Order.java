@@ -26,6 +26,8 @@ public class Order {
 
     private double totalOriginalPrice;
     private double totalDiscountedPrice;
+    private double baseSubtotal;
+    private double gstAmount;
     private double deliveryCharge = 50.0;
 
     // Payment details
@@ -80,6 +82,12 @@ public class Order {
 
     public double getTotalDiscountedPrice() { return totalDiscountedPrice; }
     public void setTotalDiscountedPrice(double totalDiscountedPrice) { this.totalDiscountedPrice = totalDiscountedPrice; }
+
+    public double getBaseSubtotal() { return baseSubtotal; }
+    public void setBaseSubtotal(double baseSubtotal) { this.baseSubtotal = baseSubtotal; }
+
+    public double getGstAmount() { return gstAmount; }
+    public void setGstAmount(double gstAmount) { this.gstAmount = gstAmount; }
 
     public double getDeliveryCharge() { return deliveryCharge; }
     public void setDeliveryCharge(double deliveryCharge) { this.deliveryCharge = deliveryCharge; }
