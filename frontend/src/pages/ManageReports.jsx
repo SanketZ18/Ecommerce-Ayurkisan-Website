@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'react-toastify';
-import { Calendar, Download, Filter, ShoppingCart, Box, Layers, RefreshCw } from 'lucide-react';
+import { Calendar, Download, Filter, ShoppingCart, Box, Layers, RefreshCw, FileText } from 'lucide-react';
 import ReportWidgets from '../components/admin/ReportWidgets';
 import SalesCharts from '../components/admin/SalesCharts';
 import adminService from '../utils/adminService';
+import axios from 'axios';
 
 const ManageReports = () => {
     const [activeTab, setActiveTab] = useState('sales');
@@ -22,6 +23,10 @@ const ManageReports = () => {
         start: new Date(new Date().setDate(new Date().getDate() - 30)).toISOString().slice(0, 16),
         end: new Date().toISOString().slice(0, 16)
     });
+
+    const [isInvoiceModalOpen, setIsInvoiceModalOpen] = useState(false);
+    const [invoiceRole, setInvoiceRole] = useState('CUSTOMER');
+    const [isDownloadingInvoices, setIsDownloadingInvoices] = useState(false);
 
     useEffect(() => {
         fetchInitialData();
@@ -146,6 +151,45 @@ const ManageReports = () => {
         }
     };
 
+    const handleInvoiceExport = async () => {
+        setIsDownloadingInvoices(true);
+        try {
+            toast.info(`Generating ${invoiceRole} Invoices...`);
+            
+            const formatForBackend = (dateStr) => {
+                const date = new Date(dateStr);
+                return date.toISOString().split('.')[0]; 
+            };
+
+            const startISO = formatForBackend(dateRange.start);
+            const endISO = formatForBackend(dateRange.end);
+            
+            const token = localStorage.getItem('token');
+            const response = await axios.get(`http://localhost:9090/api/reports/export/bulk-invoices?role=${invoiceRole}&start=${startISO}&end=${endISO}`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                },
+                responseType: 'blob', 
+            });
+            
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', `Bulk_Invoices_${invoiceRole}_${startISO.split('T')[0]}.pdf`);
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            
+            toast.success(`${invoiceRole} Invoices downloaded successfully`);
+            setIsInvoiceModalOpen(false);
+        } catch (err) {
+            console.error("Invoice Export failed", err);
+            toast.error(`Failed to export Invoices. Check if there are orders for this period.`);
+        } finally {
+            setIsDownloadingInvoices(false);
+        }
+    };
+
     const tabs = [
         { id: 'sales', label: 'Sales Overview', icon: ShoppingCart },
         { id: 'products', label: 'Product Analytics', icon: Box },
@@ -186,6 +230,7 @@ const ManageReports = () => {
                         <button onClick={fetchInitialData} style={filterBtnStyle}><Filter size={16} /></button>
                     </div>
                     <div style={exportGroupStyle}>
+                        <button onClick={() => setIsInvoiceModalOpen(true)} style={{...exportBtnStyle, backgroundColor: '#059669', color: '#fff'}}><FileText size={14} style={{display:'inline', marginRight: '4px', verticalAlign: 'middle'}}/>Invoices</button>
                         <button onClick={() => handleExport('pdf')} style={exportBtnStyle}>PDF</button>
                         <button onClick={() => handleExport('excel')} style={exportBtnStyle}>Excel</button>
                         <button onClick={() => handleExport('csv')} style={exportBtnStyle}>CSV</button>
@@ -340,6 +385,81 @@ const ManageReports = () => {
                     )}
                 </AnimatePresence>
             </main>
+
+            {/* INVOICE MODAL */}
+            <AnimatePresence>
+                {isInvoiceModalOpen && (
+                    <div style={modalOverlayStyle}>
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            style={modalBackdropStyle}
+                            onClick={() => !isDownloadingInvoices && setIsInvoiceModalOpen(false)}
+                        />
+                        <motion.div
+                            initial={{ scale: 0.9, opacity: 0, y: 20 }}
+                            animate={{ scale: 1, opacity: 1, y: 0 }}
+                            exit={{ scale: 0.9, opacity: 0, y: 20 }}
+                            style={modalContentStyle}
+                        >
+                            <div style={{ padding: '10px' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px' }}>
+                                    <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: '#ecfdf5', color: '#059669', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                        <FileText size={24} />
+                                    </div>
+                                    <h3 style={{ fontSize: '1.25rem', color: '#1e293b', margin: 0 }}>Download Bulk Invoices</h3>
+                                </div>
+                                <p style={{ color: '#64748b', fontSize: '0.90rem', lineHeight: '1.5', marginBottom: '20px' }}>
+                                    Generate and download PDF invoices for all orders within the current selected date range <strong>({new Date(dateRange.start).toLocaleDateString()} to {new Date(dateRange.end).toLocaleDateString()})</strong>.
+                                </p>
+                                
+                                <div style={{ marginBottom: '24px' }}>
+                                    <label style={{ display: 'block', fontSize: '0.9rem', fontWeight: '600', color: '#374151', marginBottom: '8px' }}>Select Customer Type:</label>
+                                    <div style={{ display: 'flex', gap: '10px' }}>
+                                        <button 
+                                            onClick={() => setInvoiceRole('CUSTOMER')}
+                                            style={{ 
+                                                flex: 1, padding: '12px', borderRadius: '10px', fontWeight: '600', border: invoiceRole === 'CUSTOMER' ? '2px solid #059669' : '2px solid #e2e8f0',
+                                                background: invoiceRole === 'CUSTOMER' ? '#ecfdf5' : '#fff', color: invoiceRole === 'CUSTOMER' ? '#059669' : '#64748b', cursor: 'pointer', transition: 'all 0.2s'
+                                            }}
+                                        >
+                                            Customer
+                                        </button>
+                                        <button 
+                                            onClick={() => setInvoiceRole('RETAILER')}
+                                            style={{ 
+                                                flex: 1, padding: '12px', borderRadius: '10px', fontWeight: '600', border: invoiceRole === 'RETAILER' ? '2px solid #3b82f6' : '2px solid #e2e8f0',
+                                                background: invoiceRole === 'RETAILER' ? '#eff6ff' : '#fff', color: invoiceRole === 'RETAILER' ? '#3b82f6' : '#64748b', cursor: 'pointer', transition: 'all 0.2s'
+                                            }}
+                                        >
+                                            Retailer
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end' }}>
+                                    <button 
+                                        onClick={() => setIsInvoiceModalOpen(false)} 
+                                        disabled={isDownloadingInvoices}
+                                        style={{ padding: '10px 20px', borderRadius: '10px', border: 'none', backgroundColor: '#f1f5f9', color: '#475569', fontWeight: '600', cursor: 'pointer' }}
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button 
+                                        onClick={handleInvoiceExport} 
+                                        disabled={isDownloadingInvoices}
+                                        style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 24px', borderRadius: '10px', border: 'none', backgroundColor: '#059669', color: '#fff', fontWeight: '600', cursor: isDownloadingInvoices ? 'not-allowed' : 'pointer' }}
+                                    >
+                                        {isDownloadingInvoices ? <RefreshCw size={16} className="animate-spin" /> : <Download size={16} />}
+                                        {isDownloadingInvoices ? 'Generating...' : 'Download PDFs'}
+                                    </button>
+                                </div>
+                            </div>
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
         </div>
     );
 };
@@ -425,5 +545,40 @@ const tableStyle = { width: '100%', borderCollapse: 'collapse' };
 const thStyle = { textAlign: 'left', padding: '1rem', borderBottom: '2px solid #f3f4f6', color: '#6b7280', fontSize: '0.85rem', fontWeight: '600', textTransform: 'uppercase' };
 const trStyle = { borderBottom: '1px solid #f9fafb' };
 const tdStyle = { padding: '1rem', fontSize: '0.9rem', color: '#374151' };
+
+// Modal styles
+const modalOverlayStyle = {
+    position: 'fixed',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 9999,
+    padding: '20px'
+};
+
+const modalBackdropStyle = {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(15, 23, 42, 0.6)',
+    backdropFilter: 'blur(4px)'
+};
+
+const modalContentStyle = {
+    position: 'relative',
+    backgroundColor: '#ffffff',
+    borderRadius: '24px',
+    padding: '32px',
+    width: '100%',
+    maxWidth: '500px',
+    boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+    zIndex: 1
+};
 
 export default ManageReports;

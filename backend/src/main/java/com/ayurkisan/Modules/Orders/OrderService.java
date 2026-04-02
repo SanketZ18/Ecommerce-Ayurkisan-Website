@@ -115,9 +115,16 @@ public class OrderService {
             }
         }
 
+        double gstAmount = subtotal * 0.18;
+        
+        order.setPromoCode(promoCode);
+        order.setPromoDiscount(promoDiscount);
         order.setDeliveryCharge(deliveryFee);
-        order.setTotalOriginalPrice(cart.getTotalOriginalPrice() + deliveryFee);
-        order.setTotalDiscountedPrice(subtotal + deliveryFee - promoDiscount);
+        order.setBaseSubtotal(subtotal);
+        order.setGstAmount(gstAmount);
+        
+        order.setTotalOriginalPrice(cart.getTotalOriginalPrice() + deliveryFee + (cart.getTotalOriginalPrice() * 0.18));
+        order.setTotalDiscountedPrice(subtotal + deliveryFee - promoDiscount + gstAmount);
 
         order.setPaymentMethod(paymentMethod);
         if ("COD".equalsIgnoreCase(paymentMethod)) {

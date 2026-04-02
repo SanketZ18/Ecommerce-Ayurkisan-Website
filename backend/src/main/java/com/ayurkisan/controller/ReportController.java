@@ -11,6 +11,11 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
+
+import com.ayurkisan.Modules.Orders.Order;
+import com.ayurkisan.Modules.Orders.OrderService;
+import com.ayurkisan.Modules.Orders.InvoiceService;
 
 @RestController
 @RequestMapping("/api/reports")
@@ -19,6 +24,12 @@ public class ReportController {
 
     @Autowired
     private ReportService reportService;
+
+    @Autowired
+    private OrderService orderService;
+
+    @Autowired
+    private InvoiceService invoiceService;
 
     @GetMapping("/sales")
     public ResponseEntity<SalesReportDTO> getSalesReport(
@@ -73,6 +84,37 @@ public class ReportController {
         byte[] pdf = reportService.exportProductReportToPDF(data);
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=product_sales_report.pdf")
+                .contentType(MediaType.APPLICATION_PDF)
+                .body(pdf);
+    }
+
+    @GetMapping("/export/bulk-invoices")
+    public ResponseEntity<byte[]> exportBulkInvoices(
+            @RequestParam(required = false) String role,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime start,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime end) throws Exception {
+
+        List<Order> allOrders = orderService.getAllOrders();
+
+        if (role != null && !role.isEmpty()) {
+            allOrders = allOrders.stream()
+                .filter(o -> role.equalsIgnoreCase(o.getRole()))
+                .collect(Collectors.toList());
+        }
+
+        if (start != null && end != null) {
+            allOrders = allOrders.stream()
+                .filter(o -> o.getCreatedAt() != null && !o.getCreatedAt().isBefore(start) && !o.getCreatedAt().isAfter(end))
+                .collect(Collectors.toList());
+        }
+
+        // Only include completed/delivered orders logically? The prompt didn't specify exactly, 
+        // but typically invoices are for confirmed/delivered orders. We'll export matched orders.
+
+        byte[] pdf = invoiceService.generateBulkInvoices(allOrders, role);
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=bulk_invoices_" + (role != null ? role : "all") + ".pdf")
                 .contentType(MediaType.APPLICATION_PDF)
                 .body(pdf);
     }
