@@ -16,6 +16,7 @@ import com.ayurkisan.dto.ChangePasswordRequest;
 import com.ayurkisan.dto.UpdateCustomerRequest;
 import com.ayurkisan.model.Customer;
 import com.ayurkisan.service.CustomerService;
+import com.ayurkisan.dto.CustomerDashboardSummary;
 
 @RestController
 @RequestMapping("/api/customer")
@@ -24,6 +25,12 @@ public class CustomerController {
 
     @Autowired
     private CustomerService customerService;
+
+    // ================= DASHBOARD SUMMARY =================
+    @GetMapping("/dashboard-summary/{userId}")
+    public CustomerDashboardSummary getDashboardSummary(@PathVariable String userId) {
+        return customerService.getDashboardSummary(userId);
+    }
 
     // ================= GET ALL CUSTOMERS =================
     @GetMapping("/all")

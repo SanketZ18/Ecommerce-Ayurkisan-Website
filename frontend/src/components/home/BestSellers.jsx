@@ -92,6 +92,7 @@ const BestSellers = () => {
                             <img
                                 src={resolveProductImage(product.productImage1, product.id)}
                                 alt={product.productName}
+                                loading="lazy"
                                 style={imageStyle}
                             />
                         </div>
