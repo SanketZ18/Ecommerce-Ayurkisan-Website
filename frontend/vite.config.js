@@ -11,4 +11,16 @@ export default defineConfig({
       },
     },
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'vendor-charts': ['chart.js', 'react-chartjs-2', 'recharts'],
+          'vendor-motion': ['framer-motion'],
+          'vendor-react': ['react', 'react-dom', 'react-router-dom'],
+        }
+      }
+    },
+    chunkSizeWarningLimit: 1000
+  }
 });

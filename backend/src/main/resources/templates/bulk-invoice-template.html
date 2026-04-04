@@ -170,8 +170,8 @@
                         </tr>
                     </table>
                 </td>
-                <td style="text-align: right;" th:text="${#numbers.formatDecimal(order.totalDiscountedPrice, 1, 2)}">761.00</td>
-                <td style="text-align: right; font-weight: bold; background: #f0fdf4;" th:text="${#numbers.formatDecimal(order.totalDiscountedPrice + (order.gstAmount ?: 0) + (order.deliveryCharge ?: 0), 1, 2)}">897.98</td>
+                <td style="text-align: right;" th:text="${#numbers.formatDecimal(order.baseSubtotal, 1, 2)}">761.00</td>
+                <td style="text-align: right; font-weight: bold; background: #f0fdf4;" th:text="${#numbers.formatDecimal(order.totalDiscountedPrice, 1, 2)}">897.98</td>
             </tr>
         </tbody>
     </table>

@@ -29,7 +29,7 @@ const CustomerNavbar = ({ onOpenProfileModal }) => {
             } catch (error) {
                 console.error("Failed to fetch user data for navbar", error);
                 // If user is not found (deleted) or unauthorized, logout
-                if (error.response && (error.response.status === 401 || 
+                if (error.response && (error.response.status === 401 ||
                     (error.response.data && error.response.data.message && error.response.data.message.includes("not found")))) {
                     const role = localStorage.getItem('role') || 'CUSTOMER';
                     if (role === 'CUSTOMER') {
@@ -45,7 +45,7 @@ const CustomerNavbar = ({ onOpenProfileModal }) => {
             try {
                 const userId = localStorage.getItem('userId');
                 const role = localStorage.getItem('role') || 'CUSTOMER';
-                
+
                 // Get Wishlist from local storage
                 const wishlist = JSON.parse(localStorage.getItem('wishlist') || '[]');
                 setWishlistCount(wishlist.length);
@@ -58,7 +58,7 @@ const CustomerNavbar = ({ onOpenProfileModal }) => {
             } catch (error) {
                 console.error("Failed to fetch counts for navbar", error);
                 // If user is not found (deleted) or unauthorized, logout
-                if (error.response && (error.response.status === 401 || 
+                if (error.response && (error.response.status === 401 ||
                     (error.response.data && error.response.data.message && error.response.data.message.includes("not found")))) {
                     const role = localStorage.getItem('role') || 'CUSTOMER';
                     if (role === 'CUSTOMER') {
@@ -94,7 +94,7 @@ const CustomerNavbar = ({ onOpenProfileModal }) => {
             {/* Logo Section */}
             <div style={logoSectionStyle} onClick={() => navigate('/customer/dashboard')}>
                 <img src={logo} alt="AyurKisan Logo" style={logoImageStyle} />
-                <span style={logoTextStyle}>AyurKisan</span>
+                {/* <span style={logoTextStyle}>Home</span>*/}
             </div>
 
             {/* Search Bar (Amazon style centered) */}

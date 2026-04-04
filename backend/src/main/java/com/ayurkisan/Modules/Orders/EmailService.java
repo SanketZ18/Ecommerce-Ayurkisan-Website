@@ -34,37 +34,20 @@ public class EmailService {
             
             helper.setFrom(fromEmail);
             helper.setTo(toEmail);
-            helper.setSubject("Order Confirmation and Invoice - Ayurkisan");
+            helper.setSubject("Order Confirmation - Ayurkisan");
             
             StringBuilder body = new StringBuilder();
             body.append("Dear ").append(order.getUserName()).append(",\n\n");
             body.append("Thank you for your order! Your order has been placed successfully.\n\n");
             body.append("Order ID: ").append(order.getId()).append("\n");
-            body.append("Payment Method: ").append(order.getPaymentMethod()).append("\n");
             body.append("Total Amount: ₹").append(order.getTotalDiscountedPrice()).append("\n\n");
             
-            body.append("Items Ordered:\n");
-            for (OrderItem item : order.getItems()) {
-                body.append("- ").append(item.getProductName())
-                    .append(" (Qty: ").append(item.getQuantity()).append(")")
-                    .append(" - ₹").append(item.getTotalItemPrice()).append("\n");
-            }
-
-            body.append("\nShipping Address:\n").append(order.getShippingAddress()).append("\n\n");
-            body.append("Please find your official invoice attached to this email.\n\n");
-            body.append("We will notify you once your order is shipped.\n\n");
+            body.append("Shipping Address:\n").append(order.getShippingAddress()).append("\n\n");
+            body.append("We have received your order and are processing it.\n");
+            body.append("You will receive your official Tax Invoice once the order is delivered.\n\n");
             body.append("Best Regards,\nAyurkisan Team");
 
             helper.setText(body.toString());
-
-            // Generate and attach PDF
-            try {
-                byte[] pdfBytes = invoiceService.generateInvoice(order, order.getRole());
-                helper.addAttachment("Invoice_" + order.getId() + ".pdf", new ByteArrayResource(pdfBytes));
-            } catch (Exception e) {
-                System.err.println("Failed to generate PDF for order " + order.getId() + ": " + e.getMessage());
-            }
-
             mailSender.send(message);
 
         } catch (Exception e) {
@@ -111,18 +94,30 @@ public class EmailService {
         }
 
         try {
-            SimpleMailMessage message = new SimpleMailMessage();
-            message.setFrom(fromEmail);
-            message.setTo(toEmail);
-            message.setSubject("Order Delivered - Ayurkisan");
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true);
             
-            String body = "Dear " + order.getUserName() + ",\n\n" +
-                          "Your order (ID: " + order.getId() + ") has been successfully delivered.\n" +
-                          "If you have any issues with your products, you have up to 5 days to initiate a return request.\n\n" +
-                          "Thank you for shopping with us!\n\n" +
-                          "Best Regards,\nAyurkisan Team";
+            helper.setFrom(fromEmail);
+            helper.setTo(toEmail);
+            helper.setSubject("Order Delivered and Tax Invoice - Ayurkisan");
+            
+            StringBuilder body = new StringBuilder();
+            body.append("Dear ").append(order.getUserName()).append(",\n\n");
+            body.append("Great news! Your order (ID: ").append(order.getId()).append(") has been successfully delivered.\n\n");
+            body.append("Thank you for shopping with us! Please find your official Tax Invoice attached to this email.\n\n");
+            body.append("If you have any issues with your products, you have up to 5 days to initiate a return request through your dashboard.\n\n");
+            body.append("Best Regards,\nAyurkisan Team");
 
-            message.setText(body);
+            helper.setText(body.toString());
+
+            // Generate and attach PDF now that it's delivered
+            try {
+                byte[] pdfBytes = invoiceService.generateInvoice(order, order.getRole());
+                helper.addAttachment("Invoice_" + order.getId() + ".pdf", new ByteArrayResource(pdfBytes));
+            } catch (Exception e) {
+                System.err.println("Failed to generate PDF for delivered order " + order.getId() + ": " + e.getMessage());
+            }
+
             mailSender.send(message);
 
         } catch (Exception e) {

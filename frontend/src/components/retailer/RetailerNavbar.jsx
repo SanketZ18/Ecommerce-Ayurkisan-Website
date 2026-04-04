@@ -24,7 +24,7 @@ const RetailerNavbar = ({ onOpenProfileModal }) => {
             } catch (error) {
                 console.error("Failed to fetch retailer data for navbar", error);
                 // If user is not found (deleted) or unauthorized, logout
-                if (error.response && (error.response.status === 401 || 
+                if (error.response && (error.response.status === 401 ||
                     (error.response.data && error.response.data.message && error.response.data.message.includes("not found")))) {
                     handleLogout();
                 }
@@ -44,8 +44,8 @@ const RetailerNavbar = ({ onOpenProfileModal }) => {
             <div style={logoSectionStyle} onClick={() => navigate('/retailer/dashboard')}>
                 <img src={logo} alt="AyurKisan Logo" style={logoImageStyle} />
                 <div style={logoTextContainerStyle}>
-                    <span style={logoTextStyle}>AyurKisan</span>
-                    <span style={retailerTagStyle}>Business Hub</span>
+                    { /*<span style={logoTextStyle}>Home</span>*/}
+                    <span style={retailerTagStyle}>  Business Hub</span>
                 </div>
             </div>
 

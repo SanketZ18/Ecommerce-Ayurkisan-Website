@@ -11,6 +11,7 @@ import com.ayurkisan.model.Product;
 import com.ayurkisan.service.ProductService;
 import com.ayurkisan.Modules.Packages.ProductPackage;
 import com.ayurkisan.Modules.Packages.ProductPackageService;
+import com.ayurkisan.util.FinanceCalculator;
 
 @Service
 public class CartService {
@@ -89,6 +90,8 @@ public class CartService {
 
         if ("Retailer".equalsIgnoreCase(role)) {
             discountedPrice = discountedPrice * 0.7; // Fixed 30% discount for retailers on wholesale boxes
+        } else if ("Customer".equalsIgnoreCase(role)) {
+            discountedPrice = discountedPrice * 0.9; // Fixed 10% discount for customers
         }
 
         // Add to cart items list
@@ -213,7 +216,17 @@ public class CartService {
             totalDiscounted += item.getTotalItemPrice();
         }
 
-        cart.setTotalOriginalPrice(totalOriginal);
-        cart.setTotalDiscountedPrice(totalDiscounted);
+        cart.setTotalOriginalPrice(FinanceCalculator.round(totalOriginal));
+        cart.setTotalDiscountedPrice(FinanceCalculator.round(totalDiscounted));
+
+        // Use core calculator to estimate GST and final price for the user
+        FinanceCalculator.FinanceSummary estimate = FinanceCalculator.calculateFullOrder(
+                totalDiscounted, 
+                0.0, // Promo discount estimated at 0 in cart before coupon entry
+                FinanceCalculator.FLAT_DELIVERY_CHARGE
+        );
+
+        cart.setEstimatedGst(estimate.gstAmount);
+        cart.setTotalPayable(estimate.totalPayable);
     }
 }

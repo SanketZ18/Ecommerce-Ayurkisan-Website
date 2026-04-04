@@ -96,8 +96,8 @@ const ProductDetails = () => {
         return (
             <div style={{ textAlign: "center", padding: "100px 20px" }}>
                 <h2 style={{ color: 'var(--error-color)' }}>Product not found</h2>
-                <Link to="/products" style={{ color: 'var(--primary-green)', textDecoration: 'none', fontWeight: 'bold' }}>
-                    <FaArrowLeft style={{ marginRight: '8px' }} /> Back to Shop
+                <Link to={userRole === 'RETAILER' ? "/retailer/dashboard" : "/customer/dashboard"} style={{ color: 'var(--primary-green)', textDecoration: 'none', fontWeight: 'bold' }}>
+                    <FaArrowLeft style={{ marginRight: '8px' }} /> Back to Dashboard
                 </Link>
             </div>
         );
@@ -118,8 +118,8 @@ const ProductDetails = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
         >
-            <Link to="/products" style={backLinkStyle}>
-                <FaArrowLeft style={{ marginRight: '8px' }} /> Back to Shop
+            <Link to={userRole === 'RETAILER' ? "/retailer/dashboard" : "/customer/dashboard"} style={backLinkStyle}>
+                <FaArrowLeft style={{ marginRight: '8px' }} /> Back to Dashboard
             </Link>
 
             <div style={productLayout}>

@@ -116,6 +116,8 @@ const HeroSection = () => {
                     <img
                         src={heroImage}
                         alt="Herbal Bottles"
+                        loading="eager"
+                        fetchPriority="high"
                         style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                     />
                 </motion.div>

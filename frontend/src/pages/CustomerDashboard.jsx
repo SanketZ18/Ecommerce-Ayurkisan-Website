@@ -12,6 +12,7 @@ import customerService from '../utils/customerService';
 import { getDecodedToken, clearAuthData } from '../utils/auth';
 import { toast } from 'react-toastify';
 import { resolveProductImage, resolvePackageImage } from '../utils/imageUtils';
+import LoadingSpinner from '../components/common/LoadingSpinner';
 
 const CustomerDashboard = () => {
     const navigate = useNavigate();
@@ -78,38 +79,34 @@ const CustomerDashboard = () => {
         setLoading(true);
         try {
             const userId = localStorage.getItem('userId');
-            const role = localStorage.getItem('role');
             if (userId) {
-                const [profileRes, ordersRes, offersRes, productsRes, packagesRes, categoriesRes] = await Promise.all([
-                    customerService.getProfile(userId),
-                    customerService.getOrderHistory(userId),
-                    axios.get('http://localhost:9090/api/homepage/sections').catch(() => ({ data: [] })),
-                    customerService.getAllProducts().catch(() => ({ data: [] })),
-                    customerService.getAllPackages().catch(() => ({ data: [] })),
-                    customerService.getAllCategories().catch(() => ({ data: [] }))
-                ]);
+                // Single consolidated request for profile, orders, products, packages, categories, and offers
+                const summaryRes = await customerService.getDashboardSummary(userId);
+                const data = summaryRes.data;
 
-                setProfile(profileRes.data);
-                const orderData = Array.isArray(ordersRes.data) ? ordersRes.data : [];
-                const top5Orders = orderData.slice(0, 5);
+                setProfile(data.profile);
                 
-                // Track shipments for those 5 orders
-                const trackingResults = await Promise.all(
-                    top5Orders.map(order => customerService.trackShipment(order.id).catch(() => null))
-                );
+                // Process Orders (No waterfall tracking for instant feel, use orderStatus initially)
+                const orderData = Array.isArray(data.recentOrders) ? data.recentOrders : [];
+                setRecentOrders(orderData.map(order => ({
+                    ...order,
+                    orderId: order.id,
+                    orderDate: order.createdAt,
+                    displayItems: order.items?.map(item => item.productName || item.packageName).join(', ') || 'Items',
+                    trackingStatus: order.orderStatus
+                })));
 
-                setRecentOrders(top5Orders.map((order, index) => {
-                    const trackingData = trackingResults[index]?.data;
-                    return {
-                        ...order,
-                        orderId: order.id,
-                        orderDate: order.createdAt,
-                        displayItems: order.items?.map(item => item.productName).join(', ') || 'Unnamed Items',
-                        trackingStatus: trackingData?.status || order.orderStatus
-                    };
-                }));
+                // Update stats if available
+                if (data.stats) {
+                    setStats({
+                        orders: data.stats.totalOrders || 0,
+                        wishlisted: stats.wishlisted, // kept from local
+                        returns: stats.returns
+                    });
+                }
 
-                const fetchedOffers = Array.isArray(offersRes.data) ? offersRes.data.filter(s => s.type === 'special_offers') : [];
+                // Process Offers
+                const fetchedOffers = Array.isArray(data.homepageSections) ? data.homepageSections : [];
                 setOffers(fetchedOffers.length > 0 ? fetchedOffers : [
                     {
                         id: 'default_off',
@@ -121,18 +118,20 @@ const CustomerDashboard = () => {
                     }
                 ]);
 
-                setProducts(Array.isArray(productsRes.data) ? productsRes.data : []);
-                setPackages(Array.isArray(packagesRes.data) ? packagesRes.data : []);
-                setCategoriesList(Array.isArray(categoriesRes.data) ? categoriesRes.data : []);
+                setProducts(Array.isArray(data.featuredProducts) ? data.featuredProducts : []);
+                setPackages(Array.isArray(data.featuredPackages) ? data.featuredPackages : []);
+                setCategoriesList(Array.isArray(data.categories) ? data.categories : []);
 
                 const wishlist = JSON.parse(localStorage.getItem('wishlist') || '[]');
                 setWishlistItems(wishlist);
                 setWishlistCount(wishlist.length);
+
+                // Background update for tracking status (Non-blocking)
+                updateTrackingStatuses(orderData);
             }
         } catch (error) {
             console.error("Dashboard fetch error:", error);
-            if (error.response && (error.response.status === 401 || 
-                (error.response.data && error.response.data.message && error.response.data.message.includes("not found")))) {
+            if (error.response && (error.response.status === 401)) {
                 clearAuthData();
                 window.location.href = '/';
             }
@@ -141,8 +140,22 @@ const CustomerDashboard = () => {
         }
     };
 
+    const updateTrackingStatuses = async (orders) => {
+        try {
+            const updates = await Promise.all(
+                orders.map(o => customerService.trackShipment(o.id).catch(() => null))
+            );
+            setRecentOrders(prev => prev.map((order, i) => ({
+                ...order,
+                trackingStatus: updates[i]?.data?.status || order.orderStatus
+            })));
+        } catch (e) {
+            // Silently fail, we already have the base status
+        }
+    };
+
     if (loading) {
-        return <div style={{ padding: '100px', textAlign: 'center' }}>Loading...</div>;
+        return <LoadingSpinner />;
     }
 
     // --- Styles (Moved inside to access isDarkMode) ---
@@ -265,6 +278,7 @@ const CustomerDashboard = () => {
                                 backgroundPosition: 'center',
                                 zIndex: 0
                             }}
+                            loading="lazy"
                         />
                     </AnimatePresence>
 

@@ -19,6 +19,7 @@ import com.ayurkisan.repository.RetailerRepository;
 import com.ayurkisan.service.ProductService;
 import com.ayurkisan.Modules.Packages.ProductPackageService;
 import com.ayurkisan.Modules.Shipment.ShipmentService;
+import com.ayurkisan.util.FinanceCalculator;
 import org.springframework.context.annotation.Lazy;
 
 @Service
@@ -94,7 +95,7 @@ public class OrderService {
         order.setContactPhone(phone);
         order.setShippingAddress(address);
 
-        double deliveryFee = 50.0;
+        double deliveryFee = FinanceCalculator.FLAT_DELIVERY_CHARGE;
         double subtotal = cart.getTotalDiscountedPrice();
         double promoDiscount = 0.0;
 
@@ -107,24 +108,27 @@ public class OrderService {
                     promoDiscount = offer.getDiscountValue();
                 }
                 order.setPromoCode(promoCode);
-                order.setPromoDiscount(promoDiscount);
+                order.setPromoDiscount(FinanceCalculator.round(promoDiscount));
             } catch (Exception e) {
-                // If promo code is invalid, we could either fail or ignore. 
-                // In a real app, we should probably fail if the user explicitly provided it.
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
             }
         }
 
-        double gstAmount = subtotal * 0.18;
+        // Apply industry-standard calculation logic
+        FinanceCalculator.FinanceSummary summary = FinanceCalculator.calculateFullOrder(subtotal, promoDiscount, deliveryFee);
         
         order.setPromoCode(promoCode);
-        order.setPromoDiscount(promoDiscount);
-        order.setDeliveryCharge(deliveryFee);
-        order.setBaseSubtotal(subtotal);
-        order.setGstAmount(gstAmount);
+        order.setPromoDiscount(summary.promoDiscount);
+        order.setDeliveryCharge(summary.deliveryCharge);
+        order.setBaseSubtotal(summary.baseSubtotal);
+        order.setGstAmount(summary.gstAmount);
         
-        order.setTotalOriginalPrice(cart.getTotalOriginalPrice() + deliveryFee + (cart.getTotalOriginalPrice() * 0.18));
-        order.setTotalDiscountedPrice(subtotal + deliveryFee - promoDiscount + gstAmount);
+        // Industry Standard: Taxable is (Subtotal - Promo). Total is (Taxable + GST + Delivery).
+        order.setTotalDiscountedPrice(summary.totalPayable);
+        
+        // Original price is mostly for comparison "You Saved"
+        double originalGst = FinanceCalculator.calculateGst(cart.getTotalOriginalPrice());
+        order.setTotalOriginalPrice(FinanceCalculator.round(cart.getTotalOriginalPrice() + deliveryFee + originalGst));
 
         order.setPaymentMethod(paymentMethod);
         if ("COD".equalsIgnoreCase(paymentMethod)) {
@@ -252,7 +256,9 @@ public class OrderService {
             return order; // If status didn't change, we just did the sync and can return
         }
         
-        if ("SHIPPED".equalsIgnoreCase(newStatus)) {
+        if ("CONFIRMED".equalsIgnoreCase(newStatus)) {
+            emailService.sendOrderConfirmation(order.getContactEmail(), order);
+        } else if ("SHIPPED".equalsIgnoreCase(newStatus)) {
             order.setShippedAt(java.time.LocalDateTime.now());
         } else if ("DELIVERED".equalsIgnoreCase(newStatus)) {
             order.setDeliveredAt(java.time.LocalDateTime.now());
