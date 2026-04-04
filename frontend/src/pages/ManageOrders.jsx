@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaShoppingCart, FaSearch, FaEye, FaTimes, FaCheckCircle, FaTruck, FaBox, FaTimesCircle, FaFilter, FaCalendarAlt, FaUserFriends, FaStore, FaReply } from 'react-icons/fa';
 import { toast } from 'react-toastify';
@@ -17,9 +18,17 @@ const ManageOrders = () => {
     const [statusUpdating, setStatusUpdating] = useState(false);
     const [remarks, setRemarks] = useState('');
 
+    const location = useLocation();
+
     useEffect(() => {
+        if (location.state?.searchTerm) {
+            setSearchTerm(location.state.searchTerm);
+        }
+        if (location.state?.role) {
+            setActiveTab(location.state.role);
+        }
         fetchOrders();
-    }, []);
+    }, [location.state]);
 
     const fetchOrders = async () => {
         try {
