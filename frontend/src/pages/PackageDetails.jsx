@@ -111,8 +111,14 @@ const PackageDetails = () => {
         return (
             <div style={{ textAlign: "center", padding: "100px 20px" }}>
                 <h2 style={{ color: 'var(--error-color)' }}>Package not found</h2>
-                <Link to="/packages" style={{ color: 'var(--primary-green)', textDecoration: 'none', fontWeight: 'bold' }}>
-                    <FaArrowLeft style={{ marginRight: '8px' }} /> Back to Packages
+                <Link to={(() => {
+                    const role = localStorage.getItem('role');
+                    if (!role) return "/";
+                    if (role === 'ADMIN') return "/admin/dashboard";
+                    if (role === 'RETAILER') return "/retailer/dashboard";
+                    return "/customer/dashboard";
+                })()} style={{ color: 'var(--primary-green)', textDecoration: 'none', fontWeight: 'bold' }}>
+                    <FaArrowLeft style={{ marginRight: '8px' }} /> Back to Dashboard
                 </Link>
             </div>
         );
@@ -133,8 +139,14 @@ const PackageDetails = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
         >
-            <Link to="/packages" style={backLinkStyle}>
-                <FaArrowLeft style={{ marginRight: '8px' }} /> Back to Packages
+            <Link to={(() => {
+                const role = localStorage.getItem('role');
+                if (!role) return "/";
+                if (role === 'ADMIN') return "/admin/dashboard";
+                if (role === 'RETAILER') return "/retailer/dashboard";
+                return "/customer/dashboard";
+            })()} style={backLinkStyle}>
+                <FaArrowLeft style={{ marginRight: '8px' }} /> Back to Dashboard
             </Link>
 
             <div style={packageLayout}>

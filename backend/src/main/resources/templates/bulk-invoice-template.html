@@ -129,7 +129,13 @@
                     <div class="main-title" th:text="${invoiceType.toUpperCase()} + ' SALES ANALYSIS REPORT'">SALES ANALYSIS REPORT</div>
                 </td>
                 <td style="text-align: right; width: 25%; font-size: 10px; color: #6b7280;">
-                    Report Date: <strong th:text="${#temporals.format(exportDate, 'dd-MM-yyyy')}">02-04-2026</strong>
+                    Report Date: <strong th:text="${#temporals.format(exportDate, 'dd-MM-yyyy')}">04-04-2026</strong><br/>
+                    <span th:if="${startDate != null and endDate != null}">
+                        Range: <strong th:text="${#temporals.format(startDate, 'dd-MM-yyyy')} + ' to ' + ${#temporals.format(endDate, 'dd-MM-yyyy')}">01-03-2026 to 31-03-2026</strong>
+                    </span>
+                    <span th:if="${startDate == null or endDate == null}">
+                        Range: <strong>All Time</strong>
+                    </span>
                 </td>
             </tr>
         </table>
@@ -145,33 +151,35 @@
     <table class="sales-table">
         <thead>
             <tr>
-                <th style="width: 12%;">Order ID</th>
-                <th style="width: 18%;">Customer</th>
-                <th style="width: 45%;">Product Details (Qty, Rate, GST)</th>
-                <th style="width: 10%; text-align: right;">Subtotal</th>
-                <th style="width: 15%; text-align: right;">Final Amount</th>
+                <th style="width: 10%;">ID</th>
+                <th style="width: 12%;">Date</th>
+                <th style="width: 15%;">Customer</th>
+                <th style="width: 30%;">Product Details (Qty, Rate)</th>
+                <th style="width: 11%; text-align: right;">Subtotal</th>
+                <th style="width: 10%; text-align: right;">GST (18%)</th>
+                <th style="width: 12%; text-align: right;">Amount</th>
             </tr>
         </thead>
         <tbody>
             <tr th:each="order : ${orders}">
-                <td th:text="${#strings.substring(order.id, 0, 8).toUpperCase()}">ID</td>
+                <td style="font-weight: bold; color: #10b981;" th:text="${#strings.substring(order.id, 0, 8).toUpperCase()}">ID</td>
+                <td style="white-space: nowrap;" th:text="${#temporals.format(order.createdAt, 'dd MMM yyyy')}">Date</td>
                 <td>
-                    <strong th:text="${order.userName}">Client</strong><br/>
-                    <small style="color: #6b7280;" th:text="${order.role.toUpperCase()}">ROLE</small>
+                    <strong th:text="${order.userName}">Client</strong>
                 </td>
                 <td>
                     <!-- Itemized details inside a single row per order -->
                     <table class="item-row">
                         <tr th:each="item : ${order.items}">
-                            <td style="width: 50%;"><span class="product-name" th:text="${item.productName}">Product</span></td>
+                            <td style="width: 60%;"><span class="product-name" th:text="${item.productName}">Product</span></td>
                             <td style="width: 10%; text-align: center;">x<span th:text="${item.quantity}">1</span></td>
-                            <td style="width: 20%; text-align: right;">₹<span th:text="${#numbers.formatDecimal(item.discountedPrice, 1, 2)}">0.00</span></td>
-                            <td style="width: 20%; text-align: right; color: #10b981;">+ GST 18%</td>
+                            <td style="width: 30%; text-align: right;">₹<span th:text="${#numbers.formatDecimal(item.discountedPrice, 1, 2)}">0.00</span></td>
                         </tr>
                     </table>
                 </td>
-                <td style="text-align: right;" th:text="${#numbers.formatDecimal(order.baseSubtotal, 1, 2)}">761.00</td>
-                <td style="text-align: right; font-weight: bold; background: #f0fdf4;" th:text="${#numbers.formatDecimal(order.totalDiscountedPrice, 1, 2)}">897.98</td>
+                <td style="text-align: right;" th:text="${#numbers.formatDecimal(order.baseSubtotal, 1, 2)}">0.00</td>
+                <td style="text-align: right; color: #ef4444;" th:text="${#numbers.formatDecimal(order.gstAmount != null ? order.gstAmount : 0.0, 1, 2)}">0.00</td>
+                <td style="text-align: right; font-weight: bold; background: #f0fdf4;" th:text="${#numbers.formatDecimal(order.totalDiscountedPrice, 1, 2)}">0.00</td>
             </tr>
         </tbody>
     </table>

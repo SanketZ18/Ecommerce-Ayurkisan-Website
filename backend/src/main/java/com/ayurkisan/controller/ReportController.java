@@ -111,7 +111,7 @@ public class ReportController {
         // Only include completed/delivered orders logically? The prompt didn't specify exactly, 
         // but typically invoices are for confirmed/delivered orders. We'll export matched orders.
 
-        byte[] pdf = invoiceService.generateBulkInvoices(allOrders, role);
+        byte[] pdf = invoiceService.generateBulkInvoices(allOrders, role, start, end);
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=bulk_invoices_" + (role != null ? role : "all") + ".pdf")

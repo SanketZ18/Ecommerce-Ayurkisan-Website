@@ -4,8 +4,8 @@ import { TrendingUp, ShoppingBag, Package, DollarSign } from 'lucide-react';
 
 const ReportWidgets = ({ stats }) => {
     const widgets = [
-        { label: 'Total Sales Today', value: `₹${stats.salesToday || 0}`, icon: DollarSign, color: '#059669', bg: '#ecfdf5' },
-        { label: 'Sales This Week', value: `₹${stats.salesThisWeek || 0}`, icon: TrendingUp, color: '#3b82f6', bg: '#eff6ff' },
+        { label: 'Total Sales Today', value: `₹${Math.round(stats.salesToday || 0).toLocaleString()}`, icon: DollarSign, color: '#059669', bg: '#ecfdf5' },
+        { label: 'Sales This Week', value: `₹${Math.round(stats.salesThisWeek || 0).toLocaleString()}`, icon: TrendingUp, color: '#3b82f6', bg: '#eff6ff' },
         { label: 'Best Product', value: stats.bestSellingProduct || 'N/A', icon: ShoppingBag, color: '#f59e0b', bg: '#fffbeb' },
         { label: 'Best Package', value: stats.bestSellingPackage || 'N/A', icon: Package, color: '#8b5cf6', bg: '#f5f3ff' },
     ];

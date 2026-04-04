@@ -61,7 +61,7 @@ public class InvoiceService {
         return target.toByteArray();
     }
 
-    public byte[] generateBulkInvoices(List<Order> orders, String invoiceType) throws Exception {
+    public byte[] generateBulkInvoices(List<Order> orders, String invoiceType, java.time.LocalDateTime start, java.time.LocalDateTime end) throws Exception {
         if (orders == null || orders.isEmpty()) {
             return new byte[0];
         }
@@ -78,7 +78,31 @@ public class InvoiceService {
         context.setVariable("orders", deliveredOrders);
         context.setVariable("invoiceType", invoiceType != null ? invoiceType : "ALL");
         context.setVariable("exportDate", java.time.LocalDateTime.now());
+        context.setVariable("startDate", start);
+        context.setVariable("endDate", end);
         
+        // Ensure subtotal and GST are accurately calculated for the report
+        deliveredOrders.forEach(order -> {
+            boolean updated = false;
+            if (order.getBaseSubtotal() <= 0) {
+                double calcSub = order.getItems().stream()
+                    .mapToDouble(item -> item.getDiscountedPrice() * item.getQuantity())
+                    .sum();
+                order.setBaseSubtotal(FinanceCalculator.round(calcSub));
+                updated = true;
+            }
+            // Fallback for missing GST calculation (18% of base subtotal)
+            if (order.getGstAmount() <= 0) {
+                order.setGstAmount(FinanceCalculator.round(order.getBaseSubtotal() * 0.18));
+                updated = true;
+            }
+            // If the record was old and we recalculated values, ensure the final total reflects the sum
+            // This is ONLY for report display consistency
+            if (updated) {
+                order.setTotalDiscountedPrice(FinanceCalculator.round(order.getBaseSubtotal() + order.getGstAmount() + order.getDeliveryCharge()));
+            }
+        });
+
         double totalSales = deliveredOrders.stream().mapToDouble(Order::getTotalDiscountedPrice).sum();
         double totalGst = deliveredOrders.stream().mapToDouble(Order::getGstAmount).sum();
         double totalSub = deliveredOrders.stream().mapToDouble(Order::getBaseSubtotal).sum();

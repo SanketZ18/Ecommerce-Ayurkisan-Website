@@ -82,8 +82,8 @@ const AdminDashboard = () => {
     };
 
     const statCards = [
-        { title: 'Customer Sales Amount', value: `₹ ${stats.customerRevenue?.toLocaleString() || 0}`, icon: FaRupeeSign, color: '#facc15', bg: 'rgba(250, 204, 21, 0.1)' },
-        { title: 'Retailer Sales Amount', value: `₹ ${stats.retailerRevenue?.toLocaleString() || 0}`, icon: FaRupeeSign, color: '#3b82f6', bg: 'rgba(59, 130, 246, 0.1)' },
+        { title: 'Customer Sales Amount', value: `₹ ${Math.round(stats.customerRevenue || 0).toLocaleString()}`, icon: FaRupeeSign, color: '#facc15', bg: 'rgba(250, 204, 21, 0.1)' },
+        { title: 'Retailer Sales Amount', value: `₹ ${Math.round(stats.retailerRevenue || 0).toLocaleString()}`, icon: FaRupeeSign, color: '#3b82f6', bg: 'rgba(59, 130, 246, 0.1)' },
         { title: 'Customer Orders', value: stats.customerOrdersCount || 0, icon: FaShoppingCart, color: '#10b981', bg: 'rgba(16, 185, 129, 0.1)' },
         { title: 'Retailer Orders', value: stats.retailerOrdersCount || 0, icon: FaBoxOpen, color: '#f59e0b', bg: 'rgba(245, 158, 11, 0.1)' },
         { title: 'Live Products', value: stats.productsCount || 0, icon: FaBoxOpen, color: '#059669', bg: 'rgba(5, 150, 105, 0.1)' },
@@ -256,6 +256,7 @@ const AdminDashboard = () => {
                             { label: 'Category Settings', path: '/admin/categories', icon: FaChartLine },
                             { label: 'Bundles & Packages', path: '/admin/packages', icon: FaShoppingCart },
                             { label: 'Promo & Special Offers', path: '/admin/offers', icon: FaTag },
+                            { label: 'Manage User Base', path: '/admin/users', icon: FaUsers },
                             { label: 'Administrator Team', path: '/admin/manage-admins', icon: FaUsers }
                         ].map((btn, i) => (
                             <motion.button
