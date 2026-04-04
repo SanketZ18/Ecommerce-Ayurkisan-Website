@@ -156,9 +156,17 @@ const Checkout = () => {
         );
     }
 
+    const itemsTotalOriginal = cartData?.totalOriginalPrice || 0;
     const subtotal = cartData?.totalDiscountedPrice || 0;
+    const roleDiscountAmount = itemsTotalOriginal - subtotal;
+    const subtotalAfterPromo = subtotal - discountAmount;
+    
+    // Assuming 18% GST is included in the subtotalAfterPromo
+    const baseAmount = subtotalAfterPromo / 1.18;
+    const gstAmount = subtotalAfterPromo - baseAmount;
+    
     const deliveryCharge = 50.0;
-    const grandTotal = subtotal + deliveryCharge - discountAmount;
+    const grandTotal = subtotalAfterPromo + deliveryCharge;
 
     return (
         <div style={{ padding: '40px 5%', backgroundColor: '#f3f4f6', minHeight: '100vh' }}>
@@ -261,22 +269,40 @@ const Checkout = () => {
                             <h3 style={{ ...sectionTitleStyle, fontSize: '1.3rem' }}>Order Summary</h3>
                             <div style={{ marginTop: '25px', display: 'flex', flexDirection: 'column', gap: '15px' }}>
                                 <div style={summaryRowStyle}>
-                                    <span>Items Subtotal:</span>
-                                    <span>₹{subtotal}</span>
+                                    <span>Items Subtotal (Original):</span>
+                                    <span>₹{itemsTotalOriginal.toFixed(2)}</span>
                                 </div>
+                                {roleDiscountAmount > 0 && (
+                                    <div style={{ ...summaryRowStyle, color: '#2563eb', fontWeight: '700' }}>
+                                        <span>User Discount ({localStorage.getItem('role') === 'RETAILER' ? '30%' : '10%'}):</span>
+                                        <span>- ₹{roleDiscountAmount.toFixed(2)}</span>
+                                    </div>
+                                )}
                                 {appliedOffer && (
                                     <div style={{ ...summaryRowStyle, color: '#10b981', fontWeight: '700' }}>
                                         <span>Promo Discount ({appliedOffer.code}):</span>
-                                        <span>- ₹{discountAmount}</span>
+                                        <span>- ₹{discountAmount.toFixed(2)}</span>
                                     </div>
                                 )}
+                                <div style={{ ...summaryRowStyle, borderTop: '1px dashed #e5e7eb', paddingTop: '10px' }}>
+                                    <span>Value After Discounts:</span>
+                                    <span>₹{subtotalAfterPromo.toFixed(2)}</span>
+                                </div>
+                                <div style={{ ...summaryRowStyle, color: '#64748b' }}>
+                                    <span>Amount before GST:</span>
+                                    <span>₹{baseAmount.toFixed(2)}</span>
+                                </div>
+                                <div style={{ ...summaryRowStyle, color: '#64748b' }}>
+                                    <span>GST (18% Included):</span>
+                                    <span>₹{gstAmount.toFixed(2)}</span>
+                                </div>
                                 <div style={summaryRowStyle}>
                                     <span>Delivery Charge:</span>
-                                    <span style={{ color: '#10b981', fontWeight: '700' }}>₹{deliveryCharge}</span>
+                                    <span style={{ color: '#10b981', fontWeight: '700' }}>+ ₹{deliveryCharge.toFixed(2)}</span>
                                 </div>
                                 <div style={{ ...summaryRowStyle, borderTop: '1px solid #f3f4f6', paddingTop: '15px', marginTop: '10px' }}>
                                     <span style={{ fontSize: '1.2rem', fontWeight: '800' }}>Grand Total</span>
-                                    <span style={{ fontSize: '1.5rem', fontWeight: '800', color: '#10b981' }}>₹{grandTotal}</span>
+                                    <span style={{ fontSize: '1.5rem', fontWeight: '800', color: '#10b981' }}>₹{grandTotal.toFixed(2)}</span>
                                 </div>
                                 <p style={{ fontSize: '0.8rem', color: '#6b7280', textAlign: 'center', lineHeight: '1.4', margin: '15px 0' }}>
                                     By placing your order, you agree to AyurKisan's privacy notice and conditions of use.

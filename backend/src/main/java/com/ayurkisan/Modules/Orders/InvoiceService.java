@@ -10,6 +10,7 @@ import org.thymeleaf.spring6.SpringTemplateEngine;
 
 import com.itextpdf.html2pdf.ConverterProperties;
 import com.itextpdf.html2pdf.HtmlConverter;
+import com.ayurkisan.util.FinanceCalculator;
 
 
 @Service
@@ -23,19 +24,16 @@ public class InvoiceService {
         context.setVariable("order", order);
         context.setVariable("invoiceType", invoiceType != null ? invoiceType : order.getRole());
 
-        // Calculate common invoice variables for the "Tax Invoice" layout
-        // Re-calculate GST if not already set, ensuring summary tables are never empty
-        double gst = (order.getGstAmount() > 0) ? order.getGstAmount() : 
-                     (order.getItems() != null ? order.getItems().stream().mapToDouble(i -> i.getDiscountedPrice() * i.getQuantity() * 0.18).sum() : 0.0);
+        double gst = order.getGstAmount();
         
-        context.setVariable("cgstAmount", gst / 2.0);
-        context.setVariable("sgstAmount", gst / 2.0);
+        context.setVariable("cgstAmount", FinanceCalculator.round(gst / 2.0));
+        context.setVariable("sgstAmount", FinanceCalculator.round(gst / 2.0));
         context.setVariable("cgstRate", 9.0);
         context.setVariable("sgstRate", 9.0);
         context.setVariable("totalTax", gst);
-        context.setVariable("amountInWords", convertToIndianCurrency(order.getTotalDiscountedPrice() + gst + (order.getDeliveryCharge())));
-        context.setVariable("youSaved", order.getTotalOriginalPrice() - order.getTotalDiscountedPrice() + order.getPromoDiscount());
-        context.setVariable("receivedAmount", order.getTotalDiscountedPrice() + gst + order.getDeliveryCharge());
+        context.setVariable("amountInWords", convertToIndianCurrency(order.getTotalDiscountedPrice()));
+        context.setVariable("youSaved", FinanceCalculator.round(order.getTotalOriginalPrice() - order.getTotalDiscountedPrice()));
+        context.setVariable("receivedAmount", order.getTotalDiscountedPrice());
         context.setVariable("balanceAmount", 0.0);
         context.setVariable("placeOfSupply", "27-Maharashtra");
 
@@ -83,10 +81,11 @@ public class InvoiceService {
         
         double totalSales = deliveredOrders.stream().mapToDouble(Order::getTotalDiscountedPrice).sum();
         double totalGst = deliveredOrders.stream().mapToDouble(Order::getGstAmount).sum();
-        double totalSub = totalSales - totalGst;
-        context.setVariable("totalSales", totalSales);
-        context.setVariable("totalGst", totalGst);
-        context.setVariable("totalSub", totalSub);
+        double totalSub = deliveredOrders.stream().mapToDouble(Order::getBaseSubtotal).sum();
+        
+        context.setVariable("totalSales", FinanceCalculator.round(totalSales));
+        context.setVariable("totalGst", FinanceCalculator.round(totalGst));
+        context.setVariable("totalSub", FinanceCalculator.round(totalSub));
         
         try {
             java.io.File logoFile = new java.io.File("D:\\MCA SEM-4\\Sem 4 Project\\My Work\\Ecommerce-Ayurkisan-Website\\frontend\\src\\assets\\Company Logos (1024 × 1024 px).png");

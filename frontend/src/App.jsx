@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense, lazy } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import LoadingSpinner from './components/common/LoadingSpinner';
 
 /* Layout */
 import PublicLayout from './components/layout/PublicLayout';
@@ -17,40 +18,40 @@ import AuthModalManager from './components/auth/AuthModalManager';
 
 import PublicRouteGuard from './components/auth/PublicRouteGuard';
 
-/* Pages */
-import Home from './pages/Home';
-import AllProducts from './pages/AllProducts';
-import Shop from './pages/Shop';
-import ProductDetails from './pages/ProductDetails';
-import About from './pages/About';
-import Contact from './pages/Contact';
-import Packages from './pages/Packages';
-import PackageDetails from './pages/PackageDetails';
+/* Pages - LAZY LOADED for performance */
+const Home = lazy(() => import('./pages/Home'));
+const AllProducts = lazy(() => import('./pages/AllProducts'));
+const Shop = lazy(() => import('./pages/Shop'));
+const ProductDetails = lazy(() => import('./pages/ProductDetails'));
+const About = lazy(() => import('./pages/About'));
+const Contact = lazy(() => import('./pages/Contact'));
+const Packages = lazy(() => import('./pages/Packages'));
+const PackageDetails = lazy(() => import('./pages/PackageDetails'));
 
-import Cart from './pages/Cart';
-import Checkout from './pages/Checkout';
-import Wishlist from './pages/Wishlist';
+const Cart = lazy(() => import('./pages/Cart'));
+const Checkout = lazy(() => import('./pages/Checkout'));
+const Wishlist = lazy(() => import('./pages/Wishlist'));
 
-import AdminDashboard from './pages/AdminDashboard';
-import ManageHomepage from './pages/ManageHomepage';
-import ManageAdmins from './pages/ManageAdmins';
-import ManageCategories from './pages/ManageCategories';
-import ManagePackages from './pages/ManagePackages';
-import ManageProducts from './pages/ManageProducts';
-import ManageOrders from './pages/ManageOrders';
-import ManageReturns from './pages/ManageReturns';
-import ManageShipments from './pages/ManageShipments';
-import ManageReports from './pages/ManageReports';
-import ManageOffers from './pages/ManageOffers';
-import CustomerDashboard from './pages/CustomerDashboard';
-import CustomerProfile from './pages/customer/CustomerProfile';
-import RetailerDashboard from './pages/RetailerDashboard';
-import RetailerProfile from './pages/retailer/RetailerProfile';
-import MyOrders from './pages/MyOrders';
-import OrderTracking from './pages/OrderTracking';
-import RequestReturn from './pages/RequestReturn';
-import CustomerReturns from './pages/CustomerReturns';
-import LegalPolicies from './pages/LegalPolicies';
+const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
+const ManageHomepage = lazy(() => import('./pages/ManageHomepage'));
+const ManageAdmins = lazy(() => import('./pages/ManageAdmins'));
+const ManageCategories = lazy(() => import('./pages/ManageCategories'));
+const ManagePackages = lazy(() => import('./pages/ManagePackages'));
+const ManageProducts = lazy(() => import('./pages/ManageProducts'));
+const ManageOrders = lazy(() => import('./pages/ManageOrders'));
+const ManageReturns = lazy(() => import('./pages/ManageReturns'));
+const ManageShipments = lazy(() => import('./pages/ManageShipments'));
+const ManageReports = lazy(() => import('./pages/ManageReports'));
+const ManageOffers = lazy(() => import('./pages/ManageOffers'));
+const CustomerDashboard = lazy(() => import('./pages/CustomerDashboard'));
+const CustomerProfile = lazy(() => import('./pages/customer/CustomerProfile'));
+const RetailerDashboard = lazy(() => import('./pages/RetailerDashboard'));
+const RetailerProfile = lazy(() => import('./pages/retailer/RetailerProfile'));
+const MyOrders = lazy(() => import('./pages/MyOrders'));
+const OrderTracking = lazy(() => import('./pages/OrderTracking'));
+const RequestReturn = lazy(() => import('./pages/RequestReturn'));
+const CustomerReturns = lazy(() => import('./pages/CustomerReturns'));
+const LegalPolicies = lazy(() => import('./pages/LegalPolicies'));
 
 import { getUserRole, isAuthenticated } from './utils/auth';
 
@@ -102,116 +103,117 @@ function App() {
         <div className="app-container">
             <ToastContainer position="top-center" autoClose={3000} />
 
-            <Routes>
-                {/* PUBLIC PAGES (Wrapped in PublicLayout and Guard) */}
-                <Route path="/" element={
-                    <PublicRouteGuard>
-                        <PublicLayout onLoginClick={handleLoginClick} onSignUpClick={handleSignUpClick}>
-                            <Home />
-                        </PublicLayout>
-                    </PublicRouteGuard>
-                } />
-                <Route path="/products" element={
-                    <GlobalLayout>
-                        <Shop />
-                    </GlobalLayout>
-                } />
-                <Route path="/product/:productId" element={
-                    <GlobalLayout>
-                        <ProductDetails />
-                    </GlobalLayout>
-                } />
-                <Route path="/packages" element={
-                    <GlobalLayout>
-                        <Packages />
-                    </GlobalLayout>
-                } />
-                <Route path="/package/:packageId" element={
-                    <GlobalLayout>
-                        <PackageDetails />
-                    </GlobalLayout>
-                } />
-                <Route path="/cart" element={
-                    <GlobalLayout>
-                        <Cart />
-                    </GlobalLayout>
-                } />
-                <Route path="/checkout" element={
-                    <GlobalLayout>
-                        <Checkout />
-                    </GlobalLayout>
-                } />
-                <Route path="/wishlist" element={
-                    <GlobalLayout>
-                        <Wishlist />
-                    </GlobalLayout>
-                } />
-                <Route path="/about" element={
-                    <GlobalLayout>
-                        <About />
-                    </GlobalLayout>
-                } />
-                <Route path="/feedback" element={
-                    <GlobalLayout>
-                        <Contact />
-                    </GlobalLayout>
-                } />
+            <Suspense fallback={<LoadingSpinner />}>
+                <Routes>
+                    {/* PUBLIC PAGES (Wrapped in PublicLayout and Guard) */}
+                    <Route path="/" element={
+                        <PublicRouteGuard>
+                            <PublicLayout onLoginClick={handleLoginClick} onSignUpClick={handleSignUpClick}>
+                                <Home />
+                            </PublicLayout>
+                        </PublicRouteGuard>
+                    } />
+                    <Route path="/products" element={
+                        <GlobalLayout>
+                            <Shop />
+                        </GlobalLayout>
+                    } />
+                    <Route path="/product/:productId" element={
+                        <GlobalLayout>
+                            <ProductDetails />
+                        </GlobalLayout>
+                    } />
+                    <Route path="/packages" element={
+                        <GlobalLayout>
+                            <Packages />
+                        </GlobalLayout>
+                    } />
+                    <Route path="/package/:packageId" element={
+                        <GlobalLayout>
+                            <PackageDetails />
+                        </GlobalLayout>
+                    } />
+                    <Route path="/cart" element={
+                        <GlobalLayout>
+                            <Cart />
+                        </GlobalLayout>
+                    } />
+                    <Route path="/checkout" element={
+                        <GlobalLayout>
+                            <Checkout />
+                        </GlobalLayout>
+                    } />
+                    <Route path="/wishlist" element={
+                        <GlobalLayout>
+                            <Wishlist />
+                        </GlobalLayout>
+                    } />
+                    <Route path="/about" element={
+                        <GlobalLayout>
+                            <About />
+                        </GlobalLayout>
+                    } />
+                    <Route path="/feedback" element={
+                        <GlobalLayout>
+                            <Contact />
+                        </GlobalLayout>
+                    } />
 
-                {/* LEGAL POLICIES */}
-                <Route path="/policy" element={<GlobalLayout><LegalPolicies /></GlobalLayout>} />
-                <Route path="/terms" element={<GlobalLayout><LegalPolicies /></GlobalLayout>} />
-                <Route path="/shipping" element={<GlobalLayout><LegalPolicies /></GlobalLayout>} />
-                <Route path="/returns" element={<GlobalLayout><LegalPolicies /></GlobalLayout>} />
+                    {/* LEGAL POLICIES */}
+                    <Route path="/policy" element={<GlobalLayout><LegalPolicies /></GlobalLayout>} />
+                    <Route path="/terms" element={<GlobalLayout><LegalPolicies /></GlobalLayout>} />
+                    <Route path="/shipping" element={<GlobalLayout><LegalPolicies /></GlobalLayout>} />
+                    <Route path="/returns" element={<GlobalLayout><LegalPolicies /></GlobalLayout>} />
 
-                {/* DASHBOARDS */}
-                {/* Admin wrapped in AdminLayout */}
-                <Route path="/admin/*" element={
-                    <AdminLayout>
-                        <Routes>
-                            <Route path="dashboard" element={<AdminDashboard />} />
-                            <Route path="manage-homepage" element={<ManageHomepage />} />
-                            <Route path="manage-admins" element={<ManageAdmins />} />
-                            <Route path="categories" element={<ManageCategories />} />
-                            <Route path="packages" element={<ManagePackages />} />
-                            <Route path="products" element={<ManageProducts />} />
-                            <Route path="orders" element={<ManageOrders />} />
-                            <Route path="shipment" element={<ManageShipments />} />
-                            <Route path="returns" element={<ManageReturns />} />
-                            <Route path="reports" element={<ManageReports />} />
-                            <Route path="offers" element={<ManageOffers />} />
-                            {/* Other admin routes will go here */}
-                        </Routes>
-                    </AdminLayout>
-                } />
+                    {/* DASHBOARDS */}
+                    {/* Admin wrapped in AdminLayout */}
+                    <Route path="/admin/*" element={
+                        <AdminLayout>
+                            <Routes>
+                                <Route path="dashboard" element={<AdminDashboard />} />
+                                <Route path="manage-homepage" element={<ManageHomepage />} />
+                                <Route path="manage-admins" element={<ManageAdmins />} />
+                                <Route path="categories" element={<ManageCategories />} />
+                                <Route path="packages" element={<ManagePackages />} />
+                                <Route path="products" element={<ManageProducts />} />
+                                <Route path="orders" element={<ManageOrders />} />
+                                <Route path="shipment" element={<ManageShipments />} />
+                                <Route path="returns" element={<ManageReturns />} />
+                                <Route path="reports" element={<ManageReports />} />
+                                <Route path="offers" element={<ManageOffers />} />
+                                {/* Other admin routes will go here */}
+                            </Routes>
+                        </AdminLayout>
+                    } />
 
-                {/* Customer Routes */}
-                <Route path="/customer/*" element={
-                    <CustomerLayout>
-                        <Routes>
-                            <Route path="dashboard" element={<CustomerDashboard />} />
-                            <Route path="orders" element={<MyOrders />} />
-                            <Route path="wishlist" element={<Wishlist />} />
-                            <Route path="tracking/:orderId" element={<OrderTracking />} />
-                            <Route path="returns" element={<CustomerReturns />} />
-                            <Route path="returns/request/:orderId" element={<RequestReturn />} />
-                        </Routes>
-                    </CustomerLayout>
-                } />
+                    {/* Customer Routes */}
+                    <Route path="/customer/*" element={
+                        <CustomerLayout>
+                            <Routes>
+                                <Route path="dashboard" element={<CustomerDashboard />} />
+                                <Route path="orders" element={<MyOrders />} />
+                                <Route path="wishlist" element={<Wishlist />} />
+                                <Route path="tracking/:orderId" element={<OrderTracking />} />
+                                <Route path="returns" element={<CustomerReturns />} />
+                                <Route path="returns/request/:orderId" element={<RequestReturn />} />
+                            </Routes>
+                        </CustomerLayout>
+                    } />
 
-                {/* Retailer Routes */}
-                <Route path="/retailer/*" element={
-                    <RetailerLayout>
-                        <Routes>
-                            <Route path="dashboard" element={<RetailerDashboard />} />
-                            <Route path="orders" element={<MyOrders />} />
-                            <Route path="tracking/:orderId" element={<OrderTracking />} />
-                            <Route path="returns" element={<CustomerReturns />} />
-                            <Route path="returns/request/:orderId" element={<RequestReturn />} />
-                        </Routes>
-                    </RetailerLayout>
-                } />
-
-            </Routes>
+                    {/* Retailer Routes */}
+                    <Route path="/retailer/*" element={
+                        <RetailerLayout>
+                            <Routes>
+                                <Route path="dashboard" element={<RetailerDashboard />} />
+                                <Route path="orders" element={<MyOrders />} />
+                                <Route path="tracking/:orderId" element={<OrderTracking />} />
+                                <Route path="returns" element={<CustomerReturns />} />
+                                <Route path="returns/request/:orderId" element={<RequestReturn />} />
+                            </Routes>
+                        </RetailerLayout>
+                    } />
+                </Routes>
+            </Suspense>
 
             {/* AUTH MODAL */}
             {authModal && (

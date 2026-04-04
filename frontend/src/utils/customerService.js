@@ -8,7 +8,8 @@ const getAuthHeader = () => {
 };
 
 const customerService = {
-    // Profile Management
+    // Dashboard & Profile
+    getDashboardSummary: (id) => axios.get(`${API_BASE_URL}/api/customer/dashboard-summary/${id}`, { headers: getAuthHeader() }),
     getProfile: (id) => axios.get(`${API_BASE_URL}/api/customer/${id}`, { headers: getAuthHeader() }),
     updateProfile: (id, profileData) => axios.put(`${API_BASE_URL}/api/customer/update/${id}`, profileData, { headers: getAuthHeader() }),
     changePassword: (id, passwordData) => axios.put(`${API_BASE_URL}/api/customer/change-password/${id}`, passwordData, { headers: getAuthHeader() }),

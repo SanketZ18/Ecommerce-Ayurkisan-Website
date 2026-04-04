@@ -21,7 +21,11 @@ public class Cart {
 
     private double totalOriginalPrice;
     
-    private double totalDiscountedPrice;
+    private double totalDiscountedPrice; // This is the Base Subtotal (Sum of items)
+
+    private double estimatedGst;
+
+    private double totalPayable; // Subtotal + GST + Delivery
 
     private LocalDateTime createdAt = LocalDateTime.now();
 
@@ -46,6 +50,12 @@ public class Cart {
 
     public double getTotalDiscountedPrice() { return totalDiscountedPrice; }
     public void setTotalDiscountedPrice(double totalDiscountedPrice) { this.totalDiscountedPrice = totalDiscountedPrice; }
+
+    public double getEstimatedGst() { return estimatedGst; }
+    public void setEstimatedGst(double estimatedGst) { this.estimatedGst = estimatedGst; }
+
+    public double getTotalPayable() { return totalPayable; }
+    public void setTotalPayable(double totalPayable) { this.totalPayable = totalPayable; }
 
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
