@@ -42,6 +42,8 @@ const adminService = {
         }
     },
 
+    getUserStats: () => axios.get(`${API_BASE_URL}/api/admin/users/stats`, { headers: getAuthHeader() }),
+
     // Admin Management
     getAdmins: () => axios.get(`${API_BASE_URL}/api/admin/admins`, { headers: getAuthHeader() }),
     registerAdmin: (adminData) => axios.post(`${API_BASE_URL}/api/auth/admin/register`, adminData),

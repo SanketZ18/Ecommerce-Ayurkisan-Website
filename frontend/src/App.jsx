@@ -43,6 +43,7 @@ const ManageReturns = lazy(() => import('./pages/ManageReturns'));
 const ManageShipments = lazy(() => import('./pages/ManageShipments'));
 const ManageReports = lazy(() => import('./pages/ManageReports'));
 const ManageOffers = lazy(() => import('./pages/ManageOffers'));
+const ManageUsers = lazy(() => import('./pages/admin/ManageUsers'));
 const CustomerDashboard = lazy(() => import('./pages/CustomerDashboard'));
 const CustomerProfile = lazy(() => import('./pages/customer/CustomerProfile'));
 const RetailerDashboard = lazy(() => import('./pages/RetailerDashboard'));
@@ -181,6 +182,7 @@ function App() {
                                 <Route path="returns" element={<ManageReturns />} />
                                 <Route path="reports" element={<ManageReports />} />
                                 <Route path="offers" element={<ManageOffers />} />
+                                <Route path="users" element={<ManageUsers />} />
                                 {/* Other admin routes will go here */}
                             </Routes>
                         </AdminLayout>
