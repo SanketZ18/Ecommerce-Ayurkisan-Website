@@ -85,11 +85,11 @@ public class CustomerService {
         summary.setRecentOrders(orderRepository.findByUserId(userId, 
             PageRequest.of(0, 5, Sort.by(Sort.Direction.DESC, "createdAt"))));
 
-        // 3. Featured Products (Limit to 8 for fast load)
-        summary.setFeaturedProducts(productRepository.findAll(PageRequest.of(0, 8)).getContent());
+        // 3. Featured Products
+        summary.setFeaturedProducts(productRepository.findAll());
 
-        // 4. Featured Packages (Limit to 4)
-        summary.setFeaturedPackages(productPackageRepository.findAll(PageRequest.of(0, 4)).getContent());
+        // 4. Featured Packages
+        summary.setFeaturedPackages(productPackageRepository.findAll());
 
         // 5. Categories
         summary.setCategories(categoryService.getAllActiveCategories());

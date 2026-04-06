@@ -24,6 +24,19 @@ public class InvoiceService {
         context.setVariable("order", order);
         context.setVariable("invoiceType", invoiceType != null ? invoiceType : order.getRole());
 
+        // Fallback calculations for older orders or missing data
+        if (order.getBaseSubtotal() <= 0) {
+            double calcSub = order.getItems().stream()
+                .mapToDouble(item -> item.getDiscountedPrice() * item.getQuantity())
+                .sum();
+            order.setBaseSubtotal(FinanceCalculator.round(calcSub));
+        }
+        
+        if (order.getGstAmount() <= 0) {
+            // Default 18% GST if the stored value is missing
+            order.setGstAmount(FinanceCalculator.round(order.getBaseSubtotal() * 0.18));
+        }
+
         double gst = order.getGstAmount();
         
         context.setVariable("cgstAmount", FinanceCalculator.round(gst / 2.0));
