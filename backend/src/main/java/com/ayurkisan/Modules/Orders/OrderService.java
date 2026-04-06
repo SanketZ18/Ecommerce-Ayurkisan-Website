@@ -121,6 +121,12 @@ public class OrderService {
         order.setPromoDiscount(summary.promoDiscount);
         order.setDeliveryCharge(summary.deliveryCharge);
         order.setBaseSubtotal(summary.baseSubtotal);
+        // Reinforced calculation safety
+        if (summary.gstAmount <= 0 && subtotal > 0) {
+            summary.gstAmount = FinanceCalculator.round(subtotal * 0.18);
+            summary.totalPayable = FinanceCalculator.round(subtotal + summary.gstAmount + summary.deliveryCharge);
+        }
+        
         order.setGstAmount(summary.gstAmount);
         
         // Industry Standard: Taxable is (Subtotal - Promo). Total is (Taxable + GST + Delivery).
