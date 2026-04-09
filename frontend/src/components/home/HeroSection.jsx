@@ -1,7 +1,12 @@
 import { useNavigate } from "react-router-dom";
-import React, { useState } from 'react';
-import { motion } from 'framer-motion';
+import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import heroImage from '../../assets/images/heroimage.jpg';
+import i111 from '../../assets/images/111.jpg';
+import i112 from '../../assets/images/112.jpg';
+import i113 from '../../assets/images/113.jpg';
+import i114 from '../../assets/images/114.jpg';
+import i115 from '../../assets/images/115.jpg';
 
 const HeroSection = () => {
 
@@ -11,6 +16,16 @@ const HeroSection = () => {
         heading: "Nature’s Goodness, Delivered to You.",
         subtext: "Experience the purity of Aloe Vera, Moringa, Tulsi and Ayurvedic blends crafted for complete wellness and vitality."
     });
+
+    const [currentImageIndex, setCurrentImageIndex] = useState(0);
+    const heroImages = [heroImage, i111, i112, i113, i114, i115];
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setCurrentImageIndex((prevIndex) => (prevIndex + 1) % heroImages.length);
+        }, 4000);
+        return () => clearInterval(interval);
+    }, [heroImages.length]);
 
     return (
         <section style={heroStyle}>
@@ -113,13 +128,18 @@ const HeroSection = () => {
                         position: 'relative'
                     }}
                 >
-                    <img
-                        src={heroImage}
-                        alt="Herbal Bottles"
-                        loading="eager"
-                        fetchPriority="high"
-                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                    />
+                    <AnimatePresence mode="wait">
+                        <motion.img
+                            key={currentImageIndex}
+                            src={heroImages[currentImageIndex]}
+                            alt="Herbal Bottles"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 1 }}
+                            style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover' }}
+                        />
+                    </AnimatePresence>
                 </motion.div>
 
                 <div style={{
