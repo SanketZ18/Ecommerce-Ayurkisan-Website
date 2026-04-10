@@ -6,6 +6,7 @@ import ReportWidgets from '../components/admin/ReportWidgets';
 import SalesCharts from '../components/admin/SalesCharts';
 import adminService from '../utils/adminService';
 import axios from 'axios';
+import ReportsSkeleton from '../components/admin/ReportsSkeleton';
 
 const ManageReports = () => {
     const [activeTab, setActiveTab] = useState('sales');
@@ -197,11 +198,7 @@ const ManageReports = () => {
     ];
 
     if (loading) {
-        return (
-            <div className="flex items-center justify-center p-20">
-                <RefreshCw className="animate-spin text-green-600" size={40} />
-            </div>
-        );
+        return <ReportsSkeleton />;
     }
 
     return (
