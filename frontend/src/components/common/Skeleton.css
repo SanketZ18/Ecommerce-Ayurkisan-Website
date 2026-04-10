@@ -1,0 +1,42 @@
+.skeleton {
+  background: #e1e1e1;
+  background: linear-gradient(
+    90deg,
+    #e1e1e1 25%,
+    #f0f0f0 50%,
+    #e1e1e1 75%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.5s infinite linear;
+  border-radius: 4px;
+}
+
+.skeleton-text {
+  height: 1rem;
+  margin-bottom: 0.5rem;
+  width: 100%;
+}
+
+.skeleton-title {
+  height: 1.5rem;
+  margin-bottom: 0.75rem;
+  width: 60%;
+}
+
+.skeleton-avatar {
+  border-radius: 50%;
+}
+
+.skeleton-rect {
+  width: 100%;
+  height: 100%;
+}
+
+@keyframes skeleton-shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
