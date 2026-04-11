@@ -4,6 +4,7 @@ import { FaTruck, FaRegAddressCard, FaInfoCircle, FaCheckCircle, FaExclamationTr
 import { toast } from 'react-toastify';
 import adminService from '../utils/adminService';
 import { resolveProductImage, resolvePackageImage } from '../utils/imageUtils';
+import ProcessingOverlay from '../components/common/ProcessingOverlay';
 
 const ManageShipments = () => {
     const [shipments, setShipments] = useState([]);
@@ -37,9 +38,9 @@ const ManageShipments = () => {
         }
     };
 
-    const fetchShipments = async () => {
+    const fetchShipments = async (silent = false) => {
         try {
-            setLoading(true);
+            if (!silent) setLoading(true);
             const res = await adminService.getAllShipments();
             // Sort by Date Descending
             const sorted = (Array.isArray(res.data) ? res.data : []).sort((a, b) =>
@@ -49,7 +50,7 @@ const ManageShipments = () => {
         } catch (err) {
             toast.error("Failed to fetch shipments");
         } finally {
-            setLoading(false);
+            if (!silent) setLoading(false);
         }
     };
 
@@ -58,7 +59,8 @@ const ManageShipments = () => {
             setStatusUpdating(true);
             await adminService.updateShipmentStatus(orderId, newStatus, remarks);
             toast.success(`Shipment status updated to ${newStatus}`);
-            fetchShipments();
+            // Fetch silently to avoid blank screen
+            await fetchShipments(true);
             setShowModal(false);
         } catch (err) {
             toast.error("Failed to update shipment status");
@@ -262,8 +264,9 @@ const ManageShipments = () => {
                             initial={{ opacity: 0, scale: 0.9, y: 30 }}
                             animate={{ opacity: 1, scale: 1, y: 0 }}
                             exit={{ opacity: 0, scale: 0.9, y: 30 }}
-                            style={{ backgroundColor: '#fff', borderRadius: '28px', padding: '2.5rem', width: '95%', maxWidth: '650px', maxHeight: '90vh', overflowY: 'auto', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)' }}
+                            style={{ position: 'relative', backgroundColor: '#fff', borderRadius: '28px', padding: '2.5rem', width: '95%', maxWidth: '650px', maxHeight: '90vh', overflowY: 'auto', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)' }}
                         >
+                            {statusUpdating && <ProcessingOverlay message="Updating Logistics Status..." />}
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
                                 <h2 style={{ margin: 0, color: 'var(--text-dark)', fontWeight: '800' }}>Logistics Override</h2>
                                 <button onClick={() => { setShowModal(false); setSelectedOrderDetails(null); }} style={{ background: '#f3f4f6', border: 'none', width: '36px', height: '36px', borderRadius: '50%', cursor: 'pointer' }}><FaTimes /></button>

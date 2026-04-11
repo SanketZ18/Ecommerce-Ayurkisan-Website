@@ -5,6 +5,7 @@ import { FaShoppingCart, FaSearch, FaEye, FaTimes, FaCheckCircle, FaTruck, FaBox
 import { toast } from 'react-toastify';
 import adminService from '../utils/adminService';
 import { resolveProductImage, resolvePackageImage } from '../utils/imageUtils';
+import ProcessingOverlay from '../components/common/ProcessingOverlay';
 
 const ManageOrders = () => {
     const [orders, setOrders] = useState([]);
@@ -30,9 +31,9 @@ const ManageOrders = () => {
         fetchOrders();
     }, [location.state]);
 
-    const fetchOrders = async () => {
+    const fetchOrders = async (silent = false) => {
         try {
-            setLoading(true);
+            if (!silent) setLoading(true);
             const res = await adminService.getAllOrders();
             // Sort by Date Descending (Newest first)
             const sortedOrders = (Array.isArray(res.data) ? res.data : []).sort((a, b) =>
@@ -42,7 +43,7 @@ const ManageOrders = () => {
         } catch (err) {
             toast.error("Failed to fetch orders");
         } finally {
-            setLoading(false);
+            if (!silent) setLoading(false);
         }
     };
     const handleUpdateStatus = async (orderId, newStatus) => {
@@ -50,7 +51,8 @@ const ManageOrders = () => {
             setStatusUpdating(true);
             await adminService.updateOrderStatus(orderId, newStatus, remarks);
             toast.success(`Order status updated to ${newStatus}`);
-            fetchOrders();
+            // Fetch silently to avoid blank screen
+            await fetchOrders(true);
             setShowModal(false);
             setRemarks(''); // Reset remarks after update
         } catch (err) {
@@ -309,8 +311,9 @@ const ManageOrders = () => {
                             initial={{ opacity: 0, scale: 0.9, y: 30 }}
                             animate={{ opacity: 1, scale: 1, y: 0 }}
                             exit={{ opacity: 0, scale: 0.9, y: 30 }}
-                            style={{ backgroundColor: '#fff', borderRadius: '28px', padding: '2.5rem', width: '95%', maxWidth: '650px', maxHeight: '90vh', overflowY: 'auto', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)' }}
+                            style={{ position: 'relative', backgroundColor: '#fff', borderRadius: '28px', padding: '2.5rem', width: '95%', maxWidth: '650px', maxHeight: '90vh', overflowY: 'auto', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)' }}
                         >
+                            {statusUpdating && <ProcessingOverlay message="Updating Order Status..." />}
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
                                 <h2 style={{ margin: 0, color: 'var(--text-dark)', fontWeight: '800' }}>Order Details</h2>
                                 <button onClick={() => setShowModal(false)} style={{ background: '#f3f4f6', border: 'none', width: '36px', height: '36px', borderRadius: '50%', cursor: 'pointer' }}><FaTimes /></button>
