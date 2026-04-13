@@ -34,15 +34,18 @@ const Footer = () => {
 
                 <div className="footer-contact" style={sectionStyle}>
                     <h4 style={{ marginBottom: '1rem', color: 'var(--white)' }}>Contact</h4>
-                    <p style={linkStyle}>Email: ayurkisan@gmail.com</p>
+                    <p style={linkStyle}>Email: ayurkisan.ecommerce@gmail.com</p>
                     <p style={linkStyle}>Phone: +91 98765 43210</p>
-                    <p style={linkStyle}>Address: Baramati, Pune, Maharashtra, India</p>
+                    <p style={linkStyle}>Address: Office No 2, Shreejay Apartment, Near Old Rto Office Chowk, Sadar bazar, Satara, Maharashtra 415001</p>
                 </div>
 
             </div>
 
             <div className="footer-bottom" style={bottomStyle}>
                 <p>© 2026 Ayurkisan. All rights reserved.</p>
+                <p style={{ fontSize: '0.7rem', marginTop: '0.5rem', opacity: 0.8 }}>
+                    Website is developed by - Sanket Zagade, Email - sanketzagade2004@gmail.com
+                </p>
             </div>
         </footer>
     );
