@@ -26,6 +26,8 @@ public interface RetailerRepository extends MongoRepository<Retailer, String> {
     // Check if email exists
     boolean existsByEmail(String email);
 
+    boolean existsByEmailAndIsDeleteFalse(String email);
+
     // Check if registration ID exists
     boolean existsByRegistrationId(String registrationId);
 }

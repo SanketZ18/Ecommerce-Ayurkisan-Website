@@ -25,4 +25,6 @@ public interface CustomerRepository extends MongoRepository<Customer, String> {
 
     // Check if email exists
     boolean existsByEmail(String email);
+
+    boolean existsByEmailAndIsDeleteFalse(String email);
 }
