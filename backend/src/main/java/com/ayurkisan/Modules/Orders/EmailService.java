@@ -189,4 +189,25 @@ public class EmailService {
             mailSender.send(message);
         } catch (Exception e) {}
     }
+
+    @Async
+    public void sendOtpEmail(String toEmail, String otp) {
+        if (toEmail == null || toEmail.isEmpty()) return;
+        try {
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setFrom(fromEmail);
+            message.setTo(toEmail);
+            message.setSubject("Password Reset OTP - Ayurkisan");
+            message.setText("Dear User,\n\n" +
+                    "You requested a password reset for your Ayurkisan account. " +
+                    "Your One-Time Password (OTP) is:\n\n" +
+                    otp + "\n\n" +
+                    "This OTP is valid for 5 minutes. If you did not request this, please ignore this email.\n\n" +
+                    "Best Regards,\n" +
+                    "Ayurkisan Team");
+            mailSender.send(message);
+        } catch (Exception e) {
+            System.err.println("Failed to send OTP email to " + toEmail + ": " + e.getMessage());
+        }
+    }
 }

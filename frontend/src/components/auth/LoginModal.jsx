@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { FaEye, FaEyeSlash, FaUsers, FaStore, FaUserShield } from "react-icons/fa";
 import { motion } from 'framer-motion';
 
-const LoginModal = ({ onClose, onSwitchToSignUp }) => {
+const LoginModal = ({ onClose, onSwitchToSignUp, onForgotPassword }) => {
 
     const [formData, setFormData] = useState({
         email: '',
@@ -206,6 +206,19 @@ const LoginModal = ({ onClose, onSwitchToSignUp }) => {
                     >
                         {showPassword ? <FaEyeSlash /> : <FaEye />}
                     </span>
+                    <div style={{ textAlign: 'right', marginTop: '0.25rem' }}>
+                        <span 
+                            onClick={onForgotPassword} 
+                            style={{ 
+                                fontSize: '0.8rem', 
+                                color: theme.primary, 
+                                cursor: 'pointer', 
+                                fontWeight: '500' 
+                            }}
+                        >
+                            Forgot Password?
+                        </span>
+                    </div>
                 </div>
 
                 <button
