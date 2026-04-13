@@ -3,6 +3,7 @@ import LoginModal from './LoginModal';
 import SignUpSelection from './SignUpSelection';
 import CustomerRegistration from './CustomerRegistration';
 import RetailerRegistration from './RetailerRegistration';
+import ForgotPasswordModal from './ForgotPasswordModal';
 
 const AuthModalManager = ({ currentModal, setAuthModal, onClose }) => {
 
@@ -10,7 +11,15 @@ const AuthModalManager = ({ currentModal, setAuthModal, onClose }) => {
     const renderModalContent = () => {
         switch (currentModal) {
             case 'login':
-                return <LoginModal onClose={onClose} onSwitchToSignUp={() => setAuthModal('signupSelect')} />;
+                return (
+                    <LoginModal 
+                        onClose={onClose} 
+                        onSwitchToSignUp={() => setAuthModal('signupSelect')} 
+                        onForgotPassword={() => setAuthModal('forgotPassword')}
+                    />
+                );
+            case 'forgotPassword':
+                return <ForgotPasswordModal onClose={onClose} onSwitchToLogin={() => setAuthModal('login')} />;
             case 'signupSelect':
                 return (
                     <SignUpSelection
