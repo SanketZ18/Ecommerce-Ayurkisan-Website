@@ -79,7 +79,7 @@ const Contact = () => {
                                 <div style={iconCircleWhite}><FaEnvelope color="var(--primary-green)" /></div>
                                 <div>
                                     <p style={{ fontSize: "0.75rem", color: "#6B7280", fontWeight: 600, textTransform: "uppercase" }}>Mail Us</p>
-                                    <p style={{ fontWeight: 600, color: "var(--text-dark)" }}>support@ayurkisan.com</p>
+                                    <p style={{ fontWeight: 600, color: "var(--text-dark)" }}>ayurkisan.ecommerce@gmail.com</p>
                                 </div>
                             </div>
                         </div>
@@ -94,8 +94,8 @@ const Contact = () => {
                             <h3 style={{ fontSize: "1.2rem", fontWeight: 700, marginBottom: "5px", color: "var(--text-dark)" }}>Head Office</h3>
                             <p style={{ color: "#4B5563", fontSize: "0.95rem", marginBottom: "15px", lineHeight: 1.5 }}>
                                 Ayurkisan Naturals,<br />
-                                123 Heritage Road, Wellness District,<br />
-                                Pune - 411038, Maharashtra, India
+                                Office No 2, Shreejay Apartment, Near Old Rto Office Chowk,<br />
+                                Sadar bazar, Satara, Maharashtra 415001
                             </p>
 
                             <div style={{ display: "flex", gap: "10px", marginTop: "20px" }}>
@@ -125,7 +125,7 @@ const Contact = () => {
                         <div style={{ ...channelIcon, backgroundColor: "#F97316" }}><FaPaperPlane color="#fff" /></div>
                         <h3 style={channelTitle}>Export / Import Queries</h3>
                         <p style={channelText}>For export orders, documentation, packing specs and long-term supply programs.</p>
-                        <a href="mailto:export@ayurkisan.com" style={{ color: "#3B82F6", fontWeight: 600, fontSize: "0.9rem", textDecoration: "none" }}>Email: export@ayurkisan.com</a>
+                        <a href="mailto:ayurkisan.ecommerce@gmail.com" style={{ color: "#3B82F6", fontWeight: 600, fontSize: "0.9rem", textDecoration: "none" }}>Email: ayurkisan.ecommerce@gmail.com</a>
                     </div>
 
                     <div style={channelCard}>
@@ -207,7 +207,7 @@ const Contact = () => {
                         <div style={{ borderRadius: "16px", padding: "30px", boxShadow: "0 10px 25px rgba(0,0,0,0.05)", height: "300px", display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", backgroundColor: "#E5E7EB" }}>
                             {/* Placeholder for Map */}
                             <h2 style={{ fontSize: "1.5rem", fontWeight: 700, color: "var(--text-dark)", marginBottom: "10px" }}>Locate our office</h2>
-                            <p style={{ color: "#6B7280" }}>Pune, Maharashtra, India</p>
+                            <p style={{ color: "#6B7280" }}>Satara, Maharashtra, India</p>
                             <div style={{ width: "100%", height: "100%", border: "2px dashed #CBD5E1", borderRadius: "8px", display: "flex", justifyContent: "center", alignItems: "center", marginTop: "20px", color: "#94A3B8" }}>Google Map Embed</div>
                         </div>
 
