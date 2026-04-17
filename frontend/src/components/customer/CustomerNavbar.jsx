@@ -90,15 +90,16 @@ const CustomerNavbar = ({ onOpenProfileModal }) => {
     };
 
     return (
-        <header style={navStyle}>
+        <header className="customer-header" style={navStyle}>
             {/* Logo Section */}
-            <div style={logoSectionStyle} onClick={() => navigate('/customer/dashboard')}>
+            <div className="logo-section" style={logoSectionStyle} onClick={() => navigate('/customer/dashboard')}>
                 <img src={logo} alt="AyurKisan Logo" style={logoImageStyle} />
                 {/* <span style={logoTextStyle}>Home</span>*/}
             </div>
 
             {/* Search Bar (Amazon style centered) */}
-            <div style={searchContainerStyle}>
+            <div className="nav-search-container" style={searchContainerStyle}>
+
                 <div style={searchWrapperStyle}>
                     <input
                         type="text"
@@ -131,7 +132,7 @@ const CustomerNavbar = ({ onOpenProfileModal }) => {
             </div>
 
             {/* Right Nav Items */}
-            <div style={rightNavStyle}>
+            <div className="right-nav" style={rightNavStyle}>
 
                 {/* Account Dropdown */}
                 <div
@@ -140,9 +141,10 @@ const CustomerNavbar = ({ onOpenProfileModal }) => {
                     onMouseLeave={() => setAccountMenuOpen(false)}
                 >
                     <div style={{ display: 'flex', flexDirection: 'column' }}>
-                        <span style={navSubtextStyle}>Hello, {customerName}</span>
-                        <span style={navMainTextStyle}>Account <FaCaretDown size={12} style={{ marginLeft: '4px' }} /></span>
+                        <span className="nav-subtext" style={navSubtextStyle}>Hello, {customerName}</span>
+                        <span className="nav-maintext" style={navMainTextStyle}>Account <FaCaretDown size={12} style={{ marginLeft: '4px' }} /></span>
                     </div>
+
 
                     <AnimatePresence>
                         {isAccountMenuOpen && (
@@ -187,8 +189,9 @@ const CustomerNavbar = ({ onOpenProfileModal }) => {
                         <FaHeart size={24} color="#fff" />
                         {wishlistCount > 0 && <span style={cartBadgeStyle}>{wishlistCount}</span>}
                     </div>
-                    <span style={navMainTextStyle}>Wishlist</span>
+                    <span className="nav-maintext" style={navMainTextStyle}>Wishlist</span>
                 </Link>
+
 
                 {/* Cart */}
                 <Link to="/cart" style={{ ...navItemStyle, textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '5px', position: 'relative' }}>
@@ -196,8 +199,9 @@ const CustomerNavbar = ({ onOpenProfileModal }) => {
                         <FaShoppingCart size={32} color="#fff" />
                         {cartCount > 0 && <span style={cartBadgeStyle}>{cartCount}</span>}
                     </div>
-                    <span style={{ ...navMainTextStyle, marginTop: '10px' }}>Cart</span>
+                    <span className="nav-maintext" style={{ ...navMainTextStyle, marginTop: '10px' }}>Cart</span>
                 </Link>
+
 
             </div>
         </header>

@@ -1,22 +1,32 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { FaTachometerAlt, FaSitemap, FaBoxOpen, FaLayerGroup, FaShoppingCart, FaTruck, FaUndo, FaUsers, FaSignOutAlt, FaHome, FaChartLine } from 'react-icons/fa';
+import { FaBars, FaTimes, FaTachometerAlt, FaSitemap, FaBoxOpen, FaLayerGroup, FaShoppingCart, FaTruck, FaUndo, FaUsers, FaSignOutAlt, FaHome, FaChartLine } from 'react-icons/fa';
 import logo from '../../assets/Company Logos (1024 × 1024 px).png';
 
-const Sidebar = ({ isOpen, onLogout }) => {
+const Sidebar = ({ isOpen, onLogout, onClose }) => {
+
     return (
-        <div style={{ ...sidebarStyle, transform: isOpen ? 'translateX(0)' : 'translateX(-100%)' }}>
+        <div className="dashboard-sidebar" style={{ ...sidebarStyle, transform: isOpen ? 'translateX(0)' : 'translateX(-100%)' }}>
             <div style={logoContainerStyle}>
-                <img src={logo} alt="Logo" style={logoStyle} />
-                <h3 style={brandStyle}>Admin Panel</h3>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <img src={logo} alt="Logo" style={logoStyle} />
+                    <h3 style={brandStyle}>Admin Panel</h3>
+                </div>
+                {/* Mobile Close Button */}
+                <button onClick={onClose} className="show-on-mobile" style={closeBtnStyle}>
+                    <FaTimes size={20} />
+                </button>
             </div>
+
 
             <nav style={navStyle}>
                 {menuItems.map((item, index) => (
                     <NavLink
                         key={index}
                         to={item.path}
+                        onClick={() => { if (window.innerWidth < 768) onClose(); }}
                         style={({ isActive }) => ({
+
                             ...linkStyle,
                             backgroundColor: isActive ? 'rgba(255, 255, 255, 0.2)' : 'transparent',
                             borderLeft: isActive ? '4px solid #facc15' : '4px solid transparent'
@@ -123,4 +133,14 @@ const logoutBtnStyle = {
     transition: 'background-color 0.2s',
 };
 
+const closeBtnStyle = {
+    background: 'none',
+    border: 'none',
+    color: '#fff',
+    cursor: 'pointer',
+    display: 'none', // Overridden by show-on-mobile
+    padding: '5px'
+};
+
 export default Sidebar;
+

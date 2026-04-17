@@ -17,8 +17,9 @@ const AdminLayout = ({ children }) => {
 
     return (
         <div style={layoutStyle}>
-            <Sidebar isOpen={isSidebarOpen} onLogout={handleLogout} />
-            <div style={{ ...mainContentStyle, marginLeft: isSidebarOpen ? '250px' : '0' }}>
+            <Sidebar isOpen={isSidebarOpen} onLogout={handleLogout} onClose={() => setSidebarOpen(false)} />
+            <div className="admin-main-content" style={{ ...mainContentStyle, marginLeft: isSidebarOpen ? '250px' : '0' }}>
+
                 <header style={topbarStyle}>
                     <button onClick={toggleSidebar} style={toggleBtnStyle}>
                         <FaBars size={24} />
@@ -70,3 +71,4 @@ const contentStyle = {
 };
 
 export default AdminLayout;
+

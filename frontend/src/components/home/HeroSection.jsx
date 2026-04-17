@@ -28,7 +28,7 @@ const HeroSection = () => {
     }, [heroImages.length]);
 
     return (
-        <section style={heroStyle}>
+        <section className="hero-section" style={heroStyle}>
             <div style={contentStyle}>
 
                 <motion.h4
@@ -50,6 +50,7 @@ const HeroSection = () => {
                     initial={{ opacity: 0, y: 30 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.7, delay: 0.2 }}
+                    className="hero-heading"
                     style={{
                         fontSize: '3.8rem',
                         lineHeight: '1.1',
@@ -60,6 +61,8 @@ const HeroSection = () => {
                 >
                     {heroData.heading}
                 </motion.h1>
+
+
 
                 <motion.div
                     initial={{ opacity: 0, scale: 0 }}
@@ -114,7 +117,8 @@ const HeroSection = () => {
 
             </div>
 
-            <div style={imageContainerStyle}>
+            <div className="hero-image-container" style={imageContainerStyle}>
+
                 <motion.div
                     initial={{ opacity: 0, x: 50 }}
                     animate={{ opacity: 1, x: 0 }}
