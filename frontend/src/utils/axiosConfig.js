@@ -1,6 +1,11 @@
 import axios from 'axios';
 import { clearAuthData } from './auth';
 
+// Set base URL for API calls
+// In development, it falls back to empty string (proxy handled by vite)
+// In production, it uses VITE_API_BASE_URL
+axios.defaults.baseURL = import.meta.env.VITE_API_BASE_URL || '';
+
 // Add a response interceptor
 axios.interceptors.response.use(
     (response) => response,
