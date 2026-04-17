@@ -3,8 +3,9 @@ import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaSave, FaPlus, FaTrash, FaEdit, FaTimes, FaStar, FaCheck, FaBoxOpen, FaTag, FaComments } from 'react-icons/fa';
 import { toast } from 'react-toastify';
+import API_BASE_URL from '../utils/apiConfig';
 
-const API = 'http://localhost:9090';
+const API = API_BASE_URL;
 
 // ========== MAIN COMPONENT ==========
 const ManageHomepage = () => {

@@ -7,6 +7,7 @@ import retailerService from '../utils/retailerService';
 import { toast } from 'react-toastify';
 import { clearAuthData } from '../utils/auth';
 import { resolveProductImage, resolvePackageImage } from '../utils/imageUtils';
+import API_BASE_URL from '../utils/apiConfig';
 
 const Checkout = () => {
     const navigate = useNavigate();
@@ -30,7 +31,7 @@ const Checkout = () => {
         try {
             const subtotalAmount = cartData?.totalDiscountedPrice || 0;
             // Changed from GET to POST to match backend and fixed parameter name
-            const res = await axios.post(`http://localhost:9090/api/offers/validate`, {
+            const res = await axios.post(`${API_BASE_URL}/api/offers/validate`, {
                 code: promoCode,
                 amount: subtotalAmount
             });

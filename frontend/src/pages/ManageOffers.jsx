@@ -3,8 +3,9 @@ import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaPlus, FaTrash, FaEdit, FaSave, FaTimes, FaTag, FaPercentage, FaMoneyBillWave, FaCalendarAlt, FaCalendarCheck } from 'react-icons/fa';
 import { toast } from 'react-toastify';
+import API_BASE_URL from '../utils/apiConfig';
 
-const API = 'http://localhost:9090/api/offers';
+const API = `${API_BASE_URL}/api/offers`;
 
 const ManageOffers = () => {
     const [offers, setOffers] = useState([]);

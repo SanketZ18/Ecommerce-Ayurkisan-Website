@@ -6,6 +6,7 @@ import { FaShoppingCart, FaBolt, FaArrowLeft, FaBox, FaLeaf, FaInfoCircle, FaSta
 import { toast } from 'react-toastify';
 import { resolveProductImage, resolvePackageImage } from '../utils/imageUtils';
 import customerService from "../utils/customerService";
+import API_BASE_URL from '../utils/apiConfig';
 
 const PackageDetails = () => {
     const { packageId } = useParams();
@@ -36,18 +37,18 @@ const PackageDetails = () => {
         setLoading(true);
         try {
             // Fetch package by ID
-            const response = await axios.get(`http://localhost:9090/packages/view/id/${packageId}`);
+            const response = await axios.get(`${API_BASE_URL}/packages/view/id/${packageId}`);
             const packageData = response.data;
             setPkg(packageData);
 
             // Fetch feedbacks
-            const feedbackRes = await axios.get(`http://localhost:9090/feedbacks/product/${packageId}`).catch(() => ({ data: [] }));
+            const feedbackRes = await axios.get(`${API_BASE_URL}/feedbacks/product/${packageId}`).catch(() => ({ data: [] }));
             setFeedbacks(feedbackRes.data);
 
             // Fetch details for each product in the package
             if (packageData.items && packageData.items.length > 0) {
                 const productPromises = packageData.items.map(item => 
-                    axios.get(`http://localhost:9090/products/id/${item.productId}`).catch(err => {
+                    axios.get(`${API_BASE_URL}/products/id/${item.productId}`).catch(err => {
                         console.error(`Failed to fetch product ${item.productId}`, err);
                         return { data: { id: item.productId, productName: "Unknown Product", productImage1: "https://via.placeholder.com/100" } };
                     })
