@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+
+# Sitemaps (Update with your real domain later)
+# Sitemap: https://ayurkisan.vercel.app/sitemap.xml

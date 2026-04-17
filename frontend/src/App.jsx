@@ -53,6 +53,7 @@ const OrderTracking = lazy(() => import('./pages/OrderTracking'));
 const RequestReturn = lazy(() => import('./pages/RequestReturn'));
 const CustomerReturns = lazy(() => import('./pages/CustomerReturns'));
 const LegalPolicies = lazy(() => import('./pages/LegalPolicies'));
+const NotFound = lazy(() => import('./pages/NotFound'));
 
 import { getUserRole, isAuthenticated } from './utils/auth';
 
@@ -214,6 +215,7 @@ function App() {
                             </Routes>
                         </RetailerLayout>
                     } />
+                    <Route path="*" element={<NotFound />} />
                 </Routes>
             </Suspense>
 
