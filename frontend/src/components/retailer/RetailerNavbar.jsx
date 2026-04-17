@@ -40,8 +40,9 @@ const RetailerNavbar = ({ onOpenProfileModal }) => {
     };
 
     return (
-        <header style={navStyle}>
-            <div style={logoSectionStyle} onClick={() => navigate('/retailer/dashboard')}>
+        <header className="retailer-header" style={navStyle}>
+            <div className="logo-section" style={logoSectionStyle} onClick={() => navigate('/retailer/dashboard')}>
+
                 <img src={logo} alt="AyurKisan Logo" style={logoImageStyle} />
                 <div style={logoTextContainerStyle}>
                     { /*<span style={logoTextStyle}>Home</span>*/}
@@ -49,7 +50,8 @@ const RetailerNavbar = ({ onOpenProfileModal }) => {
                 </div>
             </div>
 
-            <div style={searchContainerStyle}>
+            <div className="nav-search-container" style={searchContainerStyle}>
+
                 <div style={searchWrapperStyle}>
                     <input
                         type="text"
@@ -62,7 +64,8 @@ const RetailerNavbar = ({ onOpenProfileModal }) => {
                 </div>
             </div>
 
-            <div style={rightNavStyle}>
+            <div className="right-nav" style={rightNavStyle}>
+
 
                 <div
                     style={navItemStyle}
@@ -70,9 +73,10 @@ const RetailerNavbar = ({ onOpenProfileModal }) => {
                     onMouseLeave={() => setAccountMenuOpen(false)}
                 >
                     <div style={{ display: 'flex', flexDirection: 'column' }}>
-                        <span style={navSubtextStyle}>Retailer</span>
-                        <span style={navMainTextStyle}>{businessProfile?.retailerName || 'Business'} <FaCaretDown size={12} style={{ marginLeft: '4px' }} /></span>
+                        <span className="nav-subtext" style={navSubtextStyle}>Retailer</span>
+                        <span className="nav-maintext" style={navMainTextStyle}>{businessProfile?.retailerName || 'Business'} <FaCaretDown size={12} style={{ marginLeft: '4px' }} /></span>
                     </div>
+
 
                     <AnimatePresence>
                         {isAccountMenuOpen && (
@@ -110,30 +114,33 @@ const RetailerNavbar = ({ onOpenProfileModal }) => {
 
                 <Link to="/retailer/orders" style={{ ...navItemStyle, textDecoration: 'none' }}>
                     <div style={{ display: 'flex', flexDirection: 'column' }}>
-                        <span style={navSubtextStyle}>Manage</span>
-                        <span style={navMainTextStyle}>Shipments</span>
+                        <span className="nav-subtext" style={navSubtextStyle}>Manage</span>
+                        <span className="nav-maintext" style={navMainTextStyle}>Shipments</span>
                     </div>
                 </Link>
+
 
                 <Link to="/wishlist" style={{ ...navItemStyle, textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <div style={{ position: 'relative' }}>
                         <FaHeart size={24} color="#fff" />
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column' }}>
-                        <span style={navSubtextStyle}>Favorites</span>
-                        <span style={navMainTextStyle}>Wishlist</span>
+                        <span className="nav-subtext" style={navSubtextStyle}>Favorites</span>
+                        <span className="nav-maintext" style={navMainTextStyle}>Wishlist</span>
                     </div>
                 </Link>
+
 
                 <Link to="/cart" style={{ ...navItemStyle, textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <div style={{ position: 'relative' }}>
                         <FaShoppingCart size={28} color="#fff" />
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column' }}>
-                        <span style={navSubtextStyle}>Wholesale</span>
-                        <span style={navMainTextStyle}>Cart</span>
+                        <span className="nav-subtext" style={navSubtextStyle}>Wholesale</span>
+                        <span className="nav-maintext" style={navMainTextStyle}>Cart</span>
                     </div>
                 </Link>
+
 
             </div>
         </header>

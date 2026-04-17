@@ -225,3 +225,261 @@ button {
   filter: brightness(1.1) !important;
   transform: translateY(-2px) !important;
 }
+
+/* ================= RESPONSIVE DESIGN ================= */
+
+/* Tablet (Under 1024px) */
+@media screen and (max-width: 1024px) {
+  :root {
+    --border-radius-lg: 16px;
+  }
+}
+
+/* Mobile (Under 768px) */
+@media screen and (max-width: 768px) {
+  :root {
+    --border-radius-lg: 12px;
+  }
+
+  body {
+    font-size: 14px;
+  }
+
+  .auth-modal {
+    padding: 1.5rem;
+    width: 95%;
+  }
+
+  .btn-primary,
+  .btn-outline {
+    padding: 0.6rem 1.2rem;
+    font-size: 0.9rem;
+  }
+
+  /* Utility Classes for Mobile */
+  .hide-on-mobile {
+    display: none !important;
+  }
+
+  .show-on-mobile {
+    display: block !important;
+  }
+
+  .flex-column-mobile {
+    flex-direction: column !important;
+  }
+
+  .grid-1-col-mobile {
+    grid-template-columns: 1fr !important;
+  }
+
+  .text-center-mobile {
+    text-align: center !important;
+  }
+
+  .m-padding {
+    padding: 2rem 5% !important;
+  }
+
+  /* Header Overrides */
+  .header {
+    height: 70px !important;
+    padding: 0 5% !important;
+  }
+
+  /* Hero Section Overrides */
+  .hero-section {
+    flex-direction: column !important;
+    text-align: center !important;
+    padding: 80px 20px 40px 20px !important;
+    min-height: auto !important;
+    gap: 3rem !important;
+  }
+
+  .hero-heading {
+    font-size: 2.2rem !important;
+    line-height: 1.2 !important;
+  }
+
+  .hero-image-container {
+    width: 100% !important;
+    max-width: 100% !important;
+    height: 300px !important;
+    justify-content: center !important;
+  }
+
+  .hero-section div[style*="maxWidth: 500px"] {
+    margin: 0 auto !important;
+    max-width: 100% !important;
+  }
+
+  .hero-section div[style*="display: flex; gap: 1rem"] {
+    justify-content: center !important;
+    flex-wrap: wrap !important;
+  }
+
+  /* Footer Overrides */
+  .footer-content {
+    flex-direction: column !important;
+    gap: 3rem !important;
+    text-align: center !important;
+  }
+
+  .footer-brand div {
+    justify-content: center !important;
+  }
+
+  /* Home Section Titles */
+  h2[style*="fontSize: 2.5rem"], 
+  h2[style*="fontSize: 3.5rem"],
+  .categories-title {
+    font-size: 1.8rem !important;
+  }
+
+  /* Categories Overrides */
+  .categories-section {
+    padding: 3rem 20px !important;
+    background-attachment: scroll !important; /* Fixed bg can be buggy on mobile */
+  }
+
+  .categories-content-wrapper {
+    grid-template-columns: 1fr !important;
+    gap: 2rem !important;
+  }
+
+  .categories-stats {
+    gap: 1.5rem !important;
+    justify-content: center !important;
+    flex-wrap: wrap !important;
+  }
+
+  .categories-section div[style*="display: flex; gap: 1rem"] {
+    flex-direction: column !important;
+    width: 100% !important;
+  }
+
+  .categories-section a[style*="padding: 12px 24px"] {
+    text-align: center !important;
+    width: 100% !important;
+  }
+
+  /* Product Card Grid (Common for Shop/BestSellers) */
+  .product-grid, 
+  div[style*="gridTemplateColumns: repeat(auto-fill, minmax("],
+  div[style*="gridTemplateColumns: repeat(auto-fit, minmax("] {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)) !important;
+    gap: 1rem !important;
+  }
+
+  .product-card h3 {
+    font-size: 1rem !important;
+  }
+
+  /* Product Details Overrides */
+  .product-details-layout {
+    grid-template-columns: 1fr !important;
+    gap: 1.5rem !important;
+  }
+
+  .product-image-wrapper {
+    order: 1 !important;
+  }
+
+  .product-info-wrapper {
+    order: 2 !important;
+    text-align: center !important;
+  }
+
+  .product-info-wrapper div[style*="display: flex; gap: 15px"] {
+    justify-content: center !important;
+  }
+
+  .benefits-list {
+    grid-template-columns: 1fr !important;
+  }
+
+  .product-info-wrapper h1 {
+    font-size: 1.8rem !important;
+  }
+
+  /* Dashboards Overrides */
+  .dashboard-sidebar {
+    width: 280px !important;
+    z-index: 2000 !important;
+  }
+
+  .admin-main-content {
+    margin-left: 0 !important;
+    width: 100% !important;
+  }
+
+  .admin-main-content header h2 {
+    font-size: 1.2rem !important;
+  }
+
+  .dashboard-content {
+    padding: 1rem !important;
+  }
+
+  /* Table responsiveness */
+  table {
+    display: block !important;
+    overflow-x: auto !important;
+    white-space: nowrap !important;
+  }
+
+  /* Modal responsiveness */
+  .auth-modal {
+    max-height: 90vh !important;
+    overflow-y: auto !important;
+  }
+
+  /* Customer/Retailer Header Overrides */
+  .customer-header, .retailer-header {
+    height: auto !important;
+    padding: 10px !important;
+    flex-wrap: wrap !important;
+    justify-content: space-between !important;
+  }
+
+  /* Make logo and right navigation sit on the same line */
+  .customer-header .logo-section, .retailer-header .logo-section {
+    width: auto !important;
+  }
+
+  .customer-header .right-nav, .retailer-header .right-nav {
+    width: auto !important;
+    gap: 15px !important;
+  }
+
+  /* Move search to second row and full width */
+  .customer-header .nav-search-container, .retailer-header .nav-search-container {
+    order: 3 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin-top: 10px !important;
+    padding: 0 !important;
+    flex-basis: 100% !important;
+  }
+
+  /* Hide subtexts and text on right side nav on small screens, keep icons only */
+  @media (max-width: 600px) {
+    .customer-header .nav-subtext, .retailer-header .nav-subtext {
+        display: none !important;
+    }
+    .customer-header .nav-maintext, .retailer-header .nav-maintext {
+        display: none !important;
+    }
+    .customer-header .right-nav, .retailer-header .right-nav {
+        gap: 8px !important;
+    }
+    .customer-header .nav-item, .retailer-header .nav-item {
+        padding: 5px !important;
+    }
+  }
+}
+
+
+
+
+

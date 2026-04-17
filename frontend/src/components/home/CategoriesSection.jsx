@@ -7,11 +7,11 @@ import bgImage from "../../assets/images/111.jpg";
 
 const CategoriesSection = () => {
     return (
-        <section style={sectionStyle}>
+        <section className="categories-section" style={sectionStyle}>
             {/* Dark overlay for better text readability */}
             <div style={overlayStyle}></div>
 
-            <div style={contentWrapper}>
+            <div className="categories-content-wrapper" style={contentWrapper}>
                 {/* LEFT SIDE */}
                 <motion.div
                     initial={{ opacity: 0, x: -30 }}
@@ -20,10 +20,11 @@ const CategoriesSection = () => {
                     style={leftContent}
                 >
                     <h4 style={subtitleStyle}>AYURKISAN FARMS</h4>
-                    <h2 style={titleStyle}>
+                    <h2 className="categories-title" style={titleStyle}>
                         Heart Of <span style={{ color: "#facc15" }}>Perfect Farming</span><br />
                         From Indian farms to the world.
                     </h2>
+
                     <p style={descriptionStyle}>
                         Ayurkisan Farms works with a strong network of farmers to
                         grow, grade and export herbal products, fruits and
@@ -41,7 +42,7 @@ const CategoriesSection = () => {
                         <Link to="/feedback" style={secondaryBtn}>Talk to us</Link>
                     </div>
 
-                    <div style={statsContainer}>
+                    <div className="categories-stats" style={statsContainer}>
                         <div>
                             <h3 style={statValue}>1000+</h3>
                             <p style={statLabel}>Associated farmers</p>
