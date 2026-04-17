@@ -6,6 +6,7 @@ import { FaShoppingCart, FaBolt, FaStar, FaLeaf, FaArrowLeft, FaBox, FaInfoCircl
 import { toast } from 'react-toastify';
 import { resolveProductImage } from '../utils/imageUtils';
 import customerService from "../utils/customerService";
+import API_BASE_URL from '../utils/apiConfig';
 
 const ProductDetails = () => {
     const { productId } = useParams();
@@ -70,14 +71,14 @@ const ProductDetails = () => {
         window.scrollTo(0, 0); // Scroll to top on load
 
         // fetch the product by ID
-        axios.get(`http://localhost:9090/products/id/${productId}`)
+        axios.get(`${API_BASE_URL}/products/id/${productId}`)
             .then(res => {
                 const fetchedProduct = res.data;
                 setProduct(fetchedProduct);
 
                 // Then fetch feedbacks using the product's ID
                 if (fetchedProduct && fetchedProduct.id) {
-                    return axios.get(`http://localhost:9090/feedbacks/product/${fetchedProduct.id}`);
+                    return axios.get(`${API_BASE_URL}/feedbacks/product/${fetchedProduct.id}`);
                 }
                 return null;
             })

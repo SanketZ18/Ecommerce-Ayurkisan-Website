@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { motion } from 'framer-motion';
 import { FaEye, FaEyeSlash } from "react-icons/fa";
+import API_BASE_URL from '../../utils/apiConfig';
 
 const RetailerRegistration = ({ onClose, onSwitchToLogin }) => {
     const [formData, setFormData] = useState({
@@ -29,7 +30,7 @@ const RetailerRegistration = ({ onClose, onSwitchToLogin }) => {
         setStatus({ type: null, message: '' });
 
         try {
-            await axios.post('http://localhost:9090/api/auth/retailer/signup', formData);
+            await axios.post(`${API_BASE_URL}/api/auth/retailer/signup`, formData);
             setStatus({ type: 'success', message: 'Retailer registration successful! You can now login.' });
             setFormData({ retailerName: '', firmName: '', registrationId: '', address: '', phoneNumber: '', email: '', password: '' });
             setTimeout(() => {

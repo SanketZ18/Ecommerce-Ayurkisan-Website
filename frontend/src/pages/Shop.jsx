@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { isAuthenticated } from "../utils/auth";
 import { toast } from 'react-toastify';
 import { resolveProductImage } from '../utils/imageUtils';
+import API_BASE_URL from '../utils/apiConfig';
 
 const Shop = () => {
     const [products, setProducts] = useState([]);
@@ -22,7 +23,7 @@ const Shop = () => {
 
     const fetchProducts = async () => {
         try {
-            const response = await fetch("http://localhost:9090/products/all");
+            const response = await fetch(`${API_BASE_URL}/products/all`);
             // Add slight artificial delay to demonstrate skeleton if network is too fast
             setTimeout(async () => {
                 const data = await response.json();
@@ -37,7 +38,7 @@ const Shop = () => {
 
     const fetchCategories = async () => {
         try {
-            const response = await fetch("http://localhost:9090/categories/all");
+            const response = await fetch(`${API_BASE_URL}/categories/all`);
             if (response.ok) {
                 const data = await response.json();
                 setCategories(data);

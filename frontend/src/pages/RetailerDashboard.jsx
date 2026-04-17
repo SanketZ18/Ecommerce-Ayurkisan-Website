@@ -13,6 +13,7 @@ import retailerService from '../utils/retailerService';
 import { getDecodedToken, clearAuthData } from '../utils/auth';
 import { toast } from 'react-toastify';
 import { resolveProductImage, resolvePackageImage } from '../utils/imageUtils';
+import API_BASE_URL from '../utils/apiConfig';
 
 const RetailerDashboard = () => {
     const navigate = useNavigate();
@@ -56,7 +57,7 @@ const RetailerDashboard = () => {
                 const [profileRes, ordersRes, offersRes, productsRes, packagesRes, cartRes, categoriesRes] = await Promise.all([
                     retailerService.getProfile(userId),
                     retailerService.getOrderHistory(userId),
-                    axios.get('http://localhost:9090/api/homepage/sections').catch(() => ({ data: [] })),
+                    axios.get(`${API_BASE_URL}/api/homepage/sections`).catch(() => ({ data: [] })),
                     customerService.getAllProducts().catch(() => ({ data: [] })),
                     customerService.getAllPackages().catch(() => ({ data: [] })),
                     customerService.getCart(userId, role).catch(() => ({ data: { items: [] } })),

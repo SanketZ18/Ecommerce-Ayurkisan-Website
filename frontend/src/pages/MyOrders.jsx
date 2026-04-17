@@ -7,6 +7,7 @@ import customerService from '../utils/customerService';
 import retailerService from '../utils/retailerService';
 import { toast } from 'react-toastify';
 import { resolveProductImage, resolvePackageImage } from '../utils/imageUtils';
+import API_BASE_URL from '../utils/apiConfig';
 
 const MyOrders = () => {
     const [orders, setOrders] = useState([]);
@@ -120,7 +121,7 @@ const MyOrders = () => {
 
             console.log("Submitting feedback data:", data);
 
-            await axios.post('http://localhost:9090/feedbacks/add', data);
+            await axios.post(`${API_BASE_URL}/feedbacks/add`, data);
             toast.success('Feedback submitted successfully!');
             setFeedbackItem(null); 
             if (orderForFeedback && orderForFeedback.items && orderForFeedback.items.length === 1) {
@@ -163,7 +164,7 @@ const MyOrders = () => {
     const handleDownloadInvoice = async (orderId) => {
         try {
             const token = localStorage.getItem('token');
-            const response = await axios.get(`http://localhost:9090/orders/${orderId}/invoice`, {
+            const response = await axios.get(`${API_BASE_URL}/orders/${orderId}/invoice`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 },
