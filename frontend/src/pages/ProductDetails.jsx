@@ -135,10 +135,12 @@ const ProductDetails = () => {
                 <FaArrowLeft style={{ marginRight: '8px' }} /> Back to Dashboard
             </Link>
 
-            <div style={productLayout}>
+            <div className="product-details-layout" style={productLayout}>
                 {/* Left: Image Gallery */}
                 <motion.div
+                    className="product-image-wrapper"
                     style={imageContainerWrapperStyle}
+
                     initial={{ opacity: 0, x: -50 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 0.2 }}
@@ -188,7 +190,9 @@ const ProductDetails = () => {
 
                 {/* Right: Product Info */}
                 <motion.div
+                    className="product-info-wrapper"
                     style={infoContainerStyle}
+
                     initial={{ opacity: 0, x: 50 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 0.3 }}
@@ -267,7 +271,7 @@ const ProductDetails = () => {
 
                     <div style={benefitsContainerStyle}>
                         <h4 style={{ marginBottom: '10px', color: 'var(--text-dark)' }}>Health Benefits:</h4>
-                        <ul style={benefitsListStyle}>
+                        <ul className="benefits-list" style={benefitsListStyle}>
                             {benefitsList.map((benefit, index) => (
                                 <li key={index} style={benefitItemStyle}>
                                     <FaLeaf style={{ color: 'var(--primary-green)', marginRight: '10px', flexShrink: 0 }} />
@@ -397,10 +401,9 @@ const productLayout = {
     gridTemplateColumns: "1fr 1fr",
     gap: "30px",
     alignItems: "start",
-    '@media (max-width: 900px)': {
-        gridTemplateColumns: "1fr"
-    }
 };
+
+
 
 const imageContainerWrapperStyle = {
     display: 'flex',
