@@ -4,6 +4,7 @@ import { setAuthData } from '../../utils/auth';
 import { useNavigate } from 'react-router-dom';
 import { FaEye, FaEyeSlash, FaUsers, FaStore, FaUserShield } from "react-icons/fa";
 import { motion } from 'framer-motion';
+import API_BASE_URL from '../../utils/apiConfig';
 
 const LoginModal = ({ onClose, onSwitchToSignUp, onForgotPassword }) => {
 
@@ -37,7 +38,7 @@ const LoginModal = ({ onClose, onSwitchToSignUp, onForgotPassword }) => {
 
         try {
             const response = await axios.post(
-                'http://localhost:9090/api/auth/login',
+                `${API_BASE_URL}/api/auth/login`,
                 formData
             );
 

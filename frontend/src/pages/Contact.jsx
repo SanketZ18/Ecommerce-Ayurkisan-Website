@@ -6,6 +6,7 @@ import {
     FaPhone, FaEnvelope, FaWhatsapp, FaMapMarkerAlt,
     FaPaperPlane, FaBuilding, FaSeedling, FaClock, FaDownload, FaChevronDown, FaChevronUp
 } from "react-icons/fa";
+import API_BASE_URL from "../utils/apiConfig";
 
 const Contact = () => {
     const [form, setForm] = useState({
@@ -36,7 +37,7 @@ const Contact = () => {
                 subject: form.subject,
                 message: finalMessage
             };
-            await axios.post('http://localhost:9090/api/contact/submit', payload);
+            await axios.post(`${API_BASE_URL}/api/contact/submit`, payload);
             toast.success("Message sent successfully! We will get back to you soon.");
             setForm({ name: "", email: "", phone: "", role: "Select", subject: "", message: "" });
         } catch (error) {

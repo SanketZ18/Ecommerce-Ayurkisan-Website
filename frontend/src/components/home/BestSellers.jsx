@@ -5,8 +5,9 @@ import axios from "axios";
 import { isAuthenticated } from "../../utils/auth";
 import { toast } from 'react-toastify';
 import { resolveProductImage } from '../../utils/imageUtils';
+import API_BASE_URL from '../../utils/apiConfig';
 
-const API = 'http://localhost:9090';
+const API = API_BASE_URL;
 
 const BestSellers = () => {
     const [products, setProducts] = useState([]);

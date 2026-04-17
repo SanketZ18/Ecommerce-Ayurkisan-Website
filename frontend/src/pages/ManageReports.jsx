@@ -166,7 +166,7 @@ const ManageReports = () => {
             const endISO = formatForBackend(dateRange.end);
             
             const token = localStorage.getItem('token');
-            const response = await axios.get(`http://localhost:9090/api/reports/export/bulk-invoices?role=${invoiceRole}&start=${startISO}&end=${endISO}`, {
+            const response = await axios.get(`${API_BASE_URL}/api/reports/export/bulk-invoices?role=${invoiceRole}&start=${startISO}&end=${endISO}`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 },

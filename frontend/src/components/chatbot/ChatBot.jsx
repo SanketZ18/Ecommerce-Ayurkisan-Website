@@ -6,6 +6,7 @@ import './ChatProductCard.css';
 import ChatProductCard from './ChatProductCard';
 import { getUserId, getUserRole, isAuthenticated, getDecodedToken } from '../../utils/auth';
 import { toast } from 'react-toastify';
+import API_BASE_URL from '../../utils/apiConfig';
 
 const ChatBot = () => {
     const [isOpen, setIsOpen] = useState(false);
@@ -56,7 +57,7 @@ const ChatBot = () => {
                 currentContext = msg; // Use option as temporary context for selection
             }
 
-            const response = await axios.post('http://localhost:9090/api/chatbot/message', {
+            const response = await axios.post(`${API_BASE_URL}/api/chatbot/message`, {
                 message: msg,
                 userId: userId,
                 userName: userName,
@@ -98,7 +99,7 @@ const ChatBot = () => {
             const userId = getUserId();
             const role = getUserRole();
             // Using the existing Cart API structure from the README/Research
-            await axios.post(`http://localhost:9090/cart/add?userId=${userId}&role=${role}&itemId=${product.id}&itemType=PRODUCT&quantity=1`);
+            await axios.post(`${API_BASE_URL}/cart/add?userId=${userId}&role=${role}&itemId=${product.id}&itemType=PRODUCT&quantity=1`);
             toast.success(`${product.productName} added to cart!`);
         } catch (error) {
             toast.error("Failed to add product to cart.");

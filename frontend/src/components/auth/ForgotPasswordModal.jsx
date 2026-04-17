@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaEnvelope, FaKey, FaLock, FaCheckCircle, FaArrowLeft, FaEye, FaEyeSlash } from 'react-icons/fa';
+import API_BASE_URL from '../../utils/apiConfig';
 
 const ForgotPasswordModal = ({ onClose, onSwitchToLogin }) => {
     const [step, setStep] = useState(1); // 1: Email, 2: OTP, 3: New Password, 4: Success
@@ -21,7 +22,7 @@ const ForgotPasswordModal = ({ onClose, onSwitchToLogin }) => {
         setLoading(true);
         setError(null);
         try {
-            const response = await axios.post('http://localhost:9090/api/auth/forgot-password', { email, role });
+            const response = await axios.post(`${API_BASE_URL}/api/auth/forgot-password`, { email, role });
             setMessage(response.data);
             setStep(2);
         } catch (err) {
@@ -36,7 +37,7 @@ const ForgotPasswordModal = ({ onClose, onSwitchToLogin }) => {
         setLoading(true);
         setError(null);
         try {
-            await axios.post('http://localhost:9090/api/auth/verify-otp', { email, otp });
+            await axios.post(`${API_BASE_URL}/api/auth/verify-otp`, { email, otp });
             setStep(3);
         } catch (err) {
             setError(err.response?.data?.message || 'Invalid OTP. Please try again.');
@@ -54,7 +55,7 @@ const ForgotPasswordModal = ({ onClose, onSwitchToLogin }) => {
         setLoading(true);
         setError(null);
         try {
-            await axios.post('http://localhost:9090/api/auth/reset-password', { email, newPassword, role });
+            await axios.post(`${API_BASE_URL}/api/auth/reset-password`, { email, newPassword, role });
             setStep(4);
         } catch (err) {
             setError(err.response?.data?.message || 'Failed to reset password.');

@@ -4,11 +4,12 @@ import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { FaArrowRight, FaStar, FaQuoteLeft } from 'react-icons/fa';
 import { toast } from 'react-toastify';
+import API_BASE_URL from '../../utils/apiConfig';
 
 // Import the video correctly for Vite
 import AdvertisementVideo from "../../assets/Advertisement.mp4";
 
-const API = 'http://localhost:9090';
+const API = API_BASE_URL;
 
 const DynamicSections = () => {
     const [offersSection, setOffersSection] = useState(null);
