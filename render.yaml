@@ -1,10 +1,9 @@
 services:
   - type: web
     name: ayurkisan-backend
-    runtime: maven
+    runtime: docker
     rootDir: backend
-    buildCommand: ./mvnw clean package -DskipTests
-    startCommand: java -jar target/ayurkisan-backend-0.0.1-SNAPSHOT.jar
+    plan: free
     envVars:
       - key: JAVA_VERSION
         value: "17"
