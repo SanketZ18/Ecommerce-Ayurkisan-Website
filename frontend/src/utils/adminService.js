@@ -95,7 +95,12 @@ const adminService = {
         headers: getAuthHeader(),
         responseType: 'blob'
     }),
+    exportBulkInvoices: (role, start, end) => axios.get(`${API_BASE_URL}/api/reports/export/bulk-invoices?role=${role}&start=${start}&end=${end}`, {
+        headers: getAuthHeader(),
+        responseType: 'blob'
+    }),
     getProductHistory: (productId) => axios.get(`${API_BASE_URL}/api/reports/products/${productId}`, { headers: getAuthHeader() })
+
 };
 
 export default adminService;

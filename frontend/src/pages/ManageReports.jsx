@@ -6,7 +6,9 @@ import ReportWidgets from '../components/admin/ReportWidgets';
 import SalesCharts from '../components/admin/SalesCharts';
 import adminService from '../utils/adminService';
 import axios from 'axios';
+import API_BASE_URL from '../utils/apiConfig';
 import ReportsSkeleton from '../components/admin/ReportsSkeleton';
+
 
 const ManageReports = () => {
     const [activeTab, setActiveTab] = useState('sales');
@@ -165,13 +167,12 @@ const ManageReports = () => {
             const startISO = formatForBackend(dateRange.start);
             const endISO = formatForBackend(dateRange.end);
             
-            const token = localStorage.getItem('token');
-            const response = await axios.get(`${API_BASE_URL}/api/reports/export/bulk-invoices?role=${invoiceRole}&start=${startISO}&end=${endISO}`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                },
-                responseType: 'blob', 
-            });
+            const response = await adminService.exportBulkInvoices(invoiceRole, startISO, endISO);
+
+            if (response.data.size === 0) {
+                toast.warning(`No invoices found for the selected date range (${invoiceRole}).`);
+                return;
+            }
             
             const url = window.URL.createObjectURL(new Blob([response.data]));
             const link = document.createElement('a');
@@ -185,10 +186,11 @@ const ManageReports = () => {
             setIsInvoiceModalOpen(false);
         } catch (err) {
             console.error("Invoice Export failed", err);
-            toast.error(`Failed to export Invoices. Check if there are orders for this period.`);
+            toast.error(`Failed to export Invoices. Please ensure the backend server is running and try again.`);
         } finally {
             setIsDownloadingInvoices(false);
         }
+
     };
 
     const tabs = [

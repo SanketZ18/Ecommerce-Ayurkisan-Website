@@ -11,6 +11,12 @@ import org.thymeleaf.spring6.SpringTemplateEngine;
 import com.itextpdf.html2pdf.ConverterProperties;
 import com.itextpdf.html2pdf.HtmlConverter;
 import com.ayurkisan.util.FinanceCalculator;
+import org.springframework.core.io.ClassPathResource;
+import java.io.InputStream;
+import java.util.Base64;
+import org.apache.commons.io.IOUtils;
+import java.util.Arrays;
+
 
 
 @Service
@@ -54,15 +60,18 @@ public class InvoiceService {
 
 
         try {
-            java.io.File logoFile = new java.io.File("D:\\MCA SEM-4\\Sem 4 Project\\My Work\\Ecommerce-Ayurkisan-Website\\frontend\\src\\assets\\Company Logos (1024 × 1024 px).png");
-            if(logoFile.exists()) {
-                byte[] logoBytes = java.nio.file.Files.readAllBytes(logoFile.toPath());
-                String base64Logo = java.util.Base64.getEncoder().encodeToString(logoBytes);
-                context.setVariable("logoBase64", base64Logo);
+            ClassPathResource imgFile = new ClassPathResource("static/images/logo.png");
+            if (imgFile.exists()) {
+                try (InputStream is = imgFile.getInputStream()) {
+                    byte[] bytes = IOUtils.toByteArray(is);
+                    String base64Logo = Base64.getEncoder().encodeToString(bytes);
+                    context.setVariable("logoBase64", base64Logo);
+                }
             }
         } catch(Exception e) {
-            System.err.println("Failed to bind logo: " + e.getMessage());
+            System.err.println("Failed to bind logo from classpath: " + e.getMessage());
         }
+
 
         String html = templateEngine.process("invoice-template", context);
 
@@ -79,23 +88,26 @@ public class InvoiceService {
             return new byte[0];
         }
 
-        List<Order> deliveredOrders = orders.stream()
-            .filter(o -> "DELIVERED".equalsIgnoreCase(o.getOrderStatus()))
+        List<String> validStatuses = Arrays.asList("CONFIRMED", "SHIPPED", "DELIVERED");
+        List<Order> filteredOrders = orders.stream()
+            .filter(o -> validStatuses.contains(o.getOrderStatus().toUpperCase()))
             .collect(java.util.stream.Collectors.toList());
             
-        if (deliveredOrders.isEmpty()) {
+        if (filteredOrders.isEmpty()) {
             return new byte[0];
         }
 
         Context context = new Context();
-        context.setVariable("orders", deliveredOrders);
+        context.setVariable("orders", filteredOrders);
+
         context.setVariable("invoiceType", invoiceType != null ? invoiceType : "ALL");
         context.setVariable("exportDate", java.time.LocalDateTime.now());
         context.setVariable("startDate", start);
         context.setVariable("endDate", end);
         
         // Ensure subtotal and GST are accurately calculated for the report
-        deliveredOrders.forEach(order -> {
+        filteredOrders.forEach(order -> {
+
             boolean updated = false;
             if (order.getBaseSubtotal() <= 0) {
                 double calcSub = order.getItems().stream()
@@ -116,24 +128,28 @@ public class InvoiceService {
             }
         });
 
-        double totalSales = deliveredOrders.stream().mapToDouble(Order::getTotalDiscountedPrice).sum();
-        double totalGst = deliveredOrders.stream().mapToDouble(Order::getGstAmount).sum();
-        double totalSub = deliveredOrders.stream().mapToDouble(Order::getBaseSubtotal).sum();
+        double totalSales = filteredOrders.stream().mapToDouble(Order::getTotalDiscountedPrice).sum();
+        double totalGst = filteredOrders.stream().mapToDouble(Order::getGstAmount).sum();
+        double totalSub = filteredOrders.stream().mapToDouble(Order::getBaseSubtotal).sum();
+
         
         context.setVariable("totalSales", FinanceCalculator.round(totalSales));
         context.setVariable("totalGst", FinanceCalculator.round(totalGst));
         context.setVariable("totalSub", FinanceCalculator.round(totalSub));
         
         try {
-            java.io.File logoFile = new java.io.File("D:\\MCA SEM-4\\Sem 4 Project\\My Work\\Ecommerce-Ayurkisan-Website\\frontend\\src\\assets\\Company Logos (1024 × 1024 px).png");
-            if(logoFile.exists()) {
-                byte[] logoBytes = java.nio.file.Files.readAllBytes(logoFile.toPath());
-                String base64Logo = java.util.Base64.getEncoder().encodeToString(logoBytes);
-                context.setVariable("logoBase64", base64Logo);
+            ClassPathResource imgFile = new ClassPathResource("static/images/logo.png");
+            if (imgFile.exists()) {
+                try (InputStream is = imgFile.getInputStream()) {
+                    byte[] bytes = IOUtils.toByteArray(is);
+                    String base64Logo = Base64.getEncoder().encodeToString(bytes);
+                    context.setVariable("logoBase64", base64Logo);
+                }
             }
         } catch(Exception e) {
-            System.err.println("Failed to bind logo: " + e.getMessage());
+            System.err.println("Failed to bind logo from classpath (bulk): " + e.getMessage());
         }
+
 
         String html = templateEngine.process("bulk-invoice-template", context);
 
