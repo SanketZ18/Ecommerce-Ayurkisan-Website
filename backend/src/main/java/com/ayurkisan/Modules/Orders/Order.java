@@ -21,6 +21,10 @@ public class Order {
     private String contactEmail;
     private String contactPhone;
     private String shippingAddress;
+    private String shippingAddressLine1;
+    private String shippingTaluka;
+    private String shippingDistrict;
+    private String shippingState;
 
     private List<OrderItem> items;
 
@@ -73,6 +77,18 @@ public class Order {
 
     public String getShippingAddress() { return shippingAddress; }
     public void setShippingAddress(String shippingAddress) { this.shippingAddress = shippingAddress; }
+
+    public String getShippingAddressLine1() { return shippingAddressLine1; }
+    public void setShippingAddressLine1(String shippingAddressLine1) { this.shippingAddressLine1 = shippingAddressLine1; }
+
+    public String getShippingTaluka() { return shippingTaluka; }
+    public void setShippingTaluka(String shippingTaluka) { this.shippingTaluka = shippingTaluka; }
+
+    public String getShippingDistrict() { return shippingDistrict; }
+    public void setShippingDistrict(String shippingDistrict) { this.shippingDistrict = shippingDistrict; }
+
+    public String getShippingState() { return shippingState; }
+    public void setShippingState(String shippingState) { this.shippingState = shippingState; }
 
     public List<OrderItem> getItems() { return items; }
     public void setItems(List<OrderItem> items) { this.items = items; }

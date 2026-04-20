@@ -11,8 +11,17 @@ public class CustomerSignupRequest {
     @Pattern(regexp = "^[A-Za-z ]+$", message = "Name must contain only alphabets")
     private String name;
 
-    @NotBlank(message = "Address is required")
-    private String address;
+    @NotBlank(message = "Address Line 1 is required")
+    private String addressLine1;
+
+    @NotBlank(message = "Taluka is required")
+    private String taluka;
+
+    @NotBlank(message = "District is required")
+    private String district;
+
+    @NotBlank(message = "State is required")
+    private String state;
 
     @NotBlank(message = "Email is required")
     @Email(message = "Invalid email format")
@@ -38,12 +47,36 @@ public class CustomerSignupRequest {
         this.name = name;
     }
 
-    public String getAddress() {
-        return address;
+    public String getAddressLine1() {
+        return addressLine1;
     }
 
-    public void setAddress(String address) {
-        this.address = address;
+    public void setAddressLine1(String addressLine1) {
+        this.addressLine1 = addressLine1;
+    }
+
+    public String getTaluka() {
+        return taluka;
+    }
+
+    public void setTaluka(String taluka) {
+        this.taluka = taluka;
+    }
+
+    public String getDistrict() {
+        return district;
+    }
+
+    public void setDistrict(String district) {
+        this.district = district;
+    }
+
+    public String getState() {
+        return state;
+    }
+
+    public void setState(String state) {
+        this.state = state;
     }
 
     public String getEmail() {

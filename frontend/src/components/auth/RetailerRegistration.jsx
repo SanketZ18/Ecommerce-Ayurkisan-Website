@@ -3,13 +3,17 @@ import axios from 'axios';
 import { motion } from 'framer-motion';
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import API_BASE_URL from '../../utils/apiConfig';
+import maharashtraData from '../../utils/maharashtraData.json';
 
 const RetailerRegistration = ({ onClose, onSwitchToLogin }) => {
     const [formData, setFormData] = useState({
         retailerName: '',
         firmName: '',
         registrationId: '',
-        address: '',
+        addressLine1: '',
+        state: 'Maharashtra',
+        district: '',
+        taluka: '',
         phoneNumber: '',
         email: '',
         password: ''
@@ -32,7 +36,7 @@ const RetailerRegistration = ({ onClose, onSwitchToLogin }) => {
         try {
             await axios.post(`${API_BASE_URL}/api/auth/retailer/signup`, formData);
             setStatus({ type: 'success', message: 'Retailer registration successful! You can now login.' });
-            setFormData({ retailerName: '', firmName: '', registrationId: '', address: '', phoneNumber: '', email: '', password: '' });
+            setFormData({ retailerName: '', firmName: '', registrationId: '', addressLine1: '', state: 'Maharashtra', district: '', taluka: '', phoneNumber: '', email: '', password: '' });
             setTimeout(() => {
                 onSwitchToLogin();
             }, 2000);
@@ -86,8 +90,37 @@ const RetailerRegistration = ({ onClose, onSwitchToLogin }) => {
                 </div>
 
                 <div className="form-group" style={formGroupStyle}>
-                    <label style={labelStyle}>Business Address</label>
-                    <input type="text" name="address" value={formData.address} onChange={handleChange} required placeholder="Mumbai, Maharashtra" style={inputStyle} />
+                    <label style={labelStyle}>Business Address (H.No, Building, Street, Landmark)</label>
+                    <input type="text" name="addressLine1" value={formData.addressLine1} onChange={handleChange} required placeholder="Shop No 5, Market Road" style={inputStyle} />
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                    <div className="form-group" style={formGroupStyle}>
+                        <label style={labelStyle}>State</label>
+                        <select name="state" value={formData.state} onChange={handleChange} required style={inputStyle}>
+                            <option value="Maharashtra">Maharashtra</option>
+                        </select>
+                    </div>
+
+                    <div className="form-group" style={formGroupStyle}>
+                        <label style={labelStyle}>District</label>
+                        <select name="district" value={formData.district} onChange={handleChange} required style={inputStyle}>
+                            <option value="">Select District</option>
+                            {Object.keys(maharashtraData["Maharashtra"]).map(dist => (
+                                <option key={dist} value={dist}>{dist}</option>
+                            ))}
+                        </select>
+                    </div>
+                </div>
+
+                <div className="form-group" style={formGroupStyle}>
+                    <label style={labelStyle}>Taluka / Sub-District</label>
+                    <select name="taluka" value={formData.taluka} onChange={handleChange} required style={inputStyle} disabled={!formData.district}>
+                        <option value="">Select Taluka</option>
+                        {formData.district && maharashtraData["Maharashtra"][formData.district].map(tal => (
+                            <option key={tal} value={tal}>{tal}</option>
+                        ))}
+                    </select>
                 </div>
 
                 <div className="form-group" style={formGroupStyle}>
