@@ -64,14 +64,17 @@ public class OrderController {
             @RequestParam(defaultValue = "COD") String paymentMethod,
             @RequestParam(required = false) String customName,
             @RequestParam(required = false) String customPhone,
-            @RequestParam(required = false) String customAddress,
+            @RequestParam(required = false) String addressLine1,
+            @RequestParam(required = false) String taluka,
+            @RequestParam(required = false) String district,
+            @RequestParam(required = false) String state,
             @RequestParam(required = false) String promoCode) {
 
         Map<String, String> userDetails = extractUserFromToken(authHeader);
         String userId = userDetails.get("userId");
         String role = userDetails.get("role");
         
-        Order placedOrder = orderService.placeOrder(userId, role, paymentMethod, customName, customPhone, customAddress, promoCode);
+        Order placedOrder = orderService.placeOrder(userId, role, paymentMethod, customName, customPhone, addressLine1, taluka, district, state, promoCode);
 
         Map<String, Object> response = new HashMap<>();
         response.put("message", "Order placed successfully!");

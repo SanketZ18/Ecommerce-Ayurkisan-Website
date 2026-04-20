@@ -128,13 +128,19 @@ public class ReportService {
             Criteria statusCriteria = Criteria.where("orderStatus").nin("CANCELLED", "RETURNED");
             Aggregation agg = newAggregation(
                 match(new Criteria().andOperator(dateCriteria, statusCriteria)),
-                group("shippingAddress").sum("totalDiscountedPrice").as("sales")
+                // Prefer shippingTaluka for grouping, fallback to "Other"
+                group("shippingTaluka").sum("totalDiscountedPrice").as("sales")
             );
             AggregationResults<Map<String, Object>> results = mongoTemplate.aggregate(agg, "Orders", getMapClass());
             return results.getMappedResults().stream()
                 .collect(Collectors.toMap(
-                    m -> m.get("_id") != null ? (String) m.get("_id") : "Other",
-                    m -> m.get("sales") != null ? ((Number) m.get("sales")).doubleValue() : 0.0
+                    m -> {
+                        Object id = m.get("_id");
+                        if (id == null || id.toString().trim().isEmpty()) return "Other";
+                        return id.toString();
+                    },
+                    m -> m.get("sales") != null ? ((Number) m.get("sales")).doubleValue() : 0.0,
+                    (v1, v2) -> v1 + v2 // handle duplicates if any
                 ));
         } catch (Exception e) {
             System.err.println("Error getting region breakdown: " + e.getMessage());

@@ -143,12 +143,17 @@ public class AuthService {
 
         Customer customer = new Customer();
         customer.setName(request.getName());
-        customer.setAddress(request.getAddress());
+        customer.setAddressLine1(request.getAddressLine1());
+        customer.setTaluka(request.getTaluka());
+        customer.setDistrict(request.getDistrict());
+        customer.setState(request.getState());
+        // Concatenate for backward compatibility
+        customer.setAddress(String.format("%s, %s, %s, %s", request.getAddressLine1(), request.getTaluka(), request.getDistrict(), request.getState()));
         customer.setEmail(request.getEmail());
         customer.setPhoneNumber(request.getPhoneNumber());
         customer.setPassword(passwordEncoder.encode(request.getPassword()));
         customer.setRole("CUSTOMER");
-        customer.setDelete(false);   // ✅ FIXED
+        customer.setDelete(false);
 
         customerRepository.save(customer);
 
@@ -171,12 +176,17 @@ public class AuthService {
         retailer.setRetailerName(request.getRetailerName());
         retailer.setFirmName(request.getFirmName());
         retailer.setRegistrationId(request.getRegistrationId());
-        retailer.setAddress(request.getAddress());
+        retailer.setAddressLine1(request.getAddressLine1());
+        retailer.setTaluka(request.getTaluka());
+        retailer.setDistrict(request.getDistrict());
+        retailer.setState(request.getState());
+        // Concatenate for backward compatibility
+        retailer.setAddress(String.format("%s, %s, %s, %s", request.getAddressLine1(), request.getTaluka(), request.getDistrict(), request.getState()));
         retailer.setPhoneNumber(request.getPhoneNumber());
         retailer.setEmail(request.getEmail());
         retailer.setPassword(passwordEncoder.encode(request.getPassword()));
         retailer.setRole("RETAILER");
-        retailer.setDelete(false);   // ✅ FIXED
+        retailer.setDelete(false);
 
         retailerRepository.save(retailer);
 
