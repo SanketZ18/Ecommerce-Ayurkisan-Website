@@ -54,7 +54,7 @@ public class OrderService {
     private ShipmentService shipmentService;
 
     @Transactional
-    public Order placeOrder(String userId, String role, String paymentMethod, String customName, String customPhone, String customAddress, String promoCode) {
+    public Order placeOrder(String userId, String role, String paymentMethod, String customName, String customPhone, String customAddressLine1, String customTaluka, String customDistrict, String customState, String promoCode) {
 
         // 1. Fetch Cart
         Cart cart = cartService.getCart(userId, role);
@@ -63,10 +63,10 @@ public class OrderService {
         }
 
         // 2. Auto-fetch User Details based on role
+        Order order = new Order();
         String userName = "";
         String email = "";
         String phone = "";
-        String address = "";
 
         if ("Customer".equalsIgnoreCase(role)) {
             Customer customer = customerRepository.findById(userId)
@@ -74,26 +74,45 @@ public class OrderService {
             userName = (customName != null && !customName.isBlank()) ? customName : customer.getName();
             email = customer.getEmail();
             phone = (customPhone != null && !customPhone.isBlank()) ? customPhone : customer.getPhoneNumber();
-            address = (customAddress != null && !customAddress.isBlank()) ? customAddress : customer.getAddress();
+            
+            String line1 = (customAddressLine1 != null && !customAddressLine1.isBlank()) ? customAddressLine1 : customer.getAddressLine1();
+            String tlk = (customTaluka != null && !customTaluka.isBlank()) ? customTaluka : customer.getTaluka();
+            String dst = (customDistrict != null && !customDistrict.isBlank()) ? customDistrict : customer.getDistrict();
+            String st = (customState != null && !customState.isBlank()) ? customState : customer.getState();
+
+            order.setShippingAddressLine1(line1);
+            order.setShippingTaluka(tlk);
+            order.setShippingDistrict(dst);
+            order.setShippingState(st);
+            order.setShippingAddress(String.format("%s, %s, %s, %s", line1, tlk, dst, st));
         } else if ("Retailer".equalsIgnoreCase(role)) {
             Retailer retailer = retailerRepository.findById(userId)
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Retailer not found"));
             userName = (customName != null && !customName.isBlank()) ? customName : retailer.getRetailerName();
             email = retailer.getEmail();
             phone = (customPhone != null && !customPhone.isBlank()) ? customPhone : retailer.getPhoneNumber();
-            address = (customAddress != null && !customAddress.isBlank()) ? customAddress : retailer.getAddress();
+
+            String line1 = (customAddressLine1 != null && !customAddressLine1.isBlank()) ? customAddressLine1 : retailer.getAddressLine1();
+            String tlk = (customTaluka != null && !customTaluka.isBlank()) ? customTaluka : retailer.getTaluka();
+            String dst = (customDistrict != null && !customDistrict.isBlank()) ? customDistrict : retailer.getDistrict();
+            String st = (customState != null && !customState.isBlank()) ? customState : retailer.getState();
+
+            order.setShippingAddressLine1(line1);
+            order.setShippingTaluka(tlk);
+            order.setShippingDistrict(dst);
+            order.setShippingState(st);
+            order.setShippingAddress(String.format("%s, %s, %s, %s", line1, tlk, dst, st));
         } else {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid role: " + role);
         }
 
-        // 3. Create Order Object
-        Order order = new Order();
+        // 3. Setup Order Object
         order.setUserId(userId);
         order.setRole(role);
         order.setUserName(userName);
         order.setContactEmail(email);
         order.setContactPhone(phone);
-        order.setShippingAddress(address);
+        // address is already set inside the role check above
 
         double deliveryFee = FinanceCalculator.FLAT_DELIVERY_CHARGE;
         double subtotal = cart.getTotalDiscountedPrice();

@@ -8,6 +8,7 @@ import { toast } from 'react-toastify';
 import { clearAuthData } from '../utils/auth';
 import { resolveProductImage, resolvePackageImage } from '../utils/imageUtils';
 import API_BASE_URL from '../utils/apiConfig';
+import maharashtraData from '../utils/maharashtraData.json';
 
 const Checkout = () => {
     const navigate = useNavigate();
@@ -22,7 +23,10 @@ const Checkout = () => {
     const [formData, setFormData] = useState({
         name: '',
         phone: '',
-        address: '',
+        addressLine1: '',
+        state: 'Maharashtra',
+        district: '',
+        taluka: '',
         paymentMethod: 'COD'
     });
 
@@ -76,7 +80,10 @@ const Checkout = () => {
                         setFormData(prev => ({
                             ...prev,
                             name: profileRes.data.retailerName || profileRes.data.name || '',
-                            address: profileRes.data.address || '',
+                            addressLine1: profileRes.data.addressLine1 || '',
+                            state: profileRes.data.state || 'Maharashtra',
+                            district: profileRes.data.district || '',
+                            taluka: profileRes.data.taluka || '',
                             phone: profileRes.data.phoneNumber || ''
                         }));
                     }
@@ -86,7 +93,10 @@ const Checkout = () => {
                         setFormData(prev => ({
                             ...prev,
                             name: profileRes.data.name || '',
-                            address: profileRes.data.address || '',
+                            addressLine1: profileRes.data.addressLine1 || '',
+                            state: profileRes.data.state || 'Maharashtra',
+                            district: profileRes.data.district || '',
+                            taluka: profileRes.data.taluka || '',
                             phone: profileRes.data.phoneNumber || ''
                         }));
                     }
@@ -114,7 +124,10 @@ const Checkout = () => {
                 formData.paymentMethod,
                 formData.name,
                 formData.phone,
-                formData.address,
+                formData.addressLine1,
+                formData.taluka,
+                formData.district,
+                formData.state,
                 appliedOffer?.code
             );
             if (res.status === 200 || res.status === 201) {
@@ -203,13 +216,50 @@ const Checkout = () => {
                                     />
                                 </div>
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', gridColumn: 'span 2' }}>
-                                    <label style={labelStyle}>Delivery Address</label>
-                                    <textarea 
-                                        style={{ ...inputStyle, minHeight: '100px' }} 
-                                        value={formData.address} 
-                                        onChange={(e) => setFormData({...formData, address: e.target.value})}
-                                        placeholder="Complete Address" 
+                                    <label style={labelStyle}>Address Line 1 (H.No, Building, Street, Landmark)</label>
+                                    <input 
+                                        style={inputStyle} 
+                                        value={formData.addressLine1} 
+                                        onChange={(e) => setFormData({...formData, addressLine1: e.target.value})}
+                                        placeholder="House No 123, Green Valley" 
                                     />
+                                </div>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                    <label style={labelStyle}>State</label>
+                                    <select 
+                                        style={inputStyle} 
+                                        value={formData.state} 
+                                        onChange={(e) => setFormData({...formData, state: e.target.value})}
+                                    >
+                                        <option value="Maharashtra">Maharashtra</option>
+                                    </select>
+                                </div>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                    <label style={labelStyle}>District</label>
+                                    <select 
+                                        style={inputStyle} 
+                                        value={formData.district} 
+                                        onChange={(e) => setFormData({...formData, district: e.target.value, taluka: ''})}
+                                    >
+                                        <option value="">Select District</option>
+                                        {Object.keys(maharashtraData["Maharashtra"]).map(dist => (
+                                            <option key={dist} value={dist}>{dist}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', gridColumn: 'span 2' }}>
+                                    <label style={labelStyle}>Taluka / Sub-District</label>
+                                    <select 
+                                        style={inputStyle} 
+                                        value={formData.taluka} 
+                                        onChange={(e) => setFormData({...formData, taluka: e.target.value})}
+                                        disabled={!formData.district}
+                                    >
+                                        <option value="">Select Taluka</option>
+                                        {formData.district && maharashtraData["Maharashtra"][formData.district].map(tal => (
+                                            <option key={tal} value={tal}>{tal}</option>
+                                        ))}
+                                    </select>
                                 </div>
                             </div>
                         </div>
