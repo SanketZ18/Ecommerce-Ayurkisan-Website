@@ -126,12 +126,21 @@ public class ReportService {
     private Map<String, Double> getRegionBreakdown(Criteria dateCriteria) {
         try {
             Criteria statusCriteria = Criteria.where("orderStatus").nin("CANCELLED", "RETURNED");
+            
             Aggregation agg = newAggregation(
                 match(new Criteria().andOperator(dateCriteria, statusCriteria)),
-                // Prefer shippingTaluka for grouping, fallback to "Other"
-                group("shippingTaluka").sum("totalDiscountedPrice").as("sales")
+                // Project a 'regionName' field that falls back through available address fields
+                project("totalDiscountedPrice")
+                    .and(ConditionalOperators.ifNull("shippingTaluka")
+                        .then(ConditionalOperators.ifNull("shippingDistrict")
+                            .then(ConditionalOperators.ifNull("shippingAddress")
+                                .then("Other"))))
+                    .as("regionName"),
+                group("regionName").sum("totalDiscountedPrice").as("sales")
             );
+            
             AggregationResults<Map<String, Object>> results = mongoTemplate.aggregate(agg, "Orders", getMapClass());
+            
             return results.getMappedResults().stream()
                 .collect(Collectors.toMap(
                     m -> {
@@ -140,7 +149,7 @@ public class ReportService {
                         return id.toString();
                     },
                     m -> m.get("sales") != null ? ((Number) m.get("sales")).doubleValue() : 0.0,
-                    (v1, v2) -> v1 + v2 // handle duplicates if any
+                    (v1, v2) -> v1 + v2
                 ));
         } catch (Exception e) {
             System.err.println("Error getting region breakdown: " + e.getMessage());

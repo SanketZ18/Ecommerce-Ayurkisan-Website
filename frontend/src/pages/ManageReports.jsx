@@ -22,9 +22,15 @@ const ManageReports = () => {
     const [productHistory, setProductHistory] = useState([]);
     const [packageData, setPackageData] = useState([]);
     const [regionData, setRegionData] = useState([]);
+    const getLocalISOString = (date) => {
+        const offset = date.getTimezoneOffset();
+        const localDate = new Date(date.getTime() - (offset * 60 * 1000));
+        return localDate.toISOString().slice(0, 16);
+    };
+
     const [dateRange, setDateRange] = useState({
-        start: new Date(new Date().setDate(new Date().getDate() - 30)).toISOString().slice(0, 16),
-        end: new Date().toISOString().slice(0, 16)
+        start: getLocalISOString(new Date(new Date().setDate(new Date().getDate() - 30))),
+        end: getLocalISOString(new Date())
     });
 
     const [isInvoiceModalOpen, setIsInvoiceModalOpen] = useState(false);
@@ -39,14 +45,9 @@ const ManageReports = () => {
         try {
             setLoading(true);
             
-            // Format dates to full ISO string without 'Z' for backend LocalDateTime parsing
-            const formatForBackend = (dateStr) => {
-                const date = new Date(dateStr);
-                return date.toISOString().split('.')[0]; // Removes .SSSZ
-            };
-
-            const startISO = formatForBackend(dateRange.start);
-            const endISO = formatForBackend(dateRange.end);
+            // Format for backend LocalDateTime: YYYY-MM-DDTHH:mm:ss
+            const startISO = dateRange.start + ":00";
+            const endISO = dateRange.end + ":59";
 
             const [dashStats, salesRes, prodRes, pkgRes] = await Promise.all([
                 adminService.getReportingDashboardStats().catch(err => { console.error("Stats fetch failed", err); return { data: {} }; }),
@@ -59,9 +60,14 @@ const ManageReports = () => {
             processSalesData(salesRes.data || {});
             
             if (salesRes.data?.regionBreakdown) {
-                const mappedRegion = Object.entries(salesRes.data.regionBreakdown).map(([name, value]) => ({ name, value }));
+                // Remove entries with 0 value or empty names to keep it clean
+                const rawBreakdown = salesRes.data.regionBreakdown;
+                const mappedRegion = Object.entries(rawBreakdown)
+                    .filter(([_, val]) => val > 0)
+                    .map(([name, value]) => ({ name, value }));
+
                 setRegionData(mappedRegion.length > 0 ? mappedRegion : [
-                    { name: 'No Data', value: 0 }
+                    { name: 'No Data', value: 0.1 } // Small value to show a placeholder slice if needed
                 ]);
             }
 
