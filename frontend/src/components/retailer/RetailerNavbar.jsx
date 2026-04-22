@@ -6,6 +6,8 @@ import { clearAuthData } from '../../utils/auth';
 import retailerService from '../../utils/retailerService';
 import { motion, AnimatePresence } from 'framer-motion';
 
+import DashboardSearch from '../common/DashboardSearch';
+
 const RetailerNavbar = ({ onOpenProfileModal }) => {
     const navigate = useNavigate();
     const [isAccountMenuOpen, setAccountMenuOpen] = useState(false);
@@ -42,31 +44,55 @@ const RetailerNavbar = ({ onOpenProfileModal }) => {
     return (
         <header className="retailer-header" style={navStyle}>
             <div className="logo-section" style={logoSectionStyle} onClick={() => navigate('/retailer/dashboard')}>
-
                 <img src={logo} alt="AyurKisan Logo" style={logoImageStyle} />
-                <div style={logoTextContainerStyle}>
-                    { /*<span style={logoTextStyle}>Home</span>*/}
-                    <span style={retailerTagStyle}>  Business Hub</span>
-                </div>
             </div>
 
             <div className="nav-search-container" style={searchContainerStyle}>
-
-                <div style={searchWrapperStyle}>
-                    <input
-                        type="text"
-                        placeholder="Search Wholesale Catalog (SKU, Name)..."
-                        style={searchInputStyle}
-                    />
-                    <button style={searchButtonStyle}>
-                        <FaSearch size={18} />
-                    </button>
-                </div>
+                <DashboardSearch placeholder="Search Wholesale Catalog (SKU, Name)..." />
             </div>
 
             <div className="right-nav" style={rightNavStyle}>
+                {/* Main Links */}
+                <Link 
+                    to="/retailer/dashboard#products" 
+                    style={{ ...navItemStyle, textDecoration: 'none' }}
+                    onClick={(e) => {
+                        if (window.location.pathname === '/retailer/dashboard') {
+                            window.location.hash = '#products';
+                            const el = document.getElementById('wholesale-catalog');
+                            if (el) el.scrollIntoView({ behavior: 'smooth' });
+                        }
+                    }}
+                >
+                    <div style={{ display: 'flex', flexDirection: 'column' }}>
+                        <span className="nav-subtext" style={navSubtextStyle}>Wholesale</span>
+                        <span className="nav-maintext" style={navMainTextStyle}>Products</span>
+                    </div>
+                </Link>
 
+                <Link 
+                    to="/retailer/dashboard#packages" 
+                    style={{ ...navItemStyle, textDecoration: 'none' }}
+                    onClick={(e) => {
+                        if (window.location.pathname === '/retailer/dashboard') {
+                            window.location.hash = '#packages';
+                            const el = document.getElementById('wholesale-catalog');
+                            if (el) el.scrollIntoView({ behavior: 'smooth' });
+                        }
+                    }}
+                >
+                    <div style={{ display: 'flex', flexDirection: 'column' }}>
+                        <span className="nav-subtext" style={navSubtextStyle}>Bulk</span>
+                        <span className="nav-maintext" style={navMainTextStyle}>Packages</span>
+                    </div>
+                </Link>
 
+                <Link to="/retailer/orders" style={{ ...navItemStyle, textDecoration: 'none' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column' }}>
+                        <span className="nav-subtext" style={navSubtextStyle}>Manage</span>
+                        <span className="nav-maintext" style={navMainTextStyle}>Shipments</span>
+                    </div>
+                </Link>
                 <div
                     style={navItemStyle}
                     onMouseEnter={() => setAccountMenuOpen(true)}
@@ -112,12 +138,6 @@ const RetailerNavbar = ({ onOpenProfileModal }) => {
                     </AnimatePresence>
                 </div>
 
-                <Link to="/retailer/orders" style={{ ...navItemStyle, textDecoration: 'none' }}>
-                    <div style={{ display: 'flex', flexDirection: 'column' }}>
-                        <span className="nav-subtext" style={navSubtextStyle}>Manage</span>
-                        <span className="nav-maintext" style={navMainTextStyle}>Shipments</span>
-                    </div>
-                </Link>
 
 
                 <Link to="/wishlist" style={{ ...navItemStyle, textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -164,7 +184,8 @@ const logoSectionStyle = {
     display: 'flex',
     alignItems: 'center',
     gap: '12px',
-    cursor: 'pointer'
+    cursor: 'pointer',
+    flex: '0 0 100px' // Reduced width to give more space to search bar on the left
 };
 
 const logoImageStyle = {
@@ -193,9 +214,11 @@ const retailerTagStyle = {
 };
 
 const searchContainerStyle = {
-    flex: 1,
-    padding: '0 40px',
-    maxWidth: '700px'
+    flex: 1, // Take available space
+    padding: '0 20px',
+    maxWidth: '1400px', // Increased max width
+    display: 'flex',
+    justifyContent: 'center'
 };
 
 const searchWrapperStyle = {
@@ -230,7 +253,9 @@ const searchButtonStyle = {
 const rightNavStyle = {
     display: 'flex',
     alignItems: 'center',
-    gap: '20px'
+    gap: '20px',
+    flex: '0 0 550px', // Symmetrical with logoSection for centering
+    justifyContent: 'flex-end'
 };
 
 const navItemStyle = {
@@ -254,6 +279,27 @@ const navMainTextStyle = {
     fontWeight: '600',
     display: 'flex',
     alignItems: 'center',
+    whiteSpace: 'nowrap'
+};
+
+const subNavStyle = {
+    backgroundColor: '#1e293b', // Slightly lighter slate for sub-nav
+    display: 'flex',
+    padding: '5px 24px',
+    gap: '5px',
+    borderTop: '1px solid #334155',
+    alignItems: 'center'
+};
+
+const subNavLinkStyle = {
+    color: '#fff',
+    textDecoration: 'none',
+    fontSize: '13px',
+    fontWeight: '500',
+    padding: '6px 12px',
+    borderRadius: '4px',
+    border: '1px solid transparent',
+    transition: 'all 0.2s',
     whiteSpace: 'nowrap'
 };
 
@@ -302,11 +348,19 @@ const dropdownIconStyle = {
 };
 
 // Injection for hover
-const style = document.createElement('style');
-style.innerHTML = `
-    .nav-item:hover { background-color: rgba(255,255,255,0.05); }
-    .dropdown-item:hover { background-color: #f8fafc; color: #38bdf8; }
-`;
-document.head.appendChild(style);
+const injectStyles = () => {
+    const styleId = 'retailer-navbar-hover-styles';
+    if (typeof document !== 'undefined' && !document.getElementById(styleId)) {
+        const style = document.createElement('style');
+        style.id = styleId;
+        style.innerHTML = `
+            .nav-item:hover { background-color: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2) !important; }
+            .sub-nav-link:hover { border: 1px solid #fff !important; }
+            .dropdown-item:hover { background-color: #f8fafc !important; color: #38bdf8 !important; }
+        `;
+        document.head.appendChild(style);
+    }
+};
+injectStyles();
 
 export default RetailerNavbar;

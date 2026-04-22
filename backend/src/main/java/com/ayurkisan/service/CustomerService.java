@@ -47,8 +47,21 @@ public class CustomerService {
         Customer customer = getCustomerById(id);
 
         customer.setName(request.getName());
-        customer.setAddress(request.getAddress());
         customer.setPhoneNumber(request.getPhoneNumber());
+        
+        // Detailed Address Fields
+        customer.setAddressLine1(request.getAddressLine1());
+        customer.setTaluka(request.getTaluka());
+        customer.setDistrict(request.getDistrict());
+        customer.setState(request.getState());
+
+        // Construct full address string for backward compatibility/legacy views
+        String fullAddress = String.format("%s, %s, %s, %s", 
+            request.getAddressLine1(), 
+            request.getTaluka(), 
+            request.getDistrict(), 
+            request.getState());
+        customer.setAddress(fullAddress);
 
         return customerRepository.save(customer);
     }

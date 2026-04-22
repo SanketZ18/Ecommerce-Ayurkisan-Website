@@ -46,6 +46,33 @@ const RetailerDashboard = () => {
 
     useEffect(() => {
         fetchDashboardData();
+        // Handle hash scroll and tab switching
+        const hash = window.location.hash;
+        if (hash === '#wholesale-catalog' || hash === '#products' || hash === '#packages') {
+            if (hash === '#packages') setSuggestionTab('packages');
+            if (hash === '#products') setSuggestionTab('products');
+            
+            setTimeout(() => {
+                const el = document.getElementById('wholesale-catalog');
+                if (el) el.scrollIntoView({ behavior: 'smooth' });
+            }, 500);
+        }
+    }, []);
+    
+    // Also watch for hash changes if user is already on the page
+    useEffect(() => {
+        const handleHashChange = () => {
+            const hash = window.location.hash;
+            if (hash === '#wholesale-catalog' || hash === '#products' || hash === '#packages') {
+                if (hash === '#packages') setSuggestionTab('packages');
+                if (hash === '#products') setSuggestionTab('products');
+                
+                const el = document.getElementById('wholesale-catalog');
+                if (el) el.scrollIntoView({ behavior: 'smooth' });
+            }
+        };
+        window.addEventListener('hashchange', handleHashChange);
+        return () => window.removeEventListener('hashchange', handleHashChange);
     }, []);
 
     const fetchDashboardData = useCallback(async () => {
