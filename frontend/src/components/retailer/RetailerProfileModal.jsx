@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { FaWarehouse, FaLock, FaSave, FaTimes, FaBuilding, FaPhone } from 'react-icons/fa';
 import retailerService from '../../utils/retailerService';
 import { toast } from 'react-toastify';
+import maharashtraData from '../../utils/maharashtraData.json';
 
 const RetailerProfileModal = ({ onClose }) => {
     const [profile, setProfile] = useState({
@@ -11,7 +12,10 @@ const RetailerProfileModal = ({ onClose }) => {
         registrationId: '',
         email: '',
         phoneNumber: '',
-        address: ''
+        addressLine1: '',
+        state: 'Maharashtra',
+        district: '',
+        taluka: ''
     });
 
     const [passwords, setPasswords] = useState({
@@ -37,7 +41,18 @@ const RetailerProfileModal = ({ onClose }) => {
             const userId = localStorage.getItem('userId');
             if (!userId) return;
             const res = await retailerService.getProfile(userId);
-            setProfile(res.data);
+            const data = res.data;
+            setProfile({
+                retailerName: data.retailerName || '',
+                firmName: data.firmName || '',
+                registrationId: data.registrationId || '',
+                email: data.email || '',
+                phoneNumber: data.phoneNumber || '',
+                addressLine1: data.addressLine1 || '',
+                state: data.state || 'Maharashtra',
+                district: data.district || '',
+                taluka: data.taluka || ''
+            });
         } catch (error) {
             console.error("Failed to load retailer profile", error);
             toast.error("Could not load business details");
@@ -56,7 +71,10 @@ const RetailerProfileModal = ({ onClose }) => {
                 firmName: profile.firmName,
                 registrationId: profile.registrationId,
                 phoneNumber: profile.phoneNumber,
-                address: profile.address
+                addressLine1: profile.addressLine1,
+                state: profile.state,
+                district: profile.district,
+                taluka: profile.taluka
             });
             toast.success("Business profile updated!");
             onClose();
@@ -88,6 +106,15 @@ const RetailerProfileModal = ({ onClose }) => {
         } finally {
             setIsSaving(false);
         }
+    };
+
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        setProfile(prev => ({
+            ...prev,
+            [name]: value,
+            ...(name === 'district' ? { taluka: '' } : {})
+        }));
     };
 
     return (
@@ -146,16 +173,16 @@ const RetailerProfileModal = ({ onClose }) => {
                                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
                                         <div style={formGroupStyle}>
                                             <label style={labelStyle}>Retailer Name</label>
-                                            <input type="text" value={profile.retailerName} onChange={(e) => setProfile({ ...profile, retailerName: e.target.value })} required style={inputStyle} />
+                                            <input type="text" name="retailerName" value={profile.retailerName} onChange={handleInputChange} required style={inputStyle} />
                                         </div>
                                         <div style={formGroupStyle}>
                                             <label style={labelStyle}>Firm Name</label>
-                                            <input type="text" value={profile.firmName} onChange={(e) => setProfile({ ...profile, firmName: e.target.value })} required style={inputStyle} />
+                                            <input type="text" name="firmName" value={profile.firmName} onChange={handleInputChange} required style={inputStyle} />
                                         </div>
                                     </div>
                                     <div style={formGroupStyle}>
                                         <label style={labelStyle}>Registration ID</label>
-                                        <input type="text" value={profile.registrationId} onChange={(e) => setProfile({ ...profile, registrationId: e.target.value })} required style={inputStyle} />
+                                        <input type="text" name="registrationId" value={profile.registrationId} onChange={handleInputChange} required style={inputStyle} />
                                     </div>
                                     <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: '15px' }}>
                                         <div style={formGroupStyle}>
@@ -164,18 +191,44 @@ const RetailerProfileModal = ({ onClose }) => {
                                         </div>
                                         <div style={formGroupStyle}>
                                             <label style={labelStyle}>Phone Number</label>
-                                            <input type="text" value={profile.phoneNumber} onChange={(e) => setProfile({ ...profile, phoneNumber: e.target.value })} required style={inputStyle} />
+                                            <input type="text" name="phoneNumber" value={profile.phoneNumber} onChange={handleInputChange} required style={inputStyle} />
                                         </div>
                                     </div>
+
                                     <div style={formGroupStyle}>
-                                        <label style={labelStyle}>Warehouse / Billing Address</label>
-                                        <textarea
-                                            value={profile.address}
-                                            onChange={(e) => setProfile({ ...profile, address: e.target.value })}
-                                            required
-                                            style={{ ...inputStyle, minHeight: '60px', resize: 'vertical' }}
-                                        />
+                                        <label style={labelStyle}>Warehouse Address Line 1</label>
+                                        <input type="text" name="addressLine1" value={profile.addressLine1} onChange={handleInputChange} required style={inputStyle} />
                                     </div>
+
+                                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                                        <div style={formGroupStyle}>
+                                            <label style={labelStyle}>State</label>
+                                            <select name="state" value={profile.state} onChange={handleInputChange} required style={inputStyle}>
+                                                <option value="Maharashtra">Maharashtra</option>
+                                            </select>
+                                        </div>
+
+                                        <div style={formGroupStyle}>
+                                            <label style={labelStyle}>District</label>
+                                            <select name="district" value={profile.district} onChange={handleInputChange} required style={inputStyle}>
+                                                <option value="">Select District</option>
+                                                {Object.keys(maharashtraData["Maharashtra"]).map(dist => (
+                                                    <option key={dist} value={dist}>{dist}</option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div style={formGroupStyle}>
+                                        <label style={labelStyle}>Taluka</label>
+                                        <select name="taluka" value={profile.taluka} onChange={handleInputChange} required style={inputStyle} disabled={!profile.district}>
+                                            <option value="">Select Taluka</option>
+                                            {profile.district && maharashtraData["Maharashtra"][profile.district].map(tal => (
+                                                <option key={tal} value={tal}>{tal}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+
                                     <button type="submit" disabled={isSaving} style={saveButtonStyle}>
                                         <FaSave /> {isSaving ? 'Updating...' : 'Update Business Info'}
                                     </button>
