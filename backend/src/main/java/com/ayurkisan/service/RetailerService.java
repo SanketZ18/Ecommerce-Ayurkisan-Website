@@ -32,8 +32,21 @@ public class RetailerService {
 
         retailer.setRetailerName(request.getRetailerName());
         retailer.setFirmName(request.getFirmName());
-        retailer.setAddress(request.getAddress());
         retailer.setPhoneNumber(request.getPhoneNumber());
+
+        // Detailed Address Fields
+        retailer.setAddressLine1(request.getAddressLine1());
+        retailer.setTaluka(request.getTaluka());
+        retailer.setDistrict(request.getDistrict());
+        retailer.setState(request.getState());
+
+        // Construct full address string for backward compatibility
+        String fullAddress = String.format("%s, %s, %s, %s", 
+            request.getAddressLine1(), 
+            request.getTaluka(), 
+            request.getDistrict(), 
+            request.getState());
+        retailer.setAddress(fullAddress);
 
         return retailerRepository.save(retailer);
     }

@@ -52,6 +52,33 @@ const CustomerDashboard = () => {
 
     useEffect(() => {
         fetchDashboardData();
+        // Handle hash scroll and tab switching
+        const hash = window.location.hash;
+        if (hash === '#explore-collection' || hash === '#products' || hash === '#packages') {
+            if (hash === '#packages') setSuggestionTab('packages');
+            if (hash === '#products') setSuggestionTab('products');
+            
+            setTimeout(() => {
+                const el = document.getElementById('explore-collection');
+                if (el) el.scrollIntoView({ behavior: 'smooth' });
+            }, 500);
+        }
+    }, []);
+
+    // Also watch for hash changes if user is already on the page
+    useEffect(() => {
+        const handleHashChange = () => {
+            const hash = window.location.hash;
+            if (hash === '#explore-collection' || hash === '#products' || hash === '#packages') {
+                if (hash === '#packages') setSuggestionTab('packages');
+                if (hash === '#products') setSuggestionTab('products');
+                
+                const el = document.getElementById('explore-collection');
+                if (el) el.scrollIntoView({ behavior: 'smooth' });
+            }
+        };
+        window.addEventListener('hashchange', handleHashChange);
+        return () => window.removeEventListener('hashchange', handleHashChange);
     }, []);
 
     // Handle cart updates separately to ensure proper cleanup
@@ -385,7 +412,7 @@ const CustomerDashboard = () => {
                 </div>
 
                 {/* Explore Our Collection (Suggestions) */}
-                <div style={{ marginTop: '40px' }}>
+                <div id="explore-collection" style={{ marginTop: '40px' }}>
                     <div style={{ textAlign: 'center', marginBottom: '30px' }}>
                         <h2 style={{ fontSize: '2rem', fontWeight: '800', color: isDarkMode ? '#f8fafc' : '#1e293b', marginBottom: '10px' }}>Explore Our Collection</h2>
                         <p style={{ color: isDarkMode ? '#94a3b8' : '#64748b' }}>Handpicked natural solutions for your wellness</p>

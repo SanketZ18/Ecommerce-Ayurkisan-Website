@@ -12,8 +12,10 @@ public class UpdateRetailerRequest {
     @NotBlank(message = "Firm name is required")
     private String firmName;
 
-    @NotBlank(message = "Address is required")
-    private String address;
+    private String addressLine1;
+    private String taluka;
+    private String district;
+    private String state;
 
     @Pattern(regexp = "^[0-9]{10}$", message = "Phone number must contain 10 digits")
     private String phoneNumber;
@@ -32,11 +34,29 @@ public class UpdateRetailerRequest {
     public void setFirmName(String firmName) {
         this.firmName = firmName;
     }
-    public String getAddress() {
-        return address;
+    public String getAddressLine1() {
+        return addressLine1;
     }
-    public void setAddress(String address) {
-        this.address = address;
+    public void setAddressLine1(String addressLine1) {
+        this.addressLine1 = addressLine1;
+    }
+    public String getTaluka() {
+        return taluka;
+    }
+    public void setTaluka(String taluka) {
+        this.taluka = taluka;
+    }
+    public String getDistrict() {
+        return district;
+    }
+    public void setDistrict(String district) {
+        this.district = district;
+    }
+    public String getState() {
+        return state;
+    }
+    public void setState(String state) {
+        this.state = state;
     }
     public String getPhoneNumber() {
         return phoneNumber;

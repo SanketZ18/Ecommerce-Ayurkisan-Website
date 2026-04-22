@@ -7,6 +7,8 @@ import customerService from '../../utils/customerService';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'react-toastify';
 
+import DashboardSearch from '../common/DashboardSearch';
+
 const CustomerNavbar = ({ onOpenProfileModal }) => {
     const navigate = useNavigate();
     const [isAccountMenuOpen, setAccountMenuOpen] = useState(false);
@@ -94,46 +96,43 @@ const CustomerNavbar = ({ onOpenProfileModal }) => {
             {/* Logo Section */}
             <div className="logo-section" style={logoSectionStyle} onClick={() => navigate('/customer/dashboard')}>
                 <img src={logo} alt="AyurKisan Logo" style={logoImageStyle} />
-                {/* <span style={logoTextStyle}>Home</span>*/}
             </div>
 
             {/* Search Bar (Amazon style centered) */}
             <div className="nav-search-container" style={searchContainerStyle}>
-
-                <div style={searchWrapperStyle}>
-                    <input
-                        type="text"
-                        placeholder="Search for products (e.g. Neem, Tulsi)..."
-                        style={searchInputStyle}
-                        onKeyPress={(e) => {
-                            if (e.key === 'Enter') {
-                                if (e.target.value.trim() === "") {
-                                    toast.warning("Please enter something to search!");
-                                    return;
-                                }
-                                navigate(`/products?search=${e.target.value}`);
-                            }
-                        }}
-                    />
-                    <button
-                        style={searchButtonStyle}
-                        onClick={() => {
-                            const input = document.querySelector('input[placeholder*="Search for products"]');
-                            if (input && input.value.trim() !== "") {
-                                navigate(`/products?search=${input.value}`);
-                            } else {
-                                toast.warning("Please enter something to search!");
-                            }
-                        }}
-                    >
-                        <FaSearch size={18} />
-                    </button>
-                </div>
+                <DashboardSearch placeholder="Search for products (e.g. Neem, Tulsi)..." />
             </div>
 
             {/* Right Nav Items */}
             <div className="right-nav" style={rightNavStyle}>
+                {/* Main Links */}
+                <Link 
+                    to="/customer/dashboard#products" 
+                    style={{ ...navItemStyle, textDecoration: 'none' }}
+                    onClick={(e) => {
+                        if (window.location.pathname === '/customer/dashboard') {
+                            window.location.hash = '#products';
+                            const el = document.getElementById('explore-collection');
+                            if (el) el.scrollIntoView({ behavior: 'smooth' });
+                        }
+                    }}
+                >
+                    <span className="nav-maintext" style={navMainTextStyle}>Products</span>
+                </Link>
 
+                <Link 
+                    to="/customer/dashboard#packages" 
+                    style={{ ...navItemStyle, textDecoration: 'none' }}
+                    onClick={(e) => {
+                        if (window.location.pathname === '/customer/dashboard') {
+                            window.location.hash = '#packages';
+                            const el = document.getElementById('explore-collection');
+                            if (el) el.scrollIntoView({ behavior: 'smooth' });
+                        }
+                    }}
+                >
+                    <span className="nav-maintext" style={navMainTextStyle}>Packages</span>
+                </Link>
                 {/* Account Dropdown */}
                 <div
                     style={navItemStyle}
@@ -184,9 +183,9 @@ const CustomerNavbar = ({ onOpenProfileModal }) => {
                 </div>
 
                 {/* Wishlist */}
-                <Link to="/customer/wishlist" style={{ ...navItemStyle, textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                <Link to="/customer/wishlist" style={{ ...navItemStyle, textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <div style={{ position: 'relative' }}>
-                        <FaHeart size={24} color="#fff" />
+                        <FaHeart size={22} color="#fff" />
                         {wishlistCount > 0 && <span style={cartBadgeStyle}>{wishlistCount}</span>}
                     </div>
                     <span className="nav-maintext" style={navMainTextStyle}>Wishlist</span>
@@ -194,12 +193,12 @@ const CustomerNavbar = ({ onOpenProfileModal }) => {
 
 
                 {/* Cart */}
-                <Link to="/cart" style={{ ...navItemStyle, textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '5px', position: 'relative' }}>
+                <Link to="/cart" style={{ ...navItemStyle, textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <div style={{ position: 'relative' }}>
-                        <FaShoppingCart size={32} color="#fff" />
+                        <FaShoppingCart size={26} color="#fff" />
                         {cartCount > 0 && <span style={cartBadgeStyle}>{cartCount}</span>}
                     </div>
-                    <span className="nav-maintext" style={{ ...navMainTextStyle, marginTop: '10px' }}>Cart</span>
+                    <span className="nav-maintext" style={navMainTextStyle}>Cart</span>
                 </Link>
 
 
@@ -228,26 +227,29 @@ const logoSectionStyle = {
     gap: '10px',
     cursor: 'pointer',
     padding: '0 10px',
-    marginRight: '15px'
+    flex: '0 0 100px', // Reduced width to give more space to search bar on the left
 };
 
 const logoImageStyle = {
-    height: '40px',
+    height: '45px', // Increased from 40px
     objectFit: 'contain'
 };
 
 const logoTextStyle = {
-    fontSize: '1.5rem',
-    fontWeight: 'bold',
+    fontSize: '1.4rem',
+    fontWeight: '800',
     color: '#fff',
-    letterSpacing: '1px'
+    letterSpacing: '-0.5px', // Amazon-like tighter spacing
+    fontFamily: 'inherit'
 };
 
 const searchContainerStyle = {
     flex: 1,
     padding: '0 20px',
-    maxWidth: '800px',
-    display: 'flex'
+    maxWidth: '1400px', // Increased max width
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center'
 };
 
 const searchWrapperStyle = {
@@ -292,7 +294,9 @@ const searchButtonStyle = {
 const rightNavStyle = {
     display: 'flex',
     alignItems: 'center',
-    gap: '15px'
+    gap: '20px',
+    flex: '0 0 550px', // Keep right nav width to push search bar towards the left empty space
+    justifyContent: 'flex-end'
 };
 
 const navItemStyle = {
@@ -306,28 +310,36 @@ const navItemStyle = {
 
 // CSS trick to add hover effect without styled-components
 const createHoverStyle = () => {
-    const style = document.createElement('style');
-    style.innerHTML = `
-        ${Object.keys(navItemStyle).map(k => `.${k}`).join(', ')}:hover { border: 1px solid #fff; }
-        .dropdown-item:hover { background-color: #f1f5f9; color: var(--primary-green); }
-    `;
-    document.head.appendChild(style);
+    const styleId = 'customer-navbar-hover-styles';
+    if (typeof document !== 'undefined' && !document.getElementById(styleId)) {
+        const style = document.createElement('style');
+        style.id = styleId;
+        style.innerHTML = `
+            .nav-item:hover { border: 1px solid #fff !important; }
+            .sub-nav-link:hover { border: 1px solid #fff !important; }
+            .dropdown-item:hover { background-color: #f1f5f9 !important; color: #4caf50 !important; }
+        `;
+        document.head.appendChild(style);
+    }
 };
 createHoverStyle();
 
 const navSubtextStyle = {
-    fontSize: '12px',
-    lineHeight: '14px',
+    fontSize: '11px', // Slightly smaller
+    lineHeight: '12px',
     color: '#ccc',
-    display: 'block'
+    display: 'block',
+    fontWeight: '400'
 };
 
 const navMainTextStyle = {
     fontSize: '14px',
     lineHeight: '15px',
     fontWeight: '700',
-    display: 'block',
-    whiteSpace: 'nowrap'
+    display: 'flex',
+    alignItems: 'center',
+    whiteSpace: 'nowrap',
+    color: '#fff'
 };
 
 const cartBadgeStyle = {
@@ -343,7 +355,29 @@ const cartBadgeStyle = {
     alignItems: 'center',
     justifyContent: 'center',
     fontSize: '11px',
-    fontWeight: 'bold'
+    fontWeight: 'bold',
+    zIndex: 10
+};
+
+const subNavStyle = {
+    backgroundColor: '#232f3e',
+    display: 'flex',
+    padding: '5px 20px',
+    gap: '5px',
+    borderTop: '1px solid #37475a',
+    alignItems: 'center'
+};
+
+const subNavLinkStyle = {
+    color: '#fff',
+    textDecoration: 'none',
+    fontSize: '13px',
+    fontWeight: '500',
+    padding: '6px 10px',
+    borderRadius: '3px',
+    border: '1px solid transparent',
+    transition: 'all 0.2s',
+    whiteSpace: 'nowrap'
 };
 
 const dropdownMenuStyle = {
