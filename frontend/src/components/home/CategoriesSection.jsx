@@ -131,8 +131,7 @@ const overlayStyle = {
 const contentWrapper = {
     position: "relative",
     zIndex: 2,
-    maxWidth: "1400px",
-    margin: "0 auto",
+    width: "100%",
     display: "grid",
     gridTemplateColumns: "1fr 1fr",
     gap: "4rem",
