@@ -11,69 +11,67 @@ import AdvertisementVideo from "../../assets/Advertisement.mp4";
 
 const API = API_BASE_URL;
 
+// ─── DEFAULT FALLBACK DATA (shown immediately, no waiting) ───────────────────
+const defaultOffers = {
+    id: 'offers_default',
+    type: 'special_offers',
+    title: 'Cool & Calm Herbal Offers 👩‍🦰🌿',
+    subtitle: 'Refresh your skin and body with soothing herbal products at amazing discounts. Get up to 30% off this season!',
+    imageUrl: 'https://images.unsplash.com/photo-1556228578-0d85b1a4d571?q=80&w=1000&auto=format&fit=crop',
+    ctaText: 'Shop Offers',
+    ctaLink: '/shop',
+    alignment: 'left'
+};
+
+const defaultVideoSection = {
+    id: 'vid',
+    type: 'text_video',
+    title: 'Purity You Can Trust',
+    subtitle: 'From farm to bottle, we ensure that every product meets the highest Ayurvedic standards. No chemicals, pure nature.',
+    videoSrc: AdvertisementVideo,
+    ctaText: 'Learn About Us',
+    ctaLink: '/about',
+    alignment: 'right'
+};
+
+const defaultTestimonials = {
+    id: 'test_default',
+    type: 'testimonials',
+    title: 'What Our Customers Say',
+    subtitle: 'Real feedback from people who have experienced the magic of our herbal formulas.',
+    items: [
+        { id: 't1', name: 'Anjali Sharma', rating: 5, comment: 'The Neem face wash completely cleared my skin in two weeks. Highly recommended!' },
+        { id: 't2', name: 'Rahul Verma', rating: 5, comment: 'I have tried many herbal brands, but Ayurkisan is by far the most authentic. The Tulsi drops are excellent.' },
+        { id: 't3', name: 'Priya Desai', rating: 4, comment: 'Great quality products. Delivery was a bit slow, but totally worth the wait.' }
+    ]
+};
+
 const DynamicSections = () => {
-    const [offersSection, setOffersSection] = useState(null);
-    const [videoSection] = useState({
-        id: 'vid',
-        type: 'text_video',
-        title: 'Purity You Can Trust',
-        subtitle: 'From farm to bottle, we ensure that every product meets the highest Ayurvedic standards. No chemicals, pure nature.',
-        videoSrc: AdvertisementVideo,
-        ctaText: 'Learn About Us',
-        ctaLink: '/about',
-        alignment: 'right'
-    });
-    const [testimonialsSection, setTestimonialsSection] = useState(null);
-    const [loading, setLoading] = useState(true);
-
-    // Default fallback data
-    const defaultOffers = {
-        id: 'offers_default',
-        type: 'special_offers',
-        title: 'Special Summer Offers! 🌿',
-        subtitle: 'Get up to 30% off on all organic skin care products this season.',
-        imageUrl: 'https://images.unsplash.com/photo-1556228578-0d85b1a4d571?q=80&w=1000&auto=format&fit=crop',
-        ctaText: 'Shop Offers',
-        ctaLink: '/shop',
-        alignment: 'left'
-    };
-
-    const defaultTestimonials = {
-        id: 'test_default',
-        type: 'testimonials',
-        title: 'What Our Customers Say',
-        subtitle: 'Real feedback from people who have experienced the magic of our herbal formulas.',
-        items: [
-            { id: 't1', name: 'Anjali Sharma', rating: 5, comment: 'The Neem face wash completely cleared my skin in two weeks. Highly recommended!' },
-            { id: 't2', name: 'Rahul Verma', rating: 5, comment: 'I have tried many herbal brands, but Mahakissan is by far the most authentic. The Tulsi drops are excellent.' },
-            { id: 't3', name: 'Priya Desai', rating: 4, comment: 'Great quality products. Delivery was a bit slow, but totally worth the wait.' }
-        ]
-    };
+    // ✅ FIX 1: Initialize with defaults — content shows INSTANTLY, no loading spinner
+    const [offersSection, setOffersSection] = useState(defaultOffers);
+    const [videoSection] = useState(defaultVideoSection);
+    const [testimonialsSection, setTestimonialsSection] = useState(defaultTestimonials);
 
     useEffect(() => {
-        axios.get(`${API}/api/homepage/sections`)
+        // Fetch from backend silently in background — updates if API responds
+        // If backend is cold-starting on Render, user already sees the default content
+        axios.get(`${API}/api/homepage/sections`, { timeout: 30000 })
             .then(res => {
                 const sections = res.data || [];
                 const off = sections.find(s => s.type === 'special_offers');
                 const test = sections.find(s => s.type === 'testimonials');
-                setOffersSection(off || defaultOffers);
-                setTestimonialsSection(test || defaultTestimonials);
+                // Only update if we got real data from the server
+                if (off) setOffersSection(off);
+                if (test) setTestimonialsSection(test);
             })
             .catch(() => {
-                setOffersSection(defaultOffers);
-                setTestimonialsSection(defaultTestimonials);
-            })
-            .finally(() => setLoading(false));
+                // Silently keep defaults — no error shown to user
+            });
     }, []);
 
-    if (loading) return (
-        <div style={{ padding: '60px', textAlign: 'center', color: 'var(--text-light)' }}>
-            Loading dynamic content...
-        </div>
-    );
-
+    // ✅ No loading spinner — removed entirely
     return (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '80px', margin: '80px 0' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0' }}>
             {/* Special Offers Section */}
             {offersSection && <TextMediaSection section={offersSection} />}
 
@@ -88,43 +86,66 @@ const DynamicSections = () => {
     );
 };
 
-// Component for image and video sections
+// ─── TEXT + MEDIA SECTION (full-width, no left/right whitespace) ─────────────
 const TextMediaSection = ({ section }) => {
     const isTextLeft = section.alignment === 'left' || !section.alignment;
     const isVideo = section.type === 'text_video';
+    const isOffer = section.type === 'special_offers' || section.type === 'promotional';
+
+    const bgStyle = isOffer
+        ? { background: 'linear-gradient(135deg, #fdf8e9 0%, #fef3c7 50%, #ecfdf5 100%)' }
+        : { background: 'linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 40%, #f0f9ff 100%)' };
 
     return (
-        <section style={{
-            ...containerStyle,
-            display: 'grid',
-            gridTemplateColumns: '1fr 1fr',
-            gap: '50px',
-            alignItems: 'center',
-            backgroundColor: (section.type === 'special_offers' || section.type === 'promotional') ? '#fdf8e9' : '#fff',
-            padding: (section.type === 'special_offers' || section.type === 'promotional') ? '60px 8%' : '20px 8%',
-            borderRadius: (section.type === 'special_offers' || section.type === 'promotional') ? '24px' : '0',
-            margin: (section.type === 'special_offers' || section.type === 'promotional') ? '0 5%' : '0'
-        }} className="dynamic-section">
-
+        <section
+            className="dynamic-section"
+            style={{
+                display: 'grid',
+                gridTemplateColumns: '1fr 1fr',
+                alignItems: 'center',
+                width: '100%',
+                minHeight: '520px',
+                ...bgStyle,
+                padding: '70px 6%',
+            }}
+        >
             {/* Text Side */}
             <motion.div
-                style={{ order: isTextLeft ? 1 : 2, display: 'flex', flexDirection: 'column', gap: '20px' }}
+                style={{
+                    order: isTextLeft ? 1 : 2,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'center',
+                    gap: '22px',
+                    padding: isTextLeft ? '0 50px 0 0' : '0 0 0 50px'
+                }}
                 initial={{ opacity: 0, x: isTextLeft ? -50 : 50 }}
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true, margin: "-100px" }}
                 transition={{ duration: 0.6 }}
             >
-                <h2 style={{ fontSize: '2.8rem', color: 'var(--text-dark)', lineHeight: '1.2', margin: 0 }}>
+                <h2 style={{
+                    fontSize: 'clamp(1.8rem, 3vw, 2.8rem)',
+                    color: 'var(--text-dark)',
+                    lineHeight: '1.2',
+                    margin: 0,
+                    fontWeight: '800'
+                }}>
                     {section.title}
                 </h2>
-                <p style={{ fontSize: '1.15rem', color: 'var(--text-light)', lineHeight: '1.7', margin: 0 }}>
+                <p style={{
+                    fontSize: '1.1rem',
+                    color: 'var(--text-light)',
+                    lineHeight: '1.7',
+                    margin: 0
+                }}>
                     {section.subtitle}
                 </p>
                 {section.promoCode && section.showPromoCode && (
-                    <div style={{ 
-                        marginTop: '5px', 
-                        display: 'flex', 
-                        alignItems: 'center', 
+                    <div style={{
+                        marginTop: '5px',
+                        display: 'flex',
+                        alignItems: 'center',
                         gap: '8px',
                         background: 'rgba(16, 185, 129, 0.05)',
                         padding: '6px 14px',
@@ -134,7 +155,7 @@ const TextMediaSection = ({ section }) => {
                     }}>
                         <span style={{ fontSize: '0.8rem', color: 'var(--text-light)', fontWeight: '600' }}>Use Code:</span>
                         <span style={{ fontSize: '0.9rem', color: 'var(--primary-green)', fontWeight: '800' }}>{section.promoCode}</span>
-                        <button 
+                        <button
                             onClick={() => {
                                 navigator.clipboard.writeText(section.promoCode);
                                 toast.success('Code copied!');
@@ -178,13 +199,19 @@ const TextMediaSection = ({ section }) => {
 
             {/* Media Side */}
             <motion.div
-                style={{ order: isTextLeft ? 2 : 1, width: '100%', height: '450px', overflow: 'hidden', borderRadius: '24px', position: 'relative' }}
-                initial={{ opacity: 0, scale: 0.9 }}
+                style={{
+                    order: isTextLeft ? 2 : 1,
+                    width: '100%',
+                    height: '460px',
+                    overflow: 'hidden',
+                    borderRadius: '24px',
+                    position: 'relative'
+                }}
+                initial={{ opacity: 0, scale: 0.92 }}
                 whileInView={{ opacity: 1, scale: 1 }}
                 viewport={{ once: true, margin: "-100px" }}
                 transition={{ duration: 0.6, delay: 0.2 }}
             >
-                <div style={{ position: 'absolute', inset: 0, backgroundColor: 'rgba(0,0,0,0.03)', zIndex: 1, borderRadius: '24px' }}></div>
                 {isVideo ? (
                     <video
                         src={section.videoSrc}
@@ -206,21 +233,44 @@ const TextMediaSection = ({ section }) => {
     );
 };
 
+// ─── TESTIMONIALS SECTION (full-width) ───────────────────────────────────────
 const TestimonialsSection = ({ section }) => {
     return (
-        <section style={{ ...containerStyle, padding: '40px 5%', textAlign: 'center', backgroundColor: '#f9fafb', borderRadius: '30px' }}>
+        <section style={{
+            width: '100%',
+            padding: '80px 6%',
+            textAlign: 'center',
+            backgroundColor: '#f9fafb',
+        }}>
             <motion.div
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.5 }}
             >
-                <h2 style={{ fontSize: '2.5rem', color: 'var(--primary-green)', marginBottom: '15px' }}>{section.title}</h2>
-                <p style={{ color: 'var(--text-light)', fontSize: '1.1rem', marginBottom: '50px', maxWidth: '600px', margin: '0 auto 50px auto' }}>
+                <h2 style={{
+                    fontSize: 'clamp(1.8rem, 3vw, 2.5rem)',
+                    color: 'var(--primary-green)',
+                    marginBottom: '15px'
+                }}>
+                    {section.title}
+                </h2>
+                <p style={{
+                    color: 'var(--text-light)',
+                    fontSize: '1.1rem',
+                    maxWidth: '600px',
+                    margin: '0 auto 50px auto'
+                }}>
                     {section.subtitle}
                 </p>
 
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '30px' }}>
+                <div style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+                    gap: '30px',
+                    maxWidth: '1400px',
+                    margin: '0 auto'
+                }}>
                     {section.items && section.items.map((item, index) => (
                         <motion.div
                             key={item.id}
@@ -261,25 +311,25 @@ const TestimonialsSection = ({ section }) => {
     );
 };
 
-const containerStyle = {
-    maxWidth: '1400px',
-    margin: '0 auto',
-};
-
-// Responsive styles
-const styleSheet = document.createElement("style");
-styleSheet.textContent = `
-    @media (max-width: 900px) {
-        .dynamic-section {
-            grid-template-columns: 1fr !important;
-            text-align: center !important;
+// ─── Responsive CSS (injected once) ──────────────────────────────────────────
+if (!document.getElementById('dynamic-sections-styles')) {
+    const styleSheet = document.createElement("style");
+    styleSheet.id = 'dynamic-sections-styles';
+    styleSheet.textContent = `
+        @media (max-width: 900px) {
+            .dynamic-section {
+                grid-template-columns: 1fr !important;
+                padding: 50px 5% !important;
+                gap: 30px !important;
+            }
+            .dynamic-section > div {
+                order: 0 !important;
+                padding: 0 !important;
+                height: 300px !important;
+            }
         }
-        .dynamic-section > div {
-            order: 0 !important;
-            align-items: center !important;
-        }
-    }
-`;
-document.head.appendChild(styleSheet);
+    `;
+    document.head.appendChild(styleSheet);
+}
 
 export default DynamicSections;

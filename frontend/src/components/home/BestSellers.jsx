@@ -132,10 +132,9 @@ const BestSellers = () => {
 };
 
 const sectionStyle = {
-    padding: "6rem 5%",
-    backgroundColor: "#ffffff",
-    maxWidth: "1400px",
-    margin: "0 auto"
+    padding: "6rem 6%",
+    background: "linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 30%, #fffbeb 70%, #f0fdf4 100%)",
+    width: "100%",
 };
 
 const gridStyle = {

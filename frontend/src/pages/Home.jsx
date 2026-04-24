@@ -113,31 +113,33 @@ export default Home;
 /* ================= STYLES ================= */
 
 const infoSection = {
-    padding: "6rem 5%",
-    background: "linear-gradient(135deg,rgba(5, 150, 105, 0.05),rgba(250, 204, 21, 0.08))",
+    padding: "6rem 6%",
+    background: "linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 50%, #fef3c7 100%)",
     textAlign: "center",
-    marginTop: "3rem"
+    width: "100%",
+    marginTop: "0"
 };
 
 const sectionTitle = {
-    fontSize: "2.5rem",
-    marginBottom: "1rem",
+    fontSize: "clamp(2rem, 4vw, 3rem)",
+    marginBottom: "1.5rem",
     fontWeight: "800",
     color: "var(--text-dark)"
 };
 
 const sectionSubtitle = {
-    maxWidth: "750px",
+    maxWidth: "800px",
     margin: "0 auto 4rem auto",
     color: "var(--text-light)",
-    lineHeight: "1.7",
-    fontSize: "1.1rem"
+    lineHeight: "1.8",
+    fontSize: "1.15rem"
 };
 
 const cardContainer = {
     display: "grid",
-    gridTemplateColumns: "repeat(auto-fit,minmax(250px,1fr))",
+    gridTemplateColumns: "repeat(auto-fit,minmax(280px,1fr))",
     gap: "2.5rem",
+    width: "100%",
     maxWidth: "1400px",
     margin: "0 auto"
 };
