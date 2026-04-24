@@ -42,9 +42,9 @@ const sectionStyle = {
 const gridStyle = {
     display: 'grid',
     gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-    gap: '2rem',
-    maxWidth: '1200px',
-    margin: '0 auto'
+    gap: '2.5rem',
+    width: '100%',
+    margin: '0'
 };
 
 const cardStyle = {
