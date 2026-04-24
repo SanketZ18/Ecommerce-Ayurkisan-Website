@@ -56,8 +56,25 @@ const LegalPolicies = lazy(() => import('./pages/LegalPolicies'));
 const NotFound = lazy(() => import('./pages/NotFound'));
 
 import { getUserRole, isAuthenticated } from './utils/auth';
+import API_BASE_URL from './utils/apiConfig';
 
 function App() {
+    // 🚀 HEARTBEAT: Keeps the Render backend awake 24/7
+    useEffect(() => {
+        const pingBackend = () => {
+            fetch(`${API_BASE_URL}/public/hello`).catch(() => {
+                // Silently ignore errors
+            });
+        };
+
+        // Ping immediately on startup
+        pingBackend();
+
+        // Ping every 10 minutes (600,000ms)
+        const intervalId = setInterval(pingBackend, 600000);
+
+        return () => clearInterval(intervalId);
+    }, []);
 
     const [authModal, setAuthModal] = useState(null);
 
