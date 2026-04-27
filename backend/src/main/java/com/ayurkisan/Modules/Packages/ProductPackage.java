@@ -36,7 +36,9 @@ public class ProductPackage {
     private String imageURL;
 
     @NotNull(message = "Active status is required")
-    private Boolean active;
+    private Boolean active = true;
+
+    private int stockQuantity = 0; // New field for stock management
 
     // 🔥 Generate ID automatically
     public void generateId() {
@@ -65,4 +67,7 @@ public class ProductPackage {
 
     public Boolean getActive() { return active; }
     public void setActive(Boolean active) { this.active = active; }
+
+    public int getStockQuantity() { return stockQuantity; }
+    public void setStockQuantity(int stockQuantity) { this.stockQuantity = stockQuantity; }
 }

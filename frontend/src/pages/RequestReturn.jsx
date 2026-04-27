@@ -22,20 +22,20 @@ const RequestReturn = () => {
     useEffect(() => {
         const fetchOrderDetailsForReturn = async () => {
             try {
-                // In a real application, you'd fetch the specific order details
-                // For demonstration, simulating a fetch that returns a valid order:
+                const response = await activeService.getOrderById(orderId);
+                const order = response.data;
+                
+                // Map backend fields to the format expected by the component
                 setOrderInfo({
-                    orderId: orderId,
-                    orderDate: new Date(Date.now() - 86400000 * 3).toISOString(), // 3 days ago
-                    deliveryDate: new Date(Date.now() - 86400000 * 1).toISOString(), // 1 day ago
-                    totalAmount: 1850.00,
-                    status: 'DELIVERED',
-                    items: [
-                        { name: 'Organic Turmeric Powder', quantity: 2, price: 250 },
-                        { name: 'Ashwagandha Extract', quantity: 1, price: 1350 }
-                    ]
+                    orderId: order.id, // backend uses 'id'
+                    orderDate: order.createdAt,
+                    deliveryDate: order.deliveredAt,
+                    totalAmount: order.totalDiscountedPrice,
+                    status: order.orderStatus,
+                    items: order.items
                 });
             } catch (error) {
+                console.error("Fetch error:", error);
                 toast.error("Could not load order details.");
                 navigate(userRole === 'RETAILER' ? '/retailer/orders' : '/customer/orders');
             } finally {
