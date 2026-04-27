@@ -162,9 +162,19 @@ const ChatBot = () => {
                                 </div>
                                 
                                 {msg.products && msg.products.length > 0 && (
-                                    <div className="chat-products-scroll">
+                                    <div className="chat-products-list">
                                         {msg.products.map(p => (
-                                            <ChatProductCard key={p.id} product={p} onAddToCart={handleAddToCart} />
+                                            <div 
+                                                key={p.id} 
+                                                className="chat-list-item" 
+                                                onClick={() => window.location.href = `/${p.itemType === 'PACKAGE' ? 'package' : 'product'}/${p.id}`}
+                                            >
+                                                <img src={p.productImage1} alt={p.productName} className="chat-list-img" />
+                                                <div className="chat-list-info">
+                                                    <span className="chat-list-name">{p.productName}</span>
+                                                    <span className="chat-list-price">₹{p.finalPrice || p.price}</span>
+                                                </div>
+                                            </div>
                                         ))}
                                     </div>
                                 )}

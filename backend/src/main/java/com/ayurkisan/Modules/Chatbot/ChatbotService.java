@@ -109,12 +109,31 @@ public class ChatbotService {
             return startAdvisorFlow(message);
         }
 
-        // 7. General Product/Package Search (Specific name matching)
+        // 7. General Product/Package Search (Smart matching like dashboard)
         List<ChatProductDTO> searchResults = new ArrayList<>();
         
-        // Exact name check first
-        List<Product> products = productRepository.findByProductNameContainingIgnoreCase(message);
-        List<ProductPackage> packages = packageRepository.findByNameContainingIgnoreCase(message);
+        // Try strict name match first
+        List<Product> products = productRepository.findAll().stream()
+                .filter(p -> isStrongMatch(p.getProductName(), message))
+                .collect(Collectors.toList());
+
+        List<ProductPackage> packages = packageRepository.findAll().stream()
+                .filter(pkg -> isStrongMatch(pkg.getName(), message))
+                .collect(Collectors.toList());
+
+        // If no strict match found, fallback to broader keyword search across all fields
+        if (products.isEmpty() && packages.isEmpty()) {
+            products = productRepository.findAll().stream()
+                    .filter(p -> matchesSearchQuery(p.getProductName(), message) ||
+                                 matchesSearchQuery(p.getDescription(), message) ||
+                                 matchesSearchQuery(p.getBrand(), message) ||
+                                 matchesSearchQuery(p.getIngredients(), message))
+                    .collect(Collectors.toList());
+
+            packages = packageRepository.findAll().stream()
+                    .filter(pkg -> matchesSearchQuery(pkg.getName(), message))
+                    .collect(Collectors.toList());
+        }
 
         if (containsAny(message, "detail", "info", "tell me", "about", "show", "what is")) {
             if (!products.isEmpty()) {
@@ -298,5 +317,29 @@ public class ChatbotService {
 
     private boolean containsAny(String message, String... keywords) {
         return Arrays.stream(keywords).anyMatch(message::contains);
+    }
+
+    private boolean isStrongMatch(String name, String query) {
+        if (name == null || query == null) return false;
+        String lowerName = name.toLowerCase();
+        if (lowerName.contains(query)) return true;
+        if (lowerName.length() >= 4 && query.contains(lowerName)) return true;
+        return false;
+    }
+
+    private boolean matchesSearchQuery(String field, String query) {
+        if (field == null || query == null) return false;
+        String lowerField = field.toLowerCase();
+        if (lowerField.contains(query)) return true;
+        
+        String[] words = query.split("\\s+");
+        if (words.length > 1) {
+            for (String word : words) {
+                if (word.length() > 2 && lowerField.contains(word)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }
