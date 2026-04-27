@@ -7,6 +7,7 @@ import {
     FaPaperPlane, FaBuilding, FaSeedling, FaClock, FaDownload, FaChevronDown, FaChevronUp
 } from "react-icons/fa";
 import API_BASE_URL from "../utils/apiConfig";
+import { downloadBrochure } from "../utils/generateBrochure";
 
 const Contact = () => {
     const [form, setForm] = useState({
@@ -43,6 +44,21 @@ const Contact = () => {
         } catch (error) {
             toast.error("Failed to send message. Please try again.");
             console.error(error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleDownloadBrochure = async (e) => {
+        e.preventDefault();
+        setLoading(true);
+        const toastId = toast.loading("Generating brochure, please wait...");
+        try {
+            await downloadBrochure();
+            toast.update(toastId, { render: "Brochure downloaded successfully!", type: "success", isLoading: false, autoClose: 3000 });
+        } catch (error) {
+            console.error("Error generating brochure:", error);
+            toast.update(toastId, { render: "Failed to generate brochure.", type: "error", isLoading: false, autoClose: 3000 });
         } finally {
             setLoading(false);
         }
@@ -225,7 +241,7 @@ const Contact = () => {
                                 <div>
                                     <h4 style={{ fontWeight: 700, color: "var(--text-dark)", marginBottom: "5px" }}>Brochure</h4>
                                     <p style={{ fontSize: "0.9rem", color: "#6B7280", lineHeight: 1.5, marginBottom: "10px" }}>Download full product and process details from our brochure.</p>
-                                    <a href="#" style={{ color: "#3B82F6", fontSize: "0.9rem", fontWeight: 600, textDecoration: "none" }}>Download brochure</a>
+                                    <a href="#" onClick={handleDownloadBrochure} style={{ color: loading ? "#9CA3AF" : "#3B82F6", fontSize: "0.9rem", fontWeight: 600, textDecoration: "none", cursor: loading ? "not-allowed" : "pointer" }}>{loading ? "Generating..." : "Download brochure"}</a>
                                 </div>
                             </div>
                         </div>

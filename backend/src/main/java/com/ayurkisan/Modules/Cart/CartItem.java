@@ -27,6 +27,8 @@ public class CartItem {
 
     private double totalItemPrice; // discountedPrice * quantity
 
+    private String weight;
+
     // ===== GETTERS & SETTERS =====
 
     public String getProductId() { return productId; }
@@ -52,4 +54,7 @@ public class CartItem {
 
     public double getTotalItemPrice() { return totalItemPrice; }
     public void setTotalItemPrice(double totalItemPrice) { this.totalItemPrice = totalItemPrice; }
+
+    public String getWeight() { return weight; }
+    public void setWeight(String weight) { this.weight = weight; }
 }

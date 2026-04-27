@@ -50,6 +50,7 @@ public class CartService {
         double discountedPrice = 0.0;
         String itemName = "";
         String itemImage = "";
+        String weight = null;
 
         if ("PRODUCT".equalsIgnoreCase(itemType)) {
             if (itemId == null) {
@@ -58,6 +59,7 @@ public class CartService {
             Product product = productService.getProductById(itemId);
             itemName = product.getProductName();
             itemImage = product.getProductImage1();
+            weight = product.getWeight();
 
             if ("Retailer".equalsIgnoreCase(role)) {
                 // Retailer buys in boxes (1 box = 10 products)
@@ -77,7 +79,6 @@ public class CartService {
             if (itemId == null) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Item ID is required");
             }
-            // Using actual package ID instead of name
             ProductPackage pkg = packageService.getPackageById(itemId);
             itemName = pkg.getName();
             itemImage = pkg.getImageURL();
@@ -102,6 +103,8 @@ public class CartService {
         if (existingItemOpt.isPresent()) {
             CartItem existingItem = existingItemOpt.get();
             existingItem.setQuantity(existingItem.getQuantity() + physicalQuantity);
+            existingItem.setDiscountedPrice(discountedPrice);
+            existingItem.setWeight(weight);
             
             // Re-verify stock for PRODUCT
             if ("PRODUCT".equalsIgnoreCase(itemType)) {
@@ -122,6 +125,7 @@ public class CartService {
             newItem.setPrice(originalPrice);
             newItem.setDiscountedPrice(discountedPrice);
             newItem.setTotalItemPrice(discountedPrice * physicalQuantity);
+            newItem.setWeight(weight);
             
             cart.getItems().add(newItem);
         }

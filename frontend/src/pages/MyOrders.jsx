@@ -553,7 +553,10 @@ const MyOrders = () => {
                                                             >
                                                                 {item.productName}
                                                             </Link>
-                                                            <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>Qty: {item.quantity || 1} • ₹{item.price}</span>
+                                                            <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>
+                                                            Qty: {item.quantity || 1} • ₹{item.price}
+                                                            {item.weight && ` • Weight: ${item.weight}`}
+                                                        </span>
                                                         </div>
                                                         <div style={{ fontWeight: '700', color: '#1e293b', fontSize: '0.85rem' }}>
                                                             ₹{item.price * (item.quantity || 1)}
