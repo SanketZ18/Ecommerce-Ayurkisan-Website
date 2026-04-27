@@ -227,6 +227,11 @@ public class ReportService {
                     .first("items.productName").as("packageName")
                     .sum("items.quantity").as("totalPackagesSold")
                     .sum("items.totalItemPrice").as("totalRevenueGenerated"),
+                org.springframework.data.mongodb.core.aggregation.Aggregation.project()
+                    .and("_id").as("packageId")
+                    .and("packageName").as("packageName")
+                    .and("totalPackagesSold").as("totalPackagesSold")
+                    .and("totalRevenueGenerated").as("totalRevenueGenerated"),
                 sort(org.springframework.data.domain.Sort.Direction.DESC, "totalPackagesSold")
             );
 

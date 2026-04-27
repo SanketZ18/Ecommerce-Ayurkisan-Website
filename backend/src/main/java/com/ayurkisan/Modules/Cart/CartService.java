@@ -204,6 +204,9 @@ public class CartService {
                 if (!success) {
                     throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Failed to reduce stock for " + item.getProductName());
                 }
+            } else if ("PACKAGE".equalsIgnoreCase(item.getItemType())) {
+                // reduceStockAtomically throws ResponseStatusException internally on insufficient stock
+                packageService.reduceStockAtomically(item.getProductId(), item.getQuantity());
             }
         }
 

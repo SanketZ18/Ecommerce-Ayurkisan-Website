@@ -183,14 +183,14 @@ public class OrderService {
 
         // 4. Reduce Stock Atomically (Throws exception if stock unavailable)
         for (OrderItem item : orderItems) {
-            if ("PRODUCT".equalsIgnoreCase(item.getItemType())) {
+            if (item.getItemType() != null && item.getItemType().equalsIgnoreCase("PRODUCT")) {
                 Product product = productService.getProductById(item.getProductId());
                 boolean success = productService.reduceStockAtomically(product.getId(), item.getQuantity());
                 if (!success) {
                     throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Insufficient stock for " + item.getProductName());
                 }
-            } else if ("PACKAGE".equalsIgnoreCase(item.getItemType())) {
-                // packageService.reduceStockAtomically(item.getProductId(), item.getQuantity()); // Implement in PackageService if exists
+            } else if (item.getItemType() != null && item.getItemType().equalsIgnoreCase("PACKAGE")) {
+                packageService.reduceStockAtomically(item.getProductId(), item.getQuantity());
             }
         }
 
@@ -239,11 +239,10 @@ public class OrderService {
 
         // Add back physical stock
         for (OrderItem item : order.getItems()) {
-            if ("PRODUCT".equalsIgnoreCase(item.getItemType())) {
-                Product product = productService.getProductById(item.getProductId());
-                productService.increaseStock(product.getId(), item.getQuantity());
-            } else if ("PACKAGE".equalsIgnoreCase(item.getItemType())) {
-                // packageService.increaseStock(item.getProductId(), item.getQuantity());
+            if (item.getItemType() != null && item.getItemType().equalsIgnoreCase("PRODUCT")) {
+                productService.increaseStock(item.getProductId(), item.getQuantity());
+            } else if (item.getItemType() != null && item.getItemType().equalsIgnoreCase("PACKAGE")) {
+                packageService.increaseStock(item.getProductId(), item.getQuantity());
             }
         }
 
@@ -256,10 +255,11 @@ public class OrderService {
     }
 
     public Order updateOrderStatus(String orderId, String newStatus, String reason) {
+        if (newStatus == null) return null;
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Order not found"));
 
-        boolean orderStatusChanged = !order.getOrderStatus().equals(newStatus);
+        boolean orderStatusChanged = !newStatus.equalsIgnoreCase(order.getOrderStatus());
         
         if (orderStatusChanged) {
             order.setOrderStatus(newStatus);
@@ -296,9 +296,10 @@ public class OrderService {
         } else if ("RETURNED".equalsIgnoreCase(newStatus)) {
             // Add back physical stock when return is complete
             for (OrderItem item : order.getItems()) {
-                if ("PRODUCT".equalsIgnoreCase(item.getItemType())) {
-                    Product product = productService.getProductById(item.getProductId());
-                    productService.increaseStock(product.getId(), item.getQuantity());
+                if (item.getItemType() != null && item.getItemType().equalsIgnoreCase("PRODUCT")) {
+                    productService.increaseStock(item.getProductId(), item.getQuantity());
+                } else if (item.getItemType() != null && item.getItemType().equalsIgnoreCase("PACKAGE")) {
+                    packageService.increaseStock(item.getProductId(), item.getQuantity());
                 }
             }
         }

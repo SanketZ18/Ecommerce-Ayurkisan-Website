@@ -18,6 +18,7 @@ const ManageOrders = () => {
     const [showModal, setShowModal] = useState(false);
     const [statusUpdating, setStatusUpdating] = useState(false);
     const [remarks, setRemarks] = useState('');
+    const [returnDetails, setReturnDetails] = useState(null);
 
     const location = useLocation();
 
@@ -50,11 +51,18 @@ const ManageOrders = () => {
         try {
             setStatusUpdating(true);
             await adminService.updateOrderStatus(orderId, newStatus, remarks);
+            
+            // If it's a return status, also update the return request
+            if (newStatus.startsWith('RETURN')) {
+                await adminService.updateReturnStatus(orderId, newStatus, remarks).catch(e => console.log("Return request not found, skipping."));
+            }
+
             toast.success(`Order status updated to ${newStatus}`);
             // Fetch silently to avoid blank screen
             await fetchOrders(true);
             setShowModal(false);
             setRemarks(''); // Reset remarks after update
+            setReturnDetails(null);
         } catch (err) {
             toast.error("Failed to update status");
         } finally {
@@ -69,7 +77,28 @@ const ManageOrders = () => {
             case 'PROCESSING': case 'PENDING': return { bg: '#fef08a', color: '#854d0e', icon: FaBox };
             case 'SHIPPED': return { bg: '#dbeafe', color: '#1e40af', icon: FaTruck };
             case 'CANCELLED': return { bg: '#fee2e2', color: '#991b1b', icon: FaTimesCircle };
+            case 'RETURN_REQUESTED': return { bg: '#ffedd5', color: '#9a3412', icon: FaReply };
+            case 'RETURNED': return { bg: '#f1f5f9', color: '#475569', icon: FaReply };
             default: return { bg: '#f3f4f6', color: '#374151', icon: FaBox };
+        }
+    };
+
+    const handleSelectOrder = async (order) => {
+        setSelectedOrder(order);
+        setReturnDetails(null);
+        setShowModal(true);
+
+        if (order.orderStatus?.startsWith('RETURN')) {
+            try {
+                const res = await adminService.getAllReturns();
+                const returns = Array.isArray(res.data) ? res.data : [];
+                const detail = returns.find(r => r.orderId === order.id);
+                if (detail) {
+                    setReturnDetails(detail);
+                }
+            } catch (err) {
+                console.error("Failed to fetch return details:", err);
+            }
         }
     };
 
@@ -282,7 +311,7 @@ const ManageOrders = () => {
                                                 </td>
                                                 <td style={{ padding: '1rem 1.5rem', textAlign: 'right' }}>
                                                     <button
-                                                        onClick={() => { setSelectedOrder(order); setShowModal(true); }}
+                                                        onClick={() => handleSelectOrder(order)}
                                                         style={{ background: 'var(--primary-green)', border: 'none', color: '#fff', padding: '10px 15px', borderRadius: '12px', cursor: 'pointer', fontWeight: '600', display: 'inline-flex', alignItems: 'center', gap: '8px' }}
                                                     >
                                                         <FaReply /> Process
@@ -338,33 +367,46 @@ const ManageOrders = () => {
                                 </div>
                             </div>
 
-                            {/* Status Update */}
-                            <div style={{ marginBottom: '2.5rem' }}>
-                                <label style={labelStyle}>Update Order Status</label>
-                                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
-                                    {['PENDING', 'CONFIRMED', 'CANCELLED'].map(status => (
-                                        <button
-                                            key={status}
-                                            disabled={statusUpdating || selectedOrder.orderStatus === status}
-                                            onClick={() => handleUpdateStatus(selectedOrder.id, status)}
-                                            style={{
-                                                padding: '0.6rem 1.25rem',
-                                                borderRadius: '12px',
-                                                border: '1px solid #e2e8f0',
-                                                backgroundColor: selectedOrder.orderStatus === status ? 'var(--primary-green)' : '#fff',
-                                                color: selectedOrder.orderStatus === status ? '#fff' : 'var(--text-dark)',
-                                                fontWeight: '700',
-                                                fontSize: '0.8rem',
-                                                cursor: 'pointer',
-                                                transition: 'all 0.2s',
-                                                opacity: statusUpdating ? 0.7 : 1
-                                            }}
-                                        >
-                                            {status}
-                                        </button>
-                                    ))}
-                                </div>
-                            </div>
+                             {/* Status Update */}
+                             <div style={{ marginBottom: '2.5rem' }}>
+                                 <label style={labelStyle}>Update Order Status</label>
+                                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
+                                     {['PENDING', 'CONFIRMED', 'SHIPPED', 'DELIVERED', 'CANCELLED', 'RETURN_ACCEPTED', 'RETURN_PICKUP', 'RETURNED'].map(status => (
+                                         <button
+                                             key={status}
+                                             disabled={statusUpdating || selectedOrder.orderStatus === status}
+                                             onClick={() => handleUpdateStatus(selectedOrder.id, status)}
+                                             style={{
+                                                 padding: '0.6rem 1.25rem',
+                                                 borderRadius: '12px',
+                                                 border: '1px solid #e2e8f0',
+                                                 backgroundColor: selectedOrder.orderStatus === status ? 'var(--primary-green)' : '#fff',
+                                                 color: selectedOrder.orderStatus === status ? '#fff' : 'var(--text-dark)',
+                                                 fontWeight: '700',
+                                                 fontSize: '0.8rem',
+                                                 cursor: 'pointer',
+                                                 transition: 'all 0.2s',
+                                                 opacity: statusUpdating ? 0.7 : 1
+                                             }}
+                                         >
+                                             {status.replace('_', ' ')}
+                                         </button>
+                                     ))}
+                                 </div>
+                             </div>
+
+                             {/* Return Details */}
+                             {returnDetails && (
+                                 <div style={{ marginBottom: '2rem', padding: '1.5rem', backgroundColor: '#fff7ed', borderRadius: '16px', border: '1px solid #ffedd5' }}>
+                                     <h3 style={{ margin: '0 0 1rem 0', color: '#9a3412', fontSize: '1rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                         <FaReply /> Return Request Details
+                                     </h3>
+                                     <div style={{ fontSize: '0.9rem', color: '#431407' }}>
+                                         <p style={{ margin: '0 0 5px 0' }}><strong>Reason:</strong> {returnDetails.reason}</p>
+                                         <p style={{ margin: '0' }}><strong>Customer Comments:</strong> {returnDetails.comments || 'No comments provided'}</p>
+                                     </div>
+                                 </div>
+                             )}
 
                             {/* Remarks / Reason */}
                             <div style={{ marginBottom: '2rem' }}>
