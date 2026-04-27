@@ -22,7 +22,7 @@ const OrderTracking = () => {
                     customerService.getMyOrders().catch(() => ({ data: [] }))
                 ]);
 
-                const orderInfo = ordersRes.data?.find(o => o.orderId === orderId || o.id === orderId);
+                const orderInfo = ordersRes.data?.find(o => o.id === orderId);
                 const trackData = trackRes.data;
 
                 if (trackData || orderInfo) {
@@ -45,24 +45,7 @@ const OrderTracking = () => {
                         carrier: trackData?.carrier || 'Ayurkisan Express'
                     });
                 } else {
-                    // Fallback Dummy Data for design demonstration
-                    setTrackingData({
-                        id: 1,
-                        orderId: orderId,
-                        productName: 'Herbal Immunity Booster Pack',
-                        totalAmount: 1450.00,
-                        trackingNumber: `TRK-${Math.floor(Math.random() * 1000000)}`,
-                        carrier: 'Bluedart Logistics',
-                        status: 'IN_TRANSIT',
-                        orderDate: new Date(Date.now() - 86400000 * 2).toISOString(),
-                        estimatedDelivery: new Date(Date.now() + 86400000 * 2).toISOString(),
-                        history: [
-                            { status: 'Order Placed', date: new Date(Date.now() - 86400000 * 2).toISOString(), location: 'Website' },
-                            { status: 'Packed', date: new Date(Date.now() - 86400000 * 1.5).toISOString(), location: 'Ayurkisan Fulfillment Center' },
-                            { status: 'Shipped', date: new Date(Date.now() - 86400000 * 1).toISOString(), location: 'Logistics Hub' },
-                            { status: 'In Transit', date: new Date().toISOString(), location: 'On the way' }
-                        ]
-                    });
+                    throw new Error("Order not found in your history.");
                 }
             } catch (error) {
                 console.error("Tracking fetch error:", error);
@@ -254,7 +237,7 @@ const OrderTracking = () => {
                             <button
                                 style={{ ...actionBtnStyle, backgroundColor: '#fef3c7', color: '#d97706', border: '1px solid #fcd34d' }}
                                 onClick={handleReturn}
-                                disabled={new Date() - new Date(trackingData.history.find(h => h.status === 'Delivered')?.date) > 5 * 86400000}
+                                disabled={!trackingData.history.some(h => h.status.toUpperCase() === 'DELIVERED') || new Date() - new Date(trackingData.history.find(h => h.status.toUpperCase() === 'DELIVERED')?.date) > 5 * 86400000}
                             >
                                 <FaUndo /> Return Order
                             </button>

@@ -15,6 +15,7 @@ const customerService = {
 
     // Order Management
     getMyOrders: () => axios.get(`${API_BASE_URL}/orders/my-orders`, { headers: getAuthHeader() }),
+    getOrderById: (orderId) => axios.get(`${API_BASE_URL}/orders/${orderId}`, { headers: getAuthHeader() }),
     getOrderHistory: (userId) => axios.get(`${API_BASE_URL}/orders/my-orders`, { headers: getAuthHeader() }), // Alias for consistency
     placeOrder: (paymentMethod, customName, customPhone, addressLine1, taluka, district, state, promoCode) => {
         let url = `${API_BASE_URL}/orders/place-order?paymentMethod=${paymentMethod}`;

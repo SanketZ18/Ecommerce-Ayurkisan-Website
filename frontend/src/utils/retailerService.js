@@ -14,6 +14,7 @@ const retailerService = {
 
     // Order Management
     getMyOrders: () => axios.get(`${API_BASE_URL}/orders/my-orders`, { headers: getAuthHeader() }),
+    getOrderById: (orderId) => axios.get(`${API_BASE_URL}/orders/${orderId}`, { headers: getAuthHeader() }),
     getOrderHistory: (userId) => axios.get(`${API_BASE_URL}/orders/my-orders`, { headers: getAuthHeader() }), // Unified with getMyOrders
     cancelOrder: (orderId) => axios.put(`${API_BASE_URL}/orders/cancel/${orderId}`, {}, { headers: getAuthHeader() }),
 

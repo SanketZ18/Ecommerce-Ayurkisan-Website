@@ -59,4 +59,21 @@ public class ProductPackageService {
         }
         repository.deleteById(id);
     }
+
+    public void reduceStockAtomically(String packageId, int quantity) {
+        ProductPackage pkg = repository.findById(packageId)
+                .orElseThrow(() -> new RuntimeException("Package not found: " + packageId));
+        if (pkg.getStockQuantity() < quantity) {
+            throw new RuntimeException("Insufficient stock for package: " + pkg.getName());
+        }
+        pkg.setStockQuantity(pkg.getStockQuantity() - quantity);
+        repository.save(pkg);
+    }
+
+    public void increaseStock(String packageId, int quantity) {
+        ProductPackage pkg = repository.findById(packageId)
+                .orElseThrow(() -> new RuntimeException("Package not found: " + packageId));
+        pkg.setStockQuantity(pkg.getStockQuantity() + quantity);
+        repository.save(pkg);
+    }
 }
