@@ -175,6 +175,7 @@ public class OrderService {
             oi.setPrice(cartItem.getPrice());
             oi.setDiscountedPrice(cartItem.getDiscountedPrice());
             oi.setTotalItemPrice(cartItem.getTotalItemPrice());
+            oi.setWeight(cartItem.getWeight());
             return oi;
         }).collect(Collectors.toList());
 

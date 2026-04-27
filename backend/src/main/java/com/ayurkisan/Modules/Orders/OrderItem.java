@@ -27,6 +27,8 @@ public class OrderItem {
 
     private double totalItemPrice;
 
+    private String weight;
+
     // ===== GETTERS & SETTERS =====
 
     public String getProductId() { return productId; }
@@ -52,4 +54,7 @@ public class OrderItem {
 
     public double getTotalItemPrice() { return totalItemPrice; }
     public void setTotalItemPrice(double totalItemPrice) { this.totalItemPrice = totalItemPrice; }
+
+    public String getWeight() { return weight; }
+    public void setWeight(String weight) { this.weight = weight; }
 }

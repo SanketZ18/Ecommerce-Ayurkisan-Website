@@ -203,6 +203,11 @@ const ProductDetails = () => {
                     </div>
 
                     <h1 style={titleStyle}>{product.productName || product.name}</h1>
+                    {product.weight && (
+                        <p style={{ fontSize: '1rem', color: '#64748b', marginTop: '-0.5rem', marginBottom: '1rem' }}>
+                            Weight/Volume: {product.weight}
+                        </p>
+                    )}
 
                     <div style={ratingSummaryStyle}>
                         <div style={{ display: 'flex', color: '#fbbf24' }}>
