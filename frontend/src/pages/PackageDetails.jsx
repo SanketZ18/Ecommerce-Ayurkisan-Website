@@ -80,8 +80,8 @@ const PackageDetails = () => {
             toast.success(`${pkg.name} added to cart!`);
             window.dispatchEvent(new Event('cartUpdated'));
         } catch (error) {
-            console.error(error);
-            toast.error("Failed to add to cart");
+            const errorMessage = error.response?.data?.message || "Failed to add to cart";
+            toast.error(errorMessage);
         }
     };
 
@@ -101,8 +101,8 @@ const PackageDetails = () => {
             window.dispatchEvent(new Event('cartUpdated'));
             navigate(role === 'RETAILER' ? '/retailer/orders' : '/customer/orders');
         } catch (error) {
-            console.error(error);
-            toast.error("Failed to place order.");
+            const errorMessage = error.response?.data?.message || "Failed to place order.";
+            toast.error(errorMessage);
         }
     };
 

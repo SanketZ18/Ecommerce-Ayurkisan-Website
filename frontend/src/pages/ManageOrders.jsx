@@ -371,17 +371,21 @@ const ManageOrders = () => {
                              <div style={{ marginBottom: '2.5rem' }}>
                                  <label style={labelStyle}>Update Order Status</label>
                                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
-                                     {['PENDING', 'CONFIRMED', 'SHIPPED', 'DELIVERED', 'CANCELLED', 'RETURN_ACCEPTED', 'RETURN_PICKUP', 'RETURNED'].map(status => (
+                                     {[
+                                         { value: 'PENDING', label: 'PENDING' },
+                                         { value: 'CONFIRMED', label: 'CONFIRMED' },
+                                         { value: 'CANCELLED', label: 'CANCELLED' }
+                                     ].map(item => (
                                          <button
-                                             key={status}
-                                             disabled={statusUpdating || selectedOrder.orderStatus === status}
-                                             onClick={() => handleUpdateStatus(selectedOrder.id, status)}
+                                             key={item.value}
+                                             disabled={statusUpdating || selectedOrder.orderStatus === item.value}
+                                             onClick={() => handleUpdateStatus(selectedOrder.id, item.value)}
                                              style={{
                                                  padding: '0.6rem 1.25rem',
                                                  borderRadius: '12px',
                                                  border: '1px solid #e2e8f0',
-                                                 backgroundColor: selectedOrder.orderStatus === status ? 'var(--primary-green)' : '#fff',
-                                                 color: selectedOrder.orderStatus === status ? '#fff' : 'var(--text-dark)',
+                                                 backgroundColor: selectedOrder.orderStatus === item.value ? 'var(--primary-green)' : '#fff',
+                                                 color: selectedOrder.orderStatus === item.value ? '#fff' : 'var(--text-dark)',
                                                  fontWeight: '700',
                                                  fontSize: '0.8rem',
                                                  cursor: 'pointer',
@@ -389,7 +393,7 @@ const ManageOrders = () => {
                                                  opacity: statusUpdating ? 0.7 : 1
                                              }}
                                          >
-                                             {status.replace('_', ' ')}
+                                             {item.label}
                                          </button>
                                      ))}
                                  </div>

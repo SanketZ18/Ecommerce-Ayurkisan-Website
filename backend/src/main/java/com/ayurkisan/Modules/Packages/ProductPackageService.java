@@ -3,8 +3,10 @@ package com.ayurkisan.Modules.Packages;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 public class ProductPackageService {
@@ -25,7 +27,7 @@ public class ProductPackageService {
         List<ProductPackage> list = repository.findAll();
 
         if (list.isEmpty()) {
-            throw new RuntimeException("No packages found");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No packages found");
         }
 
         return list;
@@ -34,13 +36,13 @@ public class ProductPackageService {
     // GET BY ID
     public ProductPackage getPackageById(@NonNull String id) {
         return repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Package not found with ID: " + id));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Package not found with ID: " + id));
     }
 
     // UPDATE BY ID
     public ProductPackage updateById(@NonNull String id, ProductPackage updatedPackage) {
         ProductPackage existing = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Package not found with ID: " + id));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Package not found with ID: " + id));
 
         existing.setName(updatedPackage.getName());
         existing.setItems(updatedPackage.getItems());
@@ -55,16 +57,16 @@ public class ProductPackageService {
     // DELETE BY ID
     public void deleteById(@NonNull String id) {
         if (!repository.existsById(id)) {
-            throw new RuntimeException("Package not found with ID: " + id);
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Package not found with ID: " + id);
         }
         repository.deleteById(id);
     }
 
     public void reduceStockAtomically(String packageId, int quantity) {
         ProductPackage pkg = repository.findById(packageId)
-                .orElseThrow(() -> new RuntimeException("Package not found: " + packageId));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Package not found: " + packageId));
         if (pkg.getStockQuantity() < quantity) {
-            throw new RuntimeException("Insufficient stock for package: " + pkg.getName());
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Insufficient stock for package: " + pkg.getName());
         }
         pkg.setStockQuantity(pkg.getStockQuantity() - quantity);
         repository.save(pkg);
@@ -72,7 +74,7 @@ public class ProductPackageService {
 
     public void increaseStock(String packageId, int quantity) {
         ProductPackage pkg = repository.findById(packageId)
-                .orElseThrow(() -> new RuntimeException("Package not found: " + packageId));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Package not found: " + packageId));
         pkg.setStockQuantity(pkg.getStockQuantity() + quantity);
         repository.save(pkg);
     }

@@ -53,12 +53,8 @@ const Packages = () => {
                 window.dispatchEvent(new Event('cartUpdated'));
             }
         } catch (error) {
-            console.error("Cart error:", error);
-            if (action === 'BUY_NOW') {
-                toast.error("Failed to place order.");
-            } else {
-                toast.error("Failed to add package to cart.");
-            }
+            const errorMessage = error.response?.data?.message || (action === 'BUY_NOW' ? "Failed to place order." : "Failed to add package to cart.");
+            toast.error(errorMessage);
         }
     };
 

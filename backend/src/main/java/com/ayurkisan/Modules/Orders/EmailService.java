@@ -8,6 +8,9 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import jakarta.mail.internet.MimeMessage;
 import org.springframework.core.io.ByteArrayResource;
+import org.springframework.beans.factory.annotation.Value;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 @Service
 public class EmailService {
@@ -15,7 +18,7 @@ public class EmailService {
     @Autowired
     private JavaMailSender mailSender;
 
-    @org.springframework.beans.factory.annotation.Value("${spring.mail.username}")
+    @Value("${spring.mail.username}")
     private String fromEmail;
 
     @Autowired
@@ -29,30 +32,103 @@ public class EmailService {
 
         try {
             MimeMessage message = mailSender.createMimeMessage();
-            // true = multipart message
-            MimeMessageHelper helper = new MimeMessageHelper(message, true);
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
             
             helper.setFrom(fromEmail);
             helper.setTo(toEmail);
             helper.setSubject("Order Confirmation - Ayurkisan");
             
-            StringBuilder body = new StringBuilder();
-            body.append("Dear ").append(order.getUserName()).append(",\n\n");
-            body.append("Thank you for your order! Your order has been placed successfully.\n\n");
-            body.append("Order ID: ").append(order.getId()).append("\n");
-            body.append("Total Amount: ₹").append(order.getTotalDiscountedPrice()).append("\n\n");
+            StringBuilder html = new StringBuilder();
+            html.append("<div style='font-family: Helvetica, Arial, sans-serif; color: #1a1a1a; max-width: 600px; margin: 0 auto; line-height: 1.6;'>");
             
-            body.append("Shipping Address:\n").append(order.getShippingAddress()).append("\n\n");
-            body.append("We have received your order and are processing it.\n");
-            body.append("You will receive your official Tax Invoice once the order is delivered.\n\n");
-            body.append("Best Regards,\nAyurkisan Team");
+            // Header - Clean & Simple
+            html.append("<div style='padding: 20px; border-bottom: 2px solid #16a34a; margin-bottom: 20px;'>");
+            html.append("<h1 style='margin: 0; color: #16a34a; font-size: 28px;'>Order Confirmation</h1>");
+            html.append("<p style='margin: 5px 0 0 0; color: #666;'>Thank you for your order with Ayurkisan</p>");
+            html.append("</div>");
+            
+            // Body Content
+            html.append("<div style='padding: 0 20px;'>");
+            html.append("<p style='font-size: 16px;'>Hello <strong>").append(order.getUserName()).append("</strong>,</p>");
+            html.append("<p>We've received your order and it's being processed. Here are your order details:</p>");
+            
+            // Order Info Box
+            html.append("<div style='background-color: #f9f9f9; padding: 15px; border-radius: 8px; margin: 20px 0;'>");
+            html.append("<p style='margin: 0; font-size: 14px;'><strong>Order ID:</strong> #").append(order.getId()).append("</p>");
+            html.append("<p style='margin: 5px 0 0 0; font-size: 14px;'><strong>Date:</strong> ").append(new SimpleDateFormat("dd MMM yyyy, HH:mm").format(new Date())).append("</p>");
+            html.append("</div>");
 
-            helper.setText(body.toString());
+            // Products Table
+            html.append("<h3 style='font-size: 18px; border-bottom: 1px solid #ddd; padding-bottom: 5px; margin-top: 30px;'>Order Summary</h3>");
+            html.append("<table style='width: 100%; border-collapse: collapse; margin-top: 10px;'>");
+            html.append("<thead>");
+            html.append("<tr style='border-bottom: 2px solid #eee;'>");
+            html.append("<th style='text-align: left; padding: 10px 5px; font-size: 14px;'>Item</th>");
+            html.append("<th style='text-align: center; padding: 10px 5px; font-size: 14px;'>Qty</th>");
+            html.append("<th style='text-align: right; padding: 10px 5px; font-size: 14px;'>Price</th>");
+            html.append("<th style='text-align: right; padding: 10px 5px; font-size: 14px;'>Total</th>");
+            html.append("</tr>");
+            html.append("</thead>");
+            html.append("<tbody>");
+
+            for (OrderItem item : order.getItems()) {
+                html.append("<tr style='border-bottom: 1px solid #eee;'>");
+                html.append("<td style='padding: 12px 5px;'>");
+                html.append("<div style='font-weight: bold;'>").append(item.getProductName()).append("</div>");
+                if (item.getWeight() != null) {
+                    html.append("<div style='font-size: 12px; color: #777;'>").append(item.getWeight()).append("</div>");
+                }
+                html.append("</td>");
+                html.append("<td style='padding: 12px 5px; text-align: center;'>").append(item.getQuantity()).append("</td>");
+                html.append("<td style='padding: 12px 5px; text-align: right;'>₹").append(item.getDiscountedPrice()).append("</td>");
+                html.append("<td style='padding: 12px 5px; text-align: right; font-weight: bold;'>₹").append(item.getTotalItemPrice()).append("</td>");
+                html.append("</tr>");
+            }
+
+            html.append("</tbody>");
+            html.append("</table>");
+
+            // Totals
+            html.append("<div style='margin-top: 20px; border-top: 2px solid #eee; padding-top: 10px;'>");
+            html.append("<table style='width: 100%;'>");
+            html.append("<tr>");
+            html.append("<td style='padding: 5px 0;'>Subtotal:</td>");
+            html.append("<td style='padding: 5px 0; text-align: right;'>₹").append(order.getTotalDiscountedPrice() - order.getDeliveryCharge()).append("</td>");
+            html.append("</tr>");
+            if (order.getDeliveryCharge() > 0) {
+                html.append("<tr>");
+                html.append("<td style='padding: 5px 0;'>Delivery Charge:</td>");
+                html.append("<td style='padding: 5px 0; text-align: right;'>₹").append(order.getDeliveryCharge()).append("</td>");
+                html.append("</tr>");
+            }
+            html.append("<tr style='font-size: 20px; font-weight: bold; color: #16a34a;'>");
+            html.append("<td style='padding: 10px 0;'>Grand Total:</td>");
+            html.append("<td style='padding: 10px 0; text-align: right;'>₹").append(order.getTotalDiscountedPrice()).append("</td>");
+            html.append("</tr>");
+            html.append("</table>");
+            html.append("</div>");
+
+            // Shipping Address
+            html.append("<div style='margin-top: 30px; padding: 15px; border: 1px solid #eee; border-radius: 8px;'>");
+            html.append("<h4 style='margin: 0 0 10px 0; font-size: 14px; color: #555;'>SHIPPING ADDRESS</h4>");
+            html.append("<p style='margin: 0; font-size: 14px; color: #1a1a1a;'>").append(order.getShippingAddress()).append("</p>");
+            html.append("</div>");
+
+            html.append("<p style='margin-top: 30px; font-size: 13px; color: #777;'>Note: You will receive the official tax invoice once the order is delivered.</p>");
+            html.append("<p style='margin-top: 20px;'>Best Regards,<br><strong>Ayurkisan Team</strong></p>");
+            html.append("</div>");
+            
+            // Footer
+            html.append("<div style='background-color: #f5f5f5; padding: 20px; text-align: center; font-size: 12px; color: #999; margin-top: 40px;'>");
+            html.append("<p style='margin: 0;'>&copy; 2026 Ayurkisan India. All rights reserved.</p>");
+            html.append("</div>");
+            html.append("</div>");
+
+            helper.setText(html.toString(), true);
             mailSender.send(message);
 
         } catch (Exception e) {
-            // Log error but don't stop the order placement flow
-            System.err.println("Failed to send email to " + toEmail + ": " + e.getMessage());
+            System.err.println("Failed to send HTML email to " + toEmail + ": " + e.getMessage());
         }
     }
 
@@ -95,20 +171,39 @@ public class EmailService {
 
         try {
             MimeMessage message = mailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(message, true);
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
             
             helper.setFrom(fromEmail);
             helper.setTo(toEmail);
             helper.setSubject("Order Delivered and Tax Invoice - Ayurkisan");
+               StringBuilder html = new StringBuilder();
+            html.append("<div style='font-family: Helvetica, Arial, sans-serif; color: #1a1a1a; max-width: 600px; margin: 0 auto; line-height: 1.6;'>");
             
-            StringBuilder body = new StringBuilder();
-            body.append("Dear ").append(order.getUserName()).append(",\n\n");
-            body.append("Great news! Your order (ID: ").append(order.getId()).append(") has been successfully delivered.\n\n");
-            body.append("Thank you for shopping with us! Please find your official Tax Invoice attached to this email.\n\n");
-            body.append("If you have any issues with your products, you have up to 5 days to initiate a return request through your dashboard.\n\n");
-            body.append("Best Regards,\nAyurkisan Team");
+            // Header
+            html.append("<div style='padding: 20px; border-bottom: 2px solid #16a34a; margin-bottom: 20px;'>");
+            html.append("<h1 style='margin: 0; color: #16a34a; font-size: 28px;'>Order Delivered!</h1>");
+            html.append("<p style='margin: 5px 0 0 0; color: #666;'>We hope you enjoy your purchase</p>");
+            html.append("</div>");
+            
+            // Body Content
+            html.append("<div style='padding: 0 20px;'>");
+            html.append("<p style='font-size: 16px;'>Hello <strong>").append(order.getUserName()).append("</strong>,</p>");
+            html.append("<p>Your order <strong>#").append(order.getId()).append("</strong> has been successfully delivered. Please find your official Tax Invoice attached as a PDF.</p>");
+            
+            html.append("<div style='margin-top: 30px; padding: 15px; background-color: #f9f9f9; border-radius: 8px;'>");
+            html.append("<p style='margin: 0;'>If you have any questions or feedback, feel free to contact us.</p>");
+            html.append("</div>");
 
-            helper.setText(body.toString());
+            html.append("<p style='margin-top: 30px;'>Thank you for choosing Ayurkisan!</p>");
+            html.append("<p style='margin-top: 20px;'>Best Regards,<br><strong>Ayurkisan Team</strong></p>");
+            html.append("</div>");
+            
+            // Footer
+            html.append("<div style='background-color: #f5f5f5; padding: 20px; text-align: center; font-size: 12px; color: #999; margin-top: 40px;'>");
+            html.append("<p style='margin: 0;'>&copy; 2026 Ayurkisan India. All rights reserved.</p>");
+            html.append("</div>");
+            html.append("</div>");
+            helper.setText(html.toString(), true);
 
             // Generate and attach PDF now that it's delivered
             try {
@@ -121,7 +216,7 @@ public class EmailService {
             mailSender.send(message);
 
         } catch (Exception e) {
-            System.err.println("Failed to send delivery email to " + toEmail + ": " + e.getMessage());
+            System.err.println("Failed to send HTML delivery email to " + toEmail + ": " + e.getMessage());
         }
     }
 
