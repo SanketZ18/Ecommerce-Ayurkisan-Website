@@ -136,7 +136,8 @@ const Checkout = () => {
                 toast.success("Order Placed!");
             }
         } catch (error) {
-            toast.error("Failed to place order");
+            const errorMessage = error.response?.data?.message || "Failed to place order";
+            toast.error(errorMessage);
         } finally {
             setLoading(false);
         }
