@@ -24,6 +24,15 @@ public class EmailService {
     @Autowired
     private InvoiceService invoiceService;
 
+    @jakarta.annotation.PostConstruct
+    public void init() {
+        if (mailSender instanceof org.springframework.mail.javamail.JavaMailSenderImpl) {
+            org.springframework.mail.javamail.JavaMailSenderImpl impl = (org.springframework.mail.javamail.JavaMailSenderImpl) mailSender;
+            if (impl.getUsername() != null) impl.setUsername(impl.getUsername().replace(" ", ""));
+            if (impl.getPassword() != null) impl.setPassword(impl.getPassword().replace(" ", ""));
+        }
+    }
+
     @Async
     public void sendOrderConfirmation(String toEmail, Order order) {
         if (toEmail == null || toEmail.isEmpty()) {
