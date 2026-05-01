@@ -129,10 +129,7 @@ public class EmailService {
             mailSender.send(message);
 
         } catch (Exception e) {
-            System.err.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-            System.err.println("!!! [EmailService ERROR] Failed to send email to: " + toEmail);
-            System.err.println("!!! Reason: " + e.getMessage());
-            System.err.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+            System.err.println(">>> [EmailService] Failed to send email to: " + toEmail);
             e.printStackTrace();
         }
     }
@@ -165,10 +162,7 @@ public class EmailService {
             mailSender.send(message);
 
         } catch (Exception e) {
-            System.err.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-            System.err.println("!!! [EmailService ERROR] Failed to send cancellation email to: " + toEmail);
-            System.err.println("!!! Reason: " + e.getMessage());
-            System.err.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+            System.err.println(">>> [EmailService] Failed to send cancellation email to: " + toEmail);
             e.printStackTrace();
         }
     }
@@ -227,10 +221,7 @@ public class EmailService {
             mailSender.send(message);
 
         } catch (Exception e) {
-            System.err.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-            System.err.println("!!! [EmailService ERROR] Failed to send delivery email to: " + toEmail);
-            System.err.println("!!! Reason: " + e.getMessage());
-            System.err.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+            System.err.println(">>> [EmailService] Failed to send delivery email to: " + toEmail);
             e.printStackTrace();
         }
     }
@@ -246,10 +237,7 @@ public class EmailService {
             message.setText("Dear " + order.getUserName() + ",\n\nWe have received your return request for Order ID: " + order.getId() + ".\nOur team is reviewing it and will update you shortly.\n\nBest Regards,\nAyurkisan Team");
             mailSender.send(message);
         } catch (Exception e) {
-            System.err.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-            System.err.println("!!! [EmailService ERROR] Failed to send return requested email to: " + toEmail);
-            System.err.println("!!! Reason: " + e.getMessage());
-            System.err.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+            System.err.println(">>> [EmailService] Failed to send return requested email to: " + toEmail);
             e.printStackTrace();
         }
     }
@@ -265,10 +253,7 @@ public class EmailService {
             message.setText("Dear " + order.getUserName() + ",\n\nYour return request for Order ID: " + order.getId() + " has been accepted.\nOur delivery agent will contact you for pickup.\n\nBest Regards,\nAyurkisan Team");
             mailSender.send(message);
         } catch (Exception e) {
-            System.err.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-            System.err.println("!!! [EmailService ERROR] Failed to send return accepted email to: " + toEmail);
-            System.err.println("!!! Reason: " + e.getMessage());
-            System.err.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+            System.err.println(">>> [EmailService] Failed to send return accepted email to: " + toEmail);
             e.printStackTrace();
         }
     }
@@ -284,10 +269,7 @@ public class EmailService {
             message.setText("Dear " + order.getUserName() + ",\n\nUnfortunately, your return request for Order ID: " + order.getId() + " has been rejected after review.\nIf you have questions, please contact our support team.\n\nBest Regards,\nAyurkisan Team");
             mailSender.send(message);
         } catch (Exception e) {
-            System.err.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-            System.err.println("!!! [EmailService ERROR] Failed to send return rejected email to: " + toEmail);
-            System.err.println("!!! Reason: " + e.getMessage());
-            System.err.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+            System.err.println(">>> [EmailService] Failed to send return rejected email to: " + toEmail);
             e.printStackTrace();
         }
     }
@@ -303,10 +285,7 @@ public class EmailService {
             message.setText("Dear " + order.getUserName() + ",\n\nYour return for Order ID: " + order.getId() + " is complete.\nA cash refund has been issued during the pickup process.\n\nThank you for choosing Ayurkisan.\n\nBest Regards,\nAyurkisan Team");
             mailSender.send(message);
         } catch (Exception e) {
-            System.err.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-            System.err.println("!!! [EmailService ERROR] Failed to send return refunded email to: " + toEmail);
-            System.err.println("!!! Reason: " + e.getMessage());
-            System.err.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+            System.err.println(">>> [EmailService] Failed to send return refunded email to: " + toEmail);
             e.printStackTrace();
         }
     }
@@ -322,10 +301,7 @@ public class EmailService {
             message.setText(replyBody + "\n\nBest Regards,\nAyurkisan Team");
             mailSender.send(message);
         } catch (Exception e) {
-            System.err.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-            System.err.println("!!! [EmailService ERROR] Failed to send contact reply to: " + toEmail);
-            System.err.println("!!! Reason: " + e.getMessage());
-            System.err.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+            System.err.println(">>> [EmailService] Failed to send contact reply to: " + toEmail);
             e.printStackTrace();
         }
     }
@@ -347,10 +323,7 @@ public class EmailService {
                     "Ayurkisan Team");
             mailSender.send(message);
         } catch (Exception e) {
-            System.err.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-            System.err.println("!!! [EmailService ERROR] Failed to send OTP email to: " + toEmail);
-            System.err.println("!!! Reason: " + e.getMessage());
-            System.err.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+            System.err.println(">>> [EmailService] Failed to send OTP email to: " + toEmail);
             e.printStackTrace();
         }
     }
