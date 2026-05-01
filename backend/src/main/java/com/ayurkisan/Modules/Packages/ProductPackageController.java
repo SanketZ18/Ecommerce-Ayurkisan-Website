@@ -19,7 +19,6 @@ import jakarta.validation.Valid;
 
 import org.springframework.web.bind.annotation.CrossOrigin;
 
-@CrossOrigin("*")
 @RestController
 @RequestMapping("/packages")
 public class ProductPackageController {
