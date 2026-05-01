@@ -7,7 +7,6 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -110,6 +109,25 @@ public class OrderController {
         Map<String, String> response = new HashMap<>();
         response.put("message", "Order cancelled successfully. Stock refunded.");
         return ResponseEntity.ok(response);
+    }
+    
+    @GetMapping("/{orderId}")
+    public ResponseEntity<Order> getOrderDetailById(
+            @RequestHeader("Authorization") String authHeader,
+            @PathVariable String orderId) {
+            
+        Map<String, String> userDetails = extractUserFromToken(authHeader);
+        String userId = userDetails.get("userId");
+        String role = userDetails.get("role");
+        
+        Order order = orderService.getOrderById(orderId);
+        
+        // Ownership check: Only the user who placed the order or an Admin can view it
+        if (!order.getUserId().equals(userId) && !"Admin".equalsIgnoreCase(role)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Not authorized to access this order");
+        }
+        
+        return ResponseEntity.ok(order);
     }
 
     @GetMapping("/{orderId}/invoice")
