@@ -35,7 +35,7 @@ public class EmailService {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
             
-            helper.setFrom(fromEmail);
+            helper.setFrom(fromEmail, "Ayurkisan");
             helper.setTo(toEmail);
             helper.setSubject("Order Confirmation - Ayurkisan");
             
@@ -178,7 +178,7 @@ public class EmailService {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
             
-            helper.setFrom(fromEmail);
+            helper.setFrom(fromEmail, "Ayurkisan");
             helper.setTo(toEmail);
             helper.setSubject("Order Delivered and Tax Invoice - Ayurkisan");
                StringBuilder html = new StringBuilder();

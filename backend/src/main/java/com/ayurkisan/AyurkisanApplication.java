@@ -52,8 +52,8 @@ public class AyurkisanApplication {
             }
 
             try {
-                System.out.println(">>> [Startup Diagnostics] Attempting to connect to smtp.gmail.com:587...");
                 org.springframework.mail.javamail.JavaMailSenderImpl impl = (org.springframework.mail.javamail.JavaMailSenderImpl) mailSender;
+                System.out.println(">>> [Startup Diagnostics] Attempting to connect to " + impl.getHost() + ":" + impl.getPort() + "...");
                 
                 // CRITICAL: Ensure no accidental spaces in the password/username
                 if (impl.getUsername() != null) impl.setUsername(impl.getUsername().trim());
