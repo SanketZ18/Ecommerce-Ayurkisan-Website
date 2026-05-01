@@ -9,6 +9,9 @@ import org.springframework.scheduling.annotation.EnableAsync;
 public class AyurkisanApplication {
 
     public static void main(String[] args) {
+        // Force IPv4 for stable networking on cloud providers
+        System.setProperty("java.net.preferIPv4Stack" , "true");
+        
         // Manual .env loading to bypass library issues and ensure file precedence
         try {
             java.io.File envFile = new java.io.File("./.env");
