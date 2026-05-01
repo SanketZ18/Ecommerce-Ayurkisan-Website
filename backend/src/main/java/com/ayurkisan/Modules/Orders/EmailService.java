@@ -27,6 +27,7 @@ public class EmailService {
     @Async
     public void sendOrderConfirmation(String toEmail, Order order) {
         if (toEmail == null || toEmail.isEmpty()) {
+            System.err.println(">>> [EmailService] Aborted: recipient email is null or empty");
             return;
         }
 
@@ -80,8 +81,8 @@ public class EmailService {
                 }
                 html.append("</td>");
                 html.append("<td style='padding: 12px 5px; text-align: center;'>").append(item.getQuantity()).append("</td>");
-                html.append("<td style='padding: 12px 5px; text-align: right;'>₹").append(item.getDiscountedPrice()).append("</td>");
-                html.append("<td style='padding: 12px 5px; text-align: right; font-weight: bold;'>₹").append(item.getTotalItemPrice()).append("</td>");
+                html.append("<td style='padding: 12px 5px; text-align: right;'>₹").append(formatPrice(item.getDiscountedPrice())).append("</td>");
+                html.append("<td style='padding: 12px 5px; text-align: right; font-weight: bold;'>₹").append(formatPrice(item.getTotalItemPrice())).append("</td>");
                 html.append("</tr>");
             }
 
@@ -93,17 +94,17 @@ public class EmailService {
             html.append("<table style='width: 100%;'>");
             html.append("<tr>");
             html.append("<td style='padding: 5px 0;'>Subtotal:</td>");
-            html.append("<td style='padding: 5px 0; text-align: right;'>₹").append(order.getTotalDiscountedPrice() - order.getDeliveryCharge()).append("</td>");
+            html.append("<td style='padding: 5px 0; text-align: right;'>₹").append(formatPrice(order.getTotalDiscountedPrice() - order.getDeliveryCharge())).append("</td>");
             html.append("</tr>");
             if (order.getDeliveryCharge() > 0) {
                 html.append("<tr>");
                 html.append("<td style='padding: 5px 0;'>Delivery Charge:</td>");
-                html.append("<td style='padding: 5px 0; text-align: right;'>₹").append(order.getDeliveryCharge()).append("</td>");
+                html.append("<td style='padding: 5px 0; text-align: right;'>₹").append(formatPrice(order.getDeliveryCharge())).append("</td>");
                 html.append("</tr>");
             }
             html.append("<tr style='font-size: 20px; font-weight: bold; color: #16a34a;'>");
             html.append("<td style='padding: 10px 0;'>Grand Total:</td>");
-            html.append("<td style='padding: 10px 0; text-align: right;'>₹").append(order.getTotalDiscountedPrice()).append("</td>");
+            html.append("<td style='padding: 10px 0; text-align: right;'>₹").append(formatPrice(order.getTotalDiscountedPrice())).append("</td>");
             html.append("</tr>");
             html.append("</table>");
             html.append("</div>");
@@ -128,13 +129,15 @@ public class EmailService {
             mailSender.send(message);
 
         } catch (Exception e) {
-            System.err.println("Failed to send HTML email to " + toEmail + ": " + e.getMessage());
+            System.err.println(">>> [EmailService] Failed to send HTML email to " + toEmail);
+            e.printStackTrace();
         }
     }
 
     @Async
     public void sendOrderCancellation(String toEmail, Order order, String reason) {
         if (toEmail == null || toEmail.isEmpty()) {
+            System.err.println(">>> [EmailService] Aborted: recipient email is null or empty");
             return;
         }
 
@@ -159,13 +162,15 @@ public class EmailService {
             mailSender.send(message);
 
         } catch (Exception e) {
-            System.err.println("Failed to send cancellation email to " + toEmail + ": " + e.getMessage());
+            System.err.println(">>> [EmailService] Failed to send cancellation email to " + toEmail);
+            e.printStackTrace();
         }
     }
 
     @Async
     public void sendOrderDelivered(String toEmail, Order order) {
         if (toEmail == null || toEmail.isEmpty()) {
+            System.err.println(">>> [EmailService] Aborted: recipient email is null or empty");
             return;
         }
 
@@ -216,7 +221,8 @@ public class EmailService {
             mailSender.send(message);
 
         } catch (Exception e) {
-            System.err.println("Failed to send HTML delivery email to " + toEmail + ": " + e.getMessage());
+            System.err.println(">>> [EmailService] Failed to send HTML delivery email to " + toEmail);
+            e.printStackTrace();
         }
     }
 
@@ -230,7 +236,10 @@ public class EmailService {
             message.setSubject("Return Requested - Ayurkisan");
             message.setText("Dear " + order.getUserName() + ",\n\nWe have received your return request for Order ID: " + order.getId() + ".\nOur team is reviewing it and will update you shortly.\n\nBest Regards,\nAyurkisan Team");
             mailSender.send(message);
-        } catch (Exception e) {}
+        } catch (Exception e) {
+            System.err.println(">>> [EmailService] Failed to send return requested email to " + toEmail);
+            e.printStackTrace();
+        }
     }
 
     @Async
@@ -243,7 +252,10 @@ public class EmailService {
             message.setSubject("Return Accepted - Ayurkisan");
             message.setText("Dear " + order.getUserName() + ",\n\nYour return request for Order ID: " + order.getId() + " has been accepted.\nOur delivery agent will contact you for pickup.\n\nBest Regards,\nAyurkisan Team");
             mailSender.send(message);
-        } catch (Exception e) {}
+        } catch (Exception e) {
+            System.err.println(">>> [EmailService] Failed to send return accepted email to " + toEmail);
+            e.printStackTrace();
+        }
     }
 
     @Async
@@ -256,7 +268,10 @@ public class EmailService {
             message.setSubject("Return Rejected - Ayurkisan");
             message.setText("Dear " + order.getUserName() + ",\n\nUnfortunately, your return request for Order ID: " + order.getId() + " has been rejected after review.\nIf you have questions, please contact our support team.\n\nBest Regards,\nAyurkisan Team");
             mailSender.send(message);
-        } catch (Exception e) {}
+        } catch (Exception e) {
+            System.err.println(">>> [EmailService] Failed to send return rejected email to " + toEmail);
+            e.printStackTrace();
+        }
     }
 
     @Async
@@ -269,7 +284,10 @@ public class EmailService {
             message.setSubject("Return Refunded - Ayurkisan");
             message.setText("Dear " + order.getUserName() + ",\n\nYour return for Order ID: " + order.getId() + " is complete.\nA cash refund has been issued during the pickup process.\n\nThank you for choosing Ayurkisan.\n\nBest Regards,\nAyurkisan Team");
             mailSender.send(message);
-        } catch (Exception e) {}
+        } catch (Exception e) {
+            System.err.println(">>> [EmailService] Failed to send return refunded email to " + toEmail);
+            e.printStackTrace();
+        }
     }
 
     @Async
@@ -282,7 +300,10 @@ public class EmailService {
             message.setSubject("Re: " + subject);
             message.setText(replyBody + "\n\nBest Regards,\nAyurkisan Team");
             mailSender.send(message);
-        } catch (Exception e) {}
+        } catch (Exception e) {
+            System.err.println(">>> [EmailService] Failed to send contact reply to " + toEmail);
+            e.printStackTrace();
+        }
     }
 
     @Async
@@ -302,7 +323,18 @@ public class EmailService {
                     "Ayurkisan Team");
             mailSender.send(message);
         } catch (Exception e) {
-            System.err.println("Failed to send OTP email to " + toEmail + ": " + e.getMessage());
+            System.err.println(">>> [EmailService] Failed to send OTP email to " + toEmail);
+            e.printStackTrace();
+        }
+    }
+
+    private String formatPrice(double price) {
+        try {
+            return new java.math.BigDecimal(String.valueOf(price))
+                    .setScale(1, java.math.RoundingMode.FLOOR)
+                    .toPlainString();
+        } catch (Exception e) {
+            return String.format("%.1f", price);
         }
     }
 }

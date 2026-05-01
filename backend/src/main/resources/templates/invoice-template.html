@@ -270,15 +270,15 @@
                     <td><strong th:text="${item.productName}">Product</strong></td>
                     <td style="text-align: center;">3004</td>
                     <td style="text-align: center;" th:text="${item.quantity}">1</td>
-                    <td style="text-align: right;" th:text="${#numbers.formatDecimal(item.price, 1, 2)}">370.00</td>
-                    <td style="text-align: right;" th:text="${#numbers.formatDecimal(item.price - item.discountedPrice, 1, 2)}">0.00</td>
-                    <td style="text-align: right; font-weight: bold;" th:text="${#numbers.formatDecimal(item.discountedPrice * item.quantity, 1, 2)}">370.00</td>
+                    <td style="text-align: right;" th:text="${#numbers.formatDecimal(item.price, 1, 1)}">370.0</td>
+                    <td style="text-align: right;" th:text="${#numbers.formatDecimal(item.price - item.discountedPrice, 1, 1)}">0.0</td>
+                    <td style="text-align: right; font-weight: bold;" th:text="${#numbers.formatDecimal(item.discountedPrice * item.quantity, 1, 1)}">370.0</td>
                 </tr>
                 <tr class="row-total">
                     <td colspan="3" style="text-align: right;">TOTAL ITEMS</td>
                     <td style="text-align: center;" th:text="${#aggregates.sum(order.items.![quantity])}">1</td>
                     <td colspan="2" style="text-align: right;">SUBTOTAL</td>
-                    <td style="text-align: right;" th:text="${#numbers.formatDecimal(order.baseSubtotal, 1, 2)}">761.00</td>
+                    <td style="text-align: right;" th:text="${#numbers.formatDecimal(order.baseSubtotal, 1, 1)}">761.0</td>
                 </tr>
             </tbody>
         </table>
@@ -298,17 +298,17 @@
                         <tr>
                             <td>CGST</td>
                             <td>9%</td>
-                            <td th:text="'₹' + ${#numbers.formatDecimal(cgstAmount, 1, 2)}">₹0.00</td>
+                            <td th:text="'₹' + ${#numbers.formatDecimal(cgstAmount, 1, 1)}">₹0.0</td>
                         </tr>
                         <tr>
                             <td>SGST</td>
                             <td>9%</td>
-                            <td th:text="'₹' + ${#numbers.formatDecimal(sgstAmount, 1, 2)}">₹0.00</td>
+                            <td th:text="'₹' + ${#numbers.formatDecimal(sgstAmount, 1, 1)}">₹0.0</td>
                         </tr>
                         <tr style="font-weight: bold; background: #f3f4f6;">
                             <td>Total Tax</td>
                             <td>18%</td>
-                            <td th:text="'₹' + ${#numbers.formatDecimal(totalTax, 1, 2)}">₹0.00</td>
+                            <td th:text="'₹' + ${#numbers.formatDecimal(totalTax, 1, 1)}">₹0.0</td>
                         </tr>
                     </tbody>
                 </table>
@@ -318,24 +318,24 @@
                 <table class="totals-table">
                     <tr>
                         <td class="total-l">Sub Total:</td>
-                        <td class="total-v" th:text="'₹' + ${#numbers.formatDecimal(order.baseSubtotal, 1, 2)}">₹0.00</td>
+                        <td class="total-v" th:text="'₹' + ${#numbers.formatDecimal(order.baseSubtotal, 1, 1)}">₹0.0</td>
                     </tr>
                     <tr th:if="${order.promoDiscount > 0}">
                         <td class="total-l">Promo Discount:</td>
-                        <td class="total-v" th:text="'-₹' + ${#numbers.formatDecimal(order.promoDiscount, 1, 2)}">-₹0.00</td>
+                        <td class="total-v" th:text="'-₹' + ${#numbers.formatDecimal(order.promoDiscount, 1, 1)}">-₹0.0</td>
                     </tr>
                     <tr>
                         <td class="total-l">GST Tax (18%):</td>
-                        <td class="total-v" th:text="'₹' + ${#numbers.formatDecimal(totalTax, 1, 2)}">₹0.00</td>
+                        <td class="total-v" th:text="'₹' + ${#numbers.formatDecimal(totalTax, 1, 1)}">₹0.0</td>
                     </tr>
                     <tr>
                         <td class="total-l">Delivery:</td>
-                        <td class="total-v" th:text="'₹' + ${#numbers.formatDecimal(order.deliveryCharge != null ? order.deliveryCharge : 0.0, 1, 2)}">₹0.00</td>
+                        <td class="total-v" th:text="'₹' + ${#numbers.formatDecimal(order.deliveryCharge != null ? order.deliveryCharge : 0.0, 1, 1)}">₹0.0</td>
                     </tr>
                 </table>
                 <div class="grand-total-box">
                     NET PAYABLE
-                    <span class="grand-total-text" th:text="'₹' + ${#numbers.formatDecimal(order.totalDiscountedPrice, 1, 2)}">₹0.00</span>
+                    <span class="grand-total-text" th:text="'₹' + ${#numbers.formatDecimal(order.totalDiscountedPrice, 1, 1)}">₹0.0</span>
                 </div>
             </div>
         </div>

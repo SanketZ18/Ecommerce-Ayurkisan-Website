@@ -25,11 +25,9 @@ public class AyurkisanApplication {
                         System.setProperty(key, value);
                     }
                 }
-            } else {
-                System.out.println(">>> [Warning] .env file not found in " + envFile.getCanonicalPath());
             }
         } catch (Exception e) {
-            System.err.println(">>> [Error] Failed to load .env manually: " + e.getMessage());
+            // Silently fail if .env not present or readable, rely on system env
         }
 
         SpringApplication.run(AyurkisanApplication.class, args);
