@@ -7,7 +7,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/chatbot")
-@CrossOrigin("*")
 public class ChatbotController {
 
     @Autowired

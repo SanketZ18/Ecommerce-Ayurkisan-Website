@@ -24,7 +24,6 @@ import com.ayurkisan.util.JwtUtil;
 
 @RestController
 @RequestMapping("/orders")
-@CrossOrigin("*")
 public class OrderController {
 
     @Autowired
