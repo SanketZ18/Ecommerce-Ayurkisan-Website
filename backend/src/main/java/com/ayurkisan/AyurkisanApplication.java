@@ -53,10 +53,20 @@ public class AyurkisanApplication {
 
             try {
                 System.out.println(">>> [Startup Diagnostics] Attempting to connect to smtp.gmail.com:587...");
-                ((org.springframework.mail.javamail.JavaMailSenderImpl) mailSender).testConnection();
+                org.springframework.mail.javamail.JavaMailSenderImpl impl = (org.springframework.mail.javamail.JavaMailSenderImpl) mailSender;
+                
+                // CRITICAL: Ensure no accidental spaces in the password/username
+                if (impl.getUsername() != null) impl.setUsername(impl.getUsername().trim());
+                if (impl.getPassword() != null) impl.setPassword(impl.getPassword().trim());
+                
+                impl.testConnection();
                 System.out.println(">>> [SUCCESS] Email server connection established successfully!");
             } catch (Exception e) {
-                System.err.println(">>> [FAILED] Could not connect to email server: " + e.getMessage());
+                System.err.println(">>> [FAILED] Could not connect to email server!");
+                System.err.println(">>> REASON: " + e.getMessage());
+                if (e.getMessage() != null && e.getMessage().contains("AuthenticationFailedException")) {
+                    System.err.println(">>> SUGGESTION: Your Gmail App Password might be wrong or contains spaces. Please check Render Environment Variables.");
+                }
             }
         };
     }
