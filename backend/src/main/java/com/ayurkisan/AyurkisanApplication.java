@@ -56,12 +56,15 @@ public class AyurkisanApplication {
 
             try {
                 org.springframework.mail.javamail.JavaMailSenderImpl impl = (org.springframework.mail.javamail.JavaMailSenderImpl) mailSender;
-                System.out.println(">>> [Startup Diagnostics] Attempting to connect to " + impl.getHost() + ":" + impl.getPort() + "...");
+                String protocol = impl.getProtocol();
+                System.out.println(">>> [Startup Diagnostics] Attempting to connect to " + impl.getHost() + ":" + impl.getPort() + " via " + protocol + "...");
                 
                 // CRITICAL: Ensure no accidental spaces in the password/username
                 if (impl.getUsername() != null) impl.setUsername(impl.getUsername().replace(" ", ""));
                 if (impl.getPassword() != null) impl.setPassword(impl.getPassword().replace(" ", ""));
                 
+                // Add a small delay to let network settle
+                Thread.sleep(2000);
                 impl.testConnection();
                 System.out.println(">>> [SUCCESS] Email server connection established successfully!");
             } catch (Exception e) {
