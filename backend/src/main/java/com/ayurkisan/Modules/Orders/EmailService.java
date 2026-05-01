@@ -35,8 +35,9 @@ public class EmailService {
 
     @Async
     public void sendOrderConfirmation(String toEmail, Order order) {
+        System.out.println(">>> [EmailService] Starting order confirmation send to: " + toEmail);
         if (toEmail == null || toEmail.isEmpty()) {
-            System.err.println(">>> [EmailService] Aborted: recipient email is null or empty");
+            System.err.println(">>> [EmailService] ABORTED: recipient email is null or empty");
             return;
         }
 
@@ -49,6 +50,8 @@ public class EmailService {
             helper.setSubject("Order Confirmation - Ayurkisan");
             
             StringBuilder html = new StringBuilder();
+            // ... [HTML Generation remains same] ...
+            // (I will keep the existing HTML logic but wrap it in the new try block)
             html.append("<div style='font-family: Helvetica, Arial, sans-serif; color: #1a1a1a; max-width: 600px; margin: 0 auto; line-height: 1.6;'>");
             
             // Header - Clean & Simple
@@ -136,9 +139,15 @@ public class EmailService {
 
             helper.setText(html.toString(), true);
             mailSender.send(message);
+            System.out.println(">>> [EmailService] SUCCESS: Order confirmation sent to " + toEmail);
 
         } catch (Exception e) {
-            System.err.println(">>> [EmailService] Failed to send email to: " + toEmail);
+            System.err.println(">>> [EmailService] CRITICAL FAILURE while sending email!");
+            System.err.println(">>> REASON: " + e.getMessage());
+            System.err.println(">>> TYPE: " + e.getClass().getName());
+            if (e.getCause() != null) {
+                System.err.println(">>> CAUSE: " + e.getCause().getMessage());
+            }
             e.printStackTrace();
         }
     }
