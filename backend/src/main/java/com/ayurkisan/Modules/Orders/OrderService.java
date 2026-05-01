@@ -210,16 +210,34 @@ public class OrderService {
     }
 
     public List<Order> getUserOrders(String userId) {
-        return orderRepository.findAllByUserIdOrderByCreatedAtDesc(userId);
+        List<Order> orders = orderRepository.findAllByUserIdOrderByCreatedAtDesc(userId);
+        orders.forEach(order -> {
+            if (order.getContactEmail() == null || order.getContactEmail().isEmpty()) {
+                resolveContactEmail(order);
+            }
+        });
+        return orders;
     }
 
     public List<Order> getAllOrders() {
-        return orderRepository.findAll();
+        List<Order> orders = orderRepository.findAll();
+        orders.forEach(order -> {
+            if (order.getContactEmail() == null || order.getContactEmail().isEmpty()) {
+                resolveContactEmail(order);
+            }
+        });
+        return orders;
     }
 
     public Order getOrderById(String orderId) {
-        return orderRepository.findById(orderId)
+        Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Order not found"));
+        
+        if (order.getContactEmail() == null || order.getContactEmail().isEmpty()) {
+            resolveContactEmail(order);
+        }
+        
+        return order;
     }
 
     @Transactional
@@ -282,6 +300,11 @@ public class OrderService {
             return order; // If status didn't change, we just did the sync and can return
         }
         
+        // Ensure contactEmail is populated (fallback for older orders)
+        if (order.getContactEmail() == null || order.getContactEmail().isEmpty()) {
+            resolveContactEmail(order);
+        }
+        
         if ("CONFIRMED".equalsIgnoreCase(newStatus)) {
             emailService.sendOrderConfirmation(order.getContactEmail(), order);
         } else if ("SHIPPED".equalsIgnoreCase(newStatus)) {
@@ -305,5 +328,17 @@ public class OrderService {
         }
 
         return orderRepository.save(order);
+    }
+
+    private void resolveContactEmail(Order order) {
+        try {
+            if ("Customer".equalsIgnoreCase(order.getRole())) {
+                customerRepository.findById(order.getUserId()).ifPresent(c -> order.setContactEmail(c.getEmail()));
+            } else if ("Retailer".equalsIgnoreCase(order.getRole())) {
+                retailerRepository.findById(order.getUserId()).ifPresent(r -> order.setContactEmail(r.getEmail()));
+            }
+        } catch (Exception e) {
+            System.err.println("Failed to resolve contact email for order " + order.getId() + ": " + e.getMessage());
+        }
     }
 }
