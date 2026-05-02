@@ -26,18 +26,19 @@ public class EmailService {
 
     @jakarta.annotation.PostConstruct
     public void init() {
+        // Aggressively clean all email-related credentials of any whitespace
+        if (fromEmail != null) fromEmail = fromEmail.trim().replace(" ", "");
+        
         if (mailSender instanceof org.springframework.mail.javamail.JavaMailSenderImpl) {
             org.springframework.mail.javamail.JavaMailSenderImpl impl = (org.springframework.mail.javamail.JavaMailSenderImpl) mailSender;
-            if (impl.getUsername() != null) impl.setUsername(impl.getUsername().replace(" ", ""));
-            if (impl.getPassword() != null) impl.setPassword(impl.getPassword().replace(" ", ""));
+            if (impl.getUsername() != null) impl.setUsername(impl.getUsername().trim().replace(" ", ""));
+            if (impl.getPassword() != null) impl.setPassword(impl.getPassword().trim().replace(" ", ""));
         }
     }
 
     @Async
     public void sendOrderConfirmation(String toEmail, Order order) {
-        System.out.println(">>> [EmailService] Starting order confirmation send to: " + toEmail);
         if (toEmail == null || toEmail.isEmpty()) {
-            System.err.println(">>> [EmailService] ABORTED: recipient email is null or empty");
             return;
         }
 
@@ -139,15 +140,7 @@ public class EmailService {
 
             helper.setText(html.toString(), true);
             mailSender.send(message);
-            System.out.println(">>> [EmailService] SUCCESS: Order confirmation sent to " + toEmail);
-
         } catch (Exception e) {
-            System.err.println(">>> [EmailService] CRITICAL FAILURE while sending email!");
-            System.err.println(">>> REASON: " + e.getMessage());
-            System.err.println(">>> TYPE: " + e.getClass().getName());
-            if (e.getCause() != null) {
-                System.err.println(">>> CAUSE: " + e.getCause().getMessage());
-            }
             e.printStackTrace();
         }
     }

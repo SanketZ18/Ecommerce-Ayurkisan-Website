@@ -102,13 +102,17 @@ public void deleteProduct(String id) {
 
     // ================= GET PRODUCT BY ID (REAL DB ID) =================
     public Product getProductById(String id) {
-
-        Product product = productRepository.findById(id)
+        return productRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND,
                         "Product not found with ID: " + id));
+    }
 
-        return product;
+    public com.ayurkisan.model.Product getProductByName(String name) {
+        return productRepository.findByProductNameIgnoreCase(name)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Product not found with name: " + name));
     }
 
     // =========================================================
@@ -171,6 +175,50 @@ public void deleteProduct(String id) {
         Update update = new Update()
                 .inc("stockQuantity", quantity);
 
+        mongoTemplate.updateFirst(query, update, Product.class);
+    }
+
+    // =========================================================
+    //  ATOMIC STOCK REDUCTION BY NAME
+    // =========================================================
+    public boolean reduceStockByNameAtomically(String productName, int quantity) {
+        if (quantity <= 0) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Quantity must be greater than 0");
+        }
+
+        Product product = productRepository.findByProductNameIgnoreCase(productName)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found with name: " + productName));
+
+        if (product.getStockQuantity() < quantity) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Insufficient stock available for " + productName);
+        }
+
+        Query query = new Query(
+                Criteria.where("productName").is(product.getProductName())
+                        .and("stockQuantity").gte(quantity)
+        );
+
+        Update update = new Update().inc("stockQuantity", -quantity);
+        UpdateResult result = mongoTemplate.updateFirst(query, update, Product.class);
+
+        if (result.getModifiedCount() == 0) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Insufficient stock available for " + productName);
+        }
+
+        return true;
+    }
+
+    // =========================================================
+    //  STOCK INCREASE BY NAME
+    // =========================================================
+    public void increaseStockByName(String productName, int quantity) {
+        if (quantity <= 0) return;
+
+        Product product = productRepository.findByProductNameIgnoreCase(productName)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found with name: " + productName));
+
+        Query query = new Query(Criteria.where("productName").is(product.getProductName()));
+        Update update = new Update().inc("stockQuantity", quantity);
         mongoTemplate.updateFirst(query, update, Product.class);
     }
 }
