@@ -36,7 +36,7 @@ public class EmailService {
         }
     }
 
-    @Async
+    // Temporarily removed @Async for debugging
     public void sendOrderConfirmation(String toEmail, Order order) {
         if (toEmail == null || toEmail.isEmpty()) {
             return;
@@ -141,7 +141,7 @@ public class EmailService {
             helper.setText(html.toString(), true);
             mailSender.send(message);
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new RuntimeException("Email delivery failed: " + e.getMessage(), e);
         }
     }
 
