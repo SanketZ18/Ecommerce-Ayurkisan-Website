@@ -14,6 +14,9 @@ public class ProductPackageService {
     @Autowired
     private ProductPackageRepository repository;
 
+    @Autowired
+    private com.ayurkisan.service.ProductService productService;
+
     // CREATE
     public ProductPackage createPackage(ProductPackage productPackage) {
 
@@ -21,22 +24,50 @@ public class ProductPackageService {
         return repository.save(productPackage);
     }
 
+    private void calculateStock(ProductPackage pkg) {
+        int minStock = Integer.MAX_VALUE;
+        if (pkg.getItems() == null || pkg.getItems().isEmpty()) {
+            pkg.setStockQuantity(0);
+            return;
+        }
+
+        for (PackageItem item : pkg.getItems()) {
+            try {
+                // Try to find by Name first, then fallback to ID
+                com.ayurkisan.model.Product p;
+                try {
+                    p = productService.getProductByName(item.getProductId());
+                } catch (Exception e) {
+                    p = productService.getProductById(item.getProductId());
+                }
+
+                int possiblePackages = p.getStockQuantity() / item.getQuantity();
+                if (possiblePackages < minStock) {
+                    minStock = possiblePackages;
+                }
+            } catch (Exception e) {
+                minStock = 0;
+            }
+        }
+        pkg.setStockQuantity(minStock == Integer.MAX_VALUE ? 0 : minStock);
+    }
+
     // GET ALL
     public List<ProductPackage> getAllPackages() {
-
         List<ProductPackage> list = repository.findAll();
-
         if (list.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No packages found");
         }
-
+        list.forEach(this::calculateStock);
         return list;
     }
 
     // GET BY ID
     public ProductPackage getPackageById(@NonNull String id) {
-        return repository.findById(id)
+        ProductPackage pkg = repository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Package not found with ID: " + id));
+        calculateStock(pkg);
+        return pkg;
     }
 
     // UPDATE BY ID
@@ -62,20 +93,37 @@ public class ProductPackageService {
         repository.deleteById(id);
     }
 
-    public void reduceStockAtomically(String packageId, int quantity) {
+    public void reduceStockAtomically(String packageId, int orderQuantity) {
         ProductPackage pkg = repository.findById(packageId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Package not found: " + packageId));
-        if (pkg.getStockQuantity() < quantity) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Insufficient stock for package: " + pkg.getName());
+        
+        for (PackageItem item : pkg.getItems()) {
+            int totalToReduce = item.getQuantity() * orderQuantity;
+            try {
+                // Try reducing by Name first (as requested by user)
+                productService.reduceStockByNameAtomically(item.getProductId(), totalToReduce);
+            } catch (ResponseStatusException e) {
+                if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
+                    // Fallback to ID if Name is not found
+                    productService.reduceStockAtomically(item.getProductId(), totalToReduce);
+                } else {
+                    throw e;
+                }
+            }
         }
-        pkg.setStockQuantity(pkg.getStockQuantity() - quantity);
-        repository.save(pkg);
     }
 
-    public void increaseStock(String packageId, int quantity) {
+    public void increaseStock(String packageId, int orderQuantity) {
         ProductPackage pkg = repository.findById(packageId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Package not found: " + packageId));
-        pkg.setStockQuantity(pkg.getStockQuantity() + quantity);
-        repository.save(pkg);
+        
+        for (PackageItem item : pkg.getItems()) {
+            int totalToIncrease = item.getQuantity() * orderQuantity;
+            try {
+                productService.increaseStockByName(item.getProductId(), totalToIncrease);
+            } catch (Exception e) {
+                productService.increaseStock(item.getProductId(), totalToIncrease);
+            }
+        }
     }
 }
