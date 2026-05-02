@@ -3,9 +3,11 @@ package com.ayurkisan.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ayurkisan.dto.AdminSignupRequest;
@@ -17,6 +19,7 @@ import com.ayurkisan.dto.ResetPasswordRequest;
 import com.ayurkisan.dto.RetailerSignupRequest;
 import com.ayurkisan.dto.VerifyOtpRequest;
 import com.ayurkisan.service.AuthService;
+import com.ayurkisan.Modules.Orders.EmailService;
 
 import jakarta.validation.Valid;
 
@@ -27,6 +30,9 @@ public class AuthController {
 
     @Autowired
     private AuthService authService;
+
+    @Autowired
+    private EmailService emailService;
 
     // ================= CUSTOMER SIGNUP =================
     @PostMapping("/customer/signup")
@@ -63,6 +69,17 @@ public ResponseEntity<String> registerAdmin(
     @PostMapping("/verify-otp")
     public ResponseEntity<Boolean> verifyOtp(@RequestBody VerifyOtpRequest request) {
         return ResponseEntity.ok(authService.verifyOtp(request.getEmail(), request.getOtp()));
+    }
+
+    // ================= TEST EMAIL =================
+    @GetMapping("/test-email")
+    public String testEmail(@RequestParam String to) {
+        try {
+            emailService.sendOrderConfirmation(to, new com.ayurkisan.Modules.Orders.Order());
+            return "Email attempt finished. If you don't see it, check the logs or spam. Sent to: " + to;
+        } catch (Exception e) {
+            return "EMAIL FAILED: " + e.getMessage() + "\nCause: " + e.getCause();
+        }
     }
 
     // ================= RESET PASSWORD =================
