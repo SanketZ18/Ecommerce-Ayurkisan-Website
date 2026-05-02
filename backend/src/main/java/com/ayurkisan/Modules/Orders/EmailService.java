@@ -85,18 +85,20 @@ public class EmailService {
             html.append("</thead>");
             html.append("<tbody>");
 
-            for (OrderItem item : order.getItems()) {
-                html.append("<tr style='border-bottom: 1px solid #eee;'>");
-                html.append("<td style='padding: 12px 5px;'>");
-                html.append("<div style='font-weight: bold;'>").append(item.getProductName()).append("</div>");
-                if (item.getWeight() != null) {
-                    html.append("<div style='font-size: 12px; color: #777;'>").append(item.getWeight()).append("</div>");
+            if (order.getItems() != null) {
+                for (OrderItem item : order.getItems()) {
+                    html.append("<tr style='border-bottom: 1px solid #eee;'>");
+                    html.append("<td style='padding: 12px 5px;'>");
+                    html.append("<div style='font-weight: bold;'>").append(item.getProductName()).append("</div>");
+                    if (item.getWeight() != null) {
+                        html.append("<div style='font-size: 12px; color: #777;'>").append(item.getWeight()).append("</div>");
+                    }
+                    html.append("</td>");
+                    html.append("<td style='padding: 12px 5px; text-align: center;'>").append(item.getQuantity()).append("</td>");
+                    html.append("<td style='padding: 12px 5px; text-align: right;'>₹").append(formatPrice(item.getDiscountedPrice())).append("</td>");
+                    html.append("<td style='padding: 12px 5px; text-align: right; font-weight: bold;'>₹").append(formatPrice(item.getTotalItemPrice())).append("</td>");
+                    html.append("</tr>");
                 }
-                html.append("</td>");
-                html.append("<td style='padding: 12px 5px; text-align: center;'>").append(item.getQuantity()).append("</td>");
-                html.append("<td style='padding: 12px 5px; text-align: right;'>₹").append(formatPrice(item.getDiscountedPrice())).append("</td>");
-                html.append("<td style='padding: 12px 5px; text-align: right; font-weight: bold;'>₹").append(formatPrice(item.getTotalItemPrice())).append("</td>");
-                html.append("</tr>");
             }
 
             html.append("</tbody>");
