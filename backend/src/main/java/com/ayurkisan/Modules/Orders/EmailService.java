@@ -36,23 +36,23 @@ public class EmailService {
         }
     }
 
-    // Temporarily removed @Async for debugging
+    @Async
     public void sendOrderConfirmation(String toEmail, Order order) {
-        if (toEmail == null || toEmail.isEmpty()) {
-            return;
-        }
-
         try {
+            // Check if toEmail is empty
+            if (toEmail == null || toEmail.trim().isEmpty()) {
+                System.out.println("❌ Cannot send email: recipient address is empty");
+                return;
+            }
+
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
             
             helper.setFrom(fromEmail, "Ayurkisan");
             helper.setTo(toEmail);
-            helper.setSubject("Order Confirmation - Ayurkisan");
+            helper.setSubject("Order Confirmed! Your Order #" + order.getId() + " is being processed");
             
             StringBuilder html = new StringBuilder();
-            // ... [HTML Generation remains same] ...
-            // (I will keep the existing HTML logic but wrap it in the new try block)
             html.append("<div style='font-family: Helvetica, Arial, sans-serif; color: #1a1a1a; max-width: 600px; margin: 0 auto; line-height: 1.6;'>");
             
             // Header - Clean & Simple
