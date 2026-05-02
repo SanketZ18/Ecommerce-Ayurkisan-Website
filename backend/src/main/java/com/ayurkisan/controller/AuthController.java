@@ -71,20 +71,6 @@ public ResponseEntity<String> registerAdmin(
         return ResponseEntity.ok(authService.verifyOtp(request.getEmail(), request.getOtp()));
     }
 
-    @GetMapping("/test-email")
-    public String testEmail(@RequestParam String to) {
-        try {
-            com.ayurkisan.Modules.Orders.Order dummyOrder = new com.ayurkisan.Modules.Orders.Order();
-            dummyOrder.setId("TEST-123");
-            dummyOrder.setItems(new java.util.ArrayList<>());
-            
-            emailService.sendOrderConfirmation(to, dummyOrder);
-            return "SUCCESS! Email attempt finished. Check your SPAM folder. Sent to: " + to;
-        } catch (Exception e) {
-            return "EMAIL FAILED: " + e.getMessage();
-        }
-    }
-
     // ================= RESET PASSWORD =================
     @PostMapping("/reset-password")
     public ResponseEntity<String> resetPassword(@RequestBody ResetPasswordRequest request) {
