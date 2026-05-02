@@ -149,16 +149,15 @@ public class EmailService {
 
     @Async
     public void sendOrderCancellation(String toEmail, Order order, String reason) {
-        if (toEmail == null || toEmail.isEmpty()) {
-            System.err.println(">>> [EmailService] Aborted: recipient email is null or empty");
-            return;
-        }
+        if (toEmail == null || toEmail.isEmpty()) return;
 
         try {
-            SimpleMailMessage message = new SimpleMailMessage();
-            message.setFrom(fromEmail);
-            message.setTo(toEmail);
-            message.setSubject("Order Cancelled - Ayurkisan");
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+            
+            helper.setFrom(fromEmail, "Ayurkisan");
+            helper.setTo(toEmail);
+            helper.setSubject("Order Cancelled - Ayurkisan");
             
             StringBuilder body = new StringBuilder();
             body.append("Dear ").append(order.getUserName()).append(",\n\n");
@@ -171,12 +170,11 @@ public class EmailService {
             body.append("\nIf you have already paid online, the refund process will be initiated shortly.\n\n");
             body.append("Best Regards,\nAyurkisan Team");
 
-            message.setText(body.toString());
+            helper.setText(body.toString());
             mailSender.send(message);
 
         } catch (Exception e) {
             System.err.println(">>> [EmailService] Failed to send cancellation email to: " + toEmail);
-            e.printStackTrace();
         }
     }
 
@@ -243,15 +241,15 @@ public class EmailService {
     public void sendReturnRequested(String toEmail, Order order) {
         if (toEmail == null || toEmail.isEmpty()) return;
         try {
-            SimpleMailMessage message = new SimpleMailMessage();
-            message.setFrom(fromEmail);
-            message.setTo(toEmail);
-            message.setSubject("Return Requested - Ayurkisan");
-            message.setText("Dear " + order.getUserName() + ",\n\nWe have received your return request for Order ID: " + order.getId() + ".\nOur team is reviewing it and will update you shortly.\n\nBest Regards,\nAyurkisan Team");
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+            helper.setFrom(fromEmail, "Ayurkisan");
+            helper.setTo(toEmail);
+            helper.setSubject("Return Requested - Ayurkisan");
+            helper.setText("Dear " + order.getUserName() + ",\n\nWe have received your return request for Order ID: " + order.getId() + ".\nOur team is reviewing it and will update you shortly.\n\nBest Regards,\nAyurkisan Team");
             mailSender.send(message);
         } catch (Exception e) {
             System.err.println(">>> [EmailService] Failed to send return requested email to: " + toEmail);
-            e.printStackTrace();
         }
     }
 
@@ -259,15 +257,15 @@ public class EmailService {
     public void sendReturnAccepted(String toEmail, Order order) {
         if (toEmail == null || toEmail.isEmpty()) return;
         try {
-            SimpleMailMessage message = new SimpleMailMessage();
-            message.setFrom(fromEmail);
-            message.setTo(toEmail);
-            message.setSubject("Return Accepted - Ayurkisan");
-            message.setText("Dear " + order.getUserName() + ",\n\nYour return request for Order ID: " + order.getId() + " has been accepted.\nOur delivery agent will contact you for pickup.\n\nBest Regards,\nAyurkisan Team");
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+            helper.setFrom(fromEmail, "Ayurkisan");
+            helper.setTo(toEmail);
+            helper.setSubject("Return Accepted - Ayurkisan");
+            helper.setText("Dear " + order.getUserName() + ",\n\nYour return request for Order ID: " + order.getId() + " has been accepted.\nOur delivery agent will contact you for pickup.\n\nBest Regards,\nAyurkisan Team");
             mailSender.send(message);
         } catch (Exception e) {
             System.err.println(">>> [EmailService] Failed to send return accepted email to: " + toEmail);
-            e.printStackTrace();
         }
     }
 
@@ -275,15 +273,15 @@ public class EmailService {
     public void sendReturnRejected(String toEmail, Order order) {
         if (toEmail == null || toEmail.isEmpty()) return;
         try {
-            SimpleMailMessage message = new SimpleMailMessage();
-            message.setFrom(fromEmail);
-            message.setTo(toEmail);
-            message.setSubject("Return Rejected - Ayurkisan");
-            message.setText("Dear " + order.getUserName() + ",\n\nUnfortunately, your return request for Order ID: " + order.getId() + " has been rejected after review.\nIf you have questions, please contact our support team.\n\nBest Regards,\nAyurkisan Team");
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+            helper.setFrom(fromEmail, "Ayurkisan");
+            helper.setTo(toEmail);
+            helper.setSubject("Return Rejected - Ayurkisan");
+            helper.setText("Dear " + order.getUserName() + ",\n\nUnfortunately, your return request for Order ID: " + order.getId() + " has been rejected after review.\nIf you have questions, please contact our support team.\n\nBest Regards,\nAyurkisan Team");
             mailSender.send(message);
         } catch (Exception e) {
             System.err.println(">>> [EmailService] Failed to send return rejected email to: " + toEmail);
-            e.printStackTrace();
         }
     }
 
@@ -291,15 +289,15 @@ public class EmailService {
     public void sendReturnRefunded(String toEmail, Order order) {
         if (toEmail == null || toEmail.isEmpty()) return;
         try {
-            SimpleMailMessage message = new SimpleMailMessage();
-            message.setFrom(fromEmail);
-            message.setTo(toEmail);
-            message.setSubject("Return Refunded - Ayurkisan");
-            message.setText("Dear " + order.getUserName() + ",\n\nYour return for Order ID: " + order.getId() + " is complete.\nA cash refund has been issued during the pickup process.\n\nThank you for choosing Ayurkisan.\n\nBest Regards,\nAyurkisan Team");
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+            helper.setFrom(fromEmail, "Ayurkisan");
+            helper.setTo(toEmail);
+            helper.setSubject("Return Refunded - Ayurkisan");
+            helper.setText("Dear " + order.getUserName() + ",\n\nYour return for Order ID: " + order.getId() + " is complete.\nA cash refund has been issued during the pickup process.\n\nThank you for choosing Ayurkisan.\n\nBest Regards,\nAyurkisan Team");
             mailSender.send(message);
         } catch (Exception e) {
             System.err.println(">>> [EmailService] Failed to send return refunded email to: " + toEmail);
-            e.printStackTrace();
         }
     }
 
@@ -323,21 +321,25 @@ public class EmailService {
     public void sendOtpEmail(String toEmail, String otp) {
         if (toEmail == null || toEmail.isEmpty()) return;
         try {
-            SimpleMailMessage message = new SimpleMailMessage();
-            message.setFrom(fromEmail);
-            message.setTo(toEmail);
-            message.setSubject("Password Reset OTP - Ayurkisan");
-            message.setText("Dear User,\n\n" +
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+            
+            helper.setFrom(fromEmail, "Ayurkisan");
+            helper.setTo(toEmail);
+            helper.setSubject("Password Reset OTP - Ayurkisan");
+            
+            String text = "Dear User,\n\n" +
                     "You requested a password reset for your Ayurkisan account. " +
                     "Your One-Time Password (OTP) is:\n\n" +
                     otp + "\n\n" +
                     "This OTP is valid for 5 minutes. If you did not request this, please ignore this email.\n\n" +
                     "Best Regards,\n" +
-                    "Ayurkisan Team");
+                    "Ayurkisan Team";
+            
+            helper.setText(text);
             mailSender.send(message);
         } catch (Exception e) {
             System.err.println(">>> [EmailService] Failed to send OTP email to: " + toEmail);
-            e.printStackTrace();
         }
     }
 
