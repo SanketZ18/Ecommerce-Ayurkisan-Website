@@ -212,8 +212,16 @@ const Checkout = () => {
                                     <input 
                                         style={inputStyle} 
                                         value={formData.phone} 
-                                        onChange={(e) => setFormData({...formData, phone: e.target.value})}
+                                        onChange={(e) => {
+                                            const val = e.target.value.replace(/\D/g, '');
+                                            if (val.length > 0 && !['7', '8', '9'].includes(val[0])) return;
+                                            if (val.length > 10) return;
+                                            setFormData({...formData, phone: val});
+                                        }}
                                         placeholder="Mobile Number" 
+                                        pattern="[789][0-9]{9}"
+                                        title="Phone number must start with 7, 8 or 9 and contain 10 digits"
+                                        required
                                     />
                                 </div>
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', gridColumn: 'span 2' }}>

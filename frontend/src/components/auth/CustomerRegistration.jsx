@@ -23,7 +23,15 @@ const CustomerRegistration = ({ onClose, onSwitchToLogin }) => {
     const togglePassword = () => setShowPassword(!showPassword);
 
     const handleChange = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
+        const { name, value } = e.target;
+        if (name === 'phoneNumber') {
+            const val = value.replace(/\D/g, ''); // Allow only digits
+            if (val.length > 0 && !['7', '8', '9'].includes(val[0])) return; // Must start with 7, 8, or 9
+            if (val.length > 10) return; // Max 10 digits
+            setFormData({ ...formData, [name]: val });
+        } else {
+            setFormData({ ...formData, [name]: value });
+        }
     };
 
     const handleSubmit = async (e) => {
@@ -79,12 +87,12 @@ const CustomerRegistration = ({ onClose, onSwitchToLogin }) => {
 
                 <div className="form-group" style={formGroupStyle}>
                     <label style={labelStyle}>Email Address</label>
-                    <input type="email" name="email" value={formData.email} onChange={handleChange} required placeholder="john@example.com" style={inputStyle} />
+                    <input type="email" name="email" value={formData.email} onChange={handleChange} required placeholder="john@example.com" style={inputStyle} pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$" title="Please enter a valid email address" />
                 </div>
 
                 <div className="form-group" style={formGroupStyle}>
                     <label style={labelStyle}>Phone Number</label>
-                    <input type="tel" name="phoneNumber" value={formData.phoneNumber} onChange={handleChange} required placeholder="9876543210" style={inputStyle} />
+                    <input type="tel" name="phoneNumber" value={formData.phoneNumber} onChange={handleChange} required placeholder="9876543210" style={inputStyle} pattern="[789][0-9]{9}" title="Phone number must start with 7, 8 or 9 and contain 10 digits" />
                 </div>
 
                 <div className="form-group" style={formGroupStyle}>
