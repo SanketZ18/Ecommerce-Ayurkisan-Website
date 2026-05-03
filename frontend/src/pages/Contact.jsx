@@ -24,7 +24,15 @@ const Contact = () => {
     const [loading, setLoading] = useState(false);
 
     const handleChange = (e) => {
-        setForm({ ...form, [e.target.name]: e.target.value });
+        const { name, value } = e.target;
+        if (name === "phone") {
+            const val = value.replace(/\D/g, '');
+            if (val.length > 0 && !['7', '8', '9'].includes(val[0])) return;
+            if (val.length > 10) return;
+            setForm({ ...form, [name]: val });
+        } else {
+            setForm({ ...form, [name]: value });
+        }
     };
 
     const handleSubmit = async (e) => {
@@ -178,14 +186,14 @@ const Contact = () => {
                                 </div>
                                 <div style={{ flex: 1, minWidth: "200px" }}>
                                     <label style={labelStyle}>Email *</label>
-                                    <input type="email" name="email" placeholder="Enter your email" value={form.email} onChange={handleChange} required style={inputStyle} />
+                                    <input type="email" name="email" placeholder="Enter your email" value={form.email} onChange={handleChange} required style={inputStyle} pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$" title="Please enter a valid email address" />
                                 </div>
                             </div>
 
                             <div style={{ display: "flex", gap: "20px", flexWrap: "wrap" }}>
                                 <div style={{ flex: 1, minWidth: "200px" }}>
                                     <label style={labelStyle}>Phone / WhatsApp *</label>
-                                    <input type="text" name="phone" placeholder="+91 ..." value={form.phone} onChange={handleChange} required style={inputStyle} />
+                                    <input type="text" name="phone" placeholder="9876543210" value={form.phone} onChange={handleChange} required style={inputStyle} pattern="[789][0-9]{9}" title="Phone number must start with 7, 8 or 9 and contain 10 digits" />
                                 </div>
                                 <div style={{ flex: 1, minWidth: "200px" }}>
                                     <label style={labelStyle}>I am a *</label>

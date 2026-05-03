@@ -15,11 +15,11 @@ public class AdminSignupRequest {
     private String address;
 
     @NotBlank(message = "Email is required")
-    @Email(message = "Invalid email format")
+    @Pattern(regexp = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$", message = "Please provide a valid email address")
     private String email;
 
     @NotBlank(message = "Phone number is required")
-    @Pattern(regexp = "^[0-9]{10}$", message = "Phone number must contain 10 digits")
+    @Pattern(regexp = "^[789][0-9]{9}$", message = "Phone number must contain 10 digits and start with 7, 8, or 9")
     private String phoneNumber;
 
     @NotBlank(message = "Password is required")

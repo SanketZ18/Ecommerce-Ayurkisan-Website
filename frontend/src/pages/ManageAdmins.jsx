@@ -237,13 +237,18 @@ const ManageAdmins = () => {
                                 {!editingAdmin && (
                                     <div>
                                         <label style={labelStyle}>Security Email</label>
-                                        <input type="email" required style={inputStyle} value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} placeholder="admin@ayurkisan.com" />
+                                        <input type="email" required style={inputStyle} value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} placeholder="admin@ayurkisan.com" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$" title="Please enter a valid email address" />
                                     </div>
                                 )}
                                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.25rem' }}>
                                     <div>
                                         <label style={labelStyle}>Contact Signal (Phone)</label>
-                                        <input type="tel" required pattern="[0-9]{10}" style={inputStyle} value={formData.phoneNumber} onChange={(e) => setFormData({ ...formData, phoneNumber: e.target.value })} placeholder="9876543210" />
+                                        <input type="tel" required pattern="[789][0-9]{9}" style={inputStyle} value={formData.phoneNumber} onChange={(e) => {
+                                            const val = e.target.value.replace(/\D/g, '');
+                                            if (val.length > 0 && !['7', '8', '9'].includes(val[0])) return;
+                                            if (val.length > 10) return;
+                                            setFormData({ ...formData, phoneNumber: val });
+                                        }} placeholder="9876543210" title="Phone number must start with 7, 8 or 9 and contain 10 digits" />
                                     </div>
                                     <div>
                                         <label style={labelStyle}>Base Station (Address)</label>
