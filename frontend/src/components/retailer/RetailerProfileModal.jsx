@@ -110,11 +110,18 @@ const RetailerProfileModal = ({ onClose }) => {
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
-        setProfile(prev => ({
-            ...prev,
-            [name]: value,
-            ...(name === 'district' ? { taluka: '' } : {})
-        }));
+        if (name === 'phoneNumber') {
+            const val = value.replace(/\D/g, ''); // Allow only digits
+            if (val.length > 0 && !['7', '8', '9'].includes(val[0])) return; // Must start with 7, 8, or 9
+            if (val.length > 10) return; // Max 10 digits
+            setProfile(prev => ({ ...prev, [name]: val }));
+        } else {
+            setProfile(prev => ({
+                ...prev,
+                [name]: value,
+                ...(name === 'district' ? { taluka: '' } : {})
+            }));
+        }
     };
 
     return (
@@ -191,7 +198,7 @@ const RetailerProfileModal = ({ onClose }) => {
                                         </div>
                                         <div style={formGroupStyle}>
                                             <label style={labelStyle}>Phone Number</label>
-                                            <input type="text" name="phoneNumber" value={profile.phoneNumber} onChange={handleInputChange} required style={inputStyle} />
+                                            <input type="text" name="phoneNumber" value={profile.phoneNumber} onChange={handleInputChange} required style={inputStyle} pattern="[789][0-9]{9}" title="Phone number must start with 7, 8 or 9 and contain 10 digits" />
                                         </div>
                                     </div>
 

@@ -17,7 +17,7 @@ public class UpdateRetailerRequest {
     private String district;
     private String state;
 
-    @Pattern(regexp = "^[0-9]{10}$", message = "Phone number must contain 10 digits")
+    @Pattern(regexp = "^[789][0-9]{9}$", message = "Phone number must contain 10 digits and start with 7, 8, or 9")
     private String phoneNumber;
 
     // Getters and Setters

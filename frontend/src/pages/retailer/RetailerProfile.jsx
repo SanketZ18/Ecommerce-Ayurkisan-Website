@@ -137,8 +137,15 @@ const RetailerProfile = () => {
                             <input
                                 type="text"
                                 value={profile.phoneNumber}
-                                onChange={(e) => setProfile({ ...profile, phoneNumber: e.target.value })}
+                                onChange={(e) => {
+                                    const val = e.target.value.replace(/\D/g, '');
+                                    if (val.length > 0 && !['7', '8', '9'].includes(val[0])) return;
+                                    if (val.length > 10) return;
+                                    setProfile({ ...profile, phoneNumber: val });
+                                }}
                                 required
+                                pattern="[789][0-9]{9}"
+                                title="Phone number must start with 7, 8 or 9 and contain 10 digits"
                             />
                         </div>
                         <div className="form-group" style={{ gridColumn: '1 / -1' }}>
