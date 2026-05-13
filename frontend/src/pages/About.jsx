@@ -1,6 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { FaLeaf, FaHandshake, FaGlobe, FaCertificate, FaShieldAlt, FaCommentsDollar, FaChartLine, FaUsers, FaPhone, FaWhatsapp, FaBuilding } from 'react-icons/fa';
+import ownerPic from "../assets/images/owner_pic.jpeg";
 
 const About = () => {
     return (
@@ -62,9 +63,8 @@ const About = () => {
                 <div style={{ display: "flex", flexWrap: "wrap", gap: "4rem" }}>
                     <div style={{ flex: "1 1 400px" }}>
                         <div style={{ display: "flex", alignItems: "center", gap: "1.5rem", marginBottom: "1.5rem" }}>
-                            <div style={{ width: "90px", height: "90px", borderRadius: "50%", backgroundColor: "#E5E7EB", overflow: "hidden", display: "flex", justifyContent: "center", alignItems: "center" }}>
-                                {/* Placeholder for Founder Image */}
-                                <FaUsers size={40} color="#9CA3AF" />
+                            <div style={{ width: "90px", height: "90px", borderRadius: "50%", backgroundColor: "#E5E7EB", overflow: "hidden", display: "flex", justifyContent: "center", alignItems: "center", border: "3px solid #EAB308" }}>
+                                <img src={ownerPic} alt="Founder" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                             </div>
                             <div>
                                 <h3 style={{ fontSize: "1.4rem", fontWeight: 700, color: "var(--primary-green)", marginBottom: "4px" }}>Mr. Surendra Kakade.</h3>

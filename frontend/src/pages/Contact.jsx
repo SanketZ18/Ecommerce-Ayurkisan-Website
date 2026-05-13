@@ -229,11 +229,23 @@ const Contact = () => {
 
                     {/* RIGHT MAP/INFO */}
                     <div style={{ flex: "1 1 400px", display: "flex", flexDirection: "column", gap: "20px" }}>
-                        <div style={{ borderRadius: "16px", padding: "30px", boxShadow: "0 10px 25px rgba(0,0,0,0.05)", height: "300px", display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", backgroundColor: "#E5E7EB" }}>
-                            {/* Placeholder for Map */}
-                            <h2 style={{ fontSize: "1.5rem", fontWeight: 700, color: "var(--text-dark)", marginBottom: "10px" }}>Locate our office</h2>
-                            <p style={{ color: "#6B7280" }}>Satara, Maharashtra, India</p>
-                            <div style={{ width: "100%", height: "100%", border: "2px dashed #CBD5E1", borderRadius: "8px", display: "flex", justifyContent: "center", alignItems: "center", marginTop: "20px", color: "#94A3B8" }}>Google Map Embed</div>
+                        <div style={{ borderRadius: "16px", padding: "20px", boxShadow: "0 10px 25px rgba(0,0,0,0.05)", height: "400px", display: "flex", flexDirection: "column", backgroundColor: "#fff", overflow: "hidden" }}>
+                            <div style={{ padding: "10px 10px 20px 10px", textAlign: "center" }}>
+                                <h2 style={{ fontSize: "1.5rem", fontWeight: 700, color: "var(--text-dark)", marginBottom: "5px" }}>Locate our office</h2>
+                                <p style={{ color: "#6B7280", fontSize: "0.9rem" }}>Satara, Maharashtra, India</p>
+                            </div>
+                            <div style={{ width: "100%", height: "100%", borderRadius: "12px", overflow: "hidden", border: "1px solid #E5E7EB" }}>
+                                <iframe 
+                                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3801.458925501!2d73.991207611362!3d17.689626394246!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bc2399676e66e6b%3A0x5e5a9c9f1a0b5a1b!2sAyurkisan%20Naturals!5e0!3m2!1sen!2sin!4v1715581500000!5m2!1sen!2sin" 
+                                    width="100%" 
+                                    height="100%" 
+                                    style={{ border: 0 }} 
+                                    allowFullScreen="" 
+                                    loading="lazy" 
+                                    referrerPolicy="no-referrer-when-downgrade"
+                                    title="Ayurkisan Naturals Location"
+                                ></iframe>
+                            </div>
                         </div>
 
                         <div style={{ backgroundColor: "#fff", borderRadius: "16px", padding: "30px", boxShadow: "0 10px 25px rgba(0,0,0,0.05)", display: "flex", flexDirection: "column", gap: "20px" }}>
