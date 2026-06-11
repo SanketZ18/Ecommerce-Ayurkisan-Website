@@ -101,17 +101,49 @@ const ManageReports = () => {
         }
     };
 
+    const generateDateRangeList = (startStr, endStr) => {
+        const dates = [];
+        let current = new Date(startStr.split('T')[0]);
+        const end = new Date(endStr.split('T')[0]);
+        
+        // Safety guard to prevent infinite loop
+        let count = 0;
+        while (current <= end && count < 366) {
+            dates.push(current.toISOString().split('T')[0]);
+            current.setDate(current.getDate() + 1);
+            count++;
+        }
+        return dates;
+    };
+
     const processSalesData = (data) => {
-        // Fallback mock data for visualization if backend data is sparse
-        setSalesData([
-            { date: '2024-03-10', sales: data.totalSalesAmount ? data.totalSalesAmount * 0.1 : 4000 },
-            { date: '2024-03-11', sales: data.totalSalesAmount ? data.totalSalesAmount * 0.15 : 3000 },
-            { date: '2024-03-12', sales: data.totalSalesAmount ? data.totalSalesAmount * 0.05 : 2000 },
-            { date: '2024-03-13', sales: data.totalSalesAmount ? data.totalSalesAmount * 0.2 : 2780 },
-            { date: '2024-03-14', sales: data.totalSalesAmount ? data.totalSalesAmount * 0.12 : 1890 },
-            { date: '2024-03-15', sales: data.totalSalesAmount ? data.totalSalesAmount * 0.18 : 2390 },
-            { date: '2024-03-16', sales: data.totalSalesAmount ? data.totalSalesAmount * 0.2 : 3490 },
-        ]);
+        const dates = generateDateRangeList(dateRange.start, dateRange.end);
+        const trendMap = data.salesTrend || {};
+        
+        // Check if we have any real sales in the trend map or if totalSalesAmount is positive
+        const hasRealSales = Object.values(trendMap).some(val => val > 0);
+        
+        if (hasRealSales || data.totalSalesAmount > 0) {
+            setSalesData(dates.map(d => ({
+                date: d,
+                sales: trendMap[d] !== undefined ? trendMap[d] : 0
+            })));
+        } else {
+            // Fallback mock data for visualization if backend data is sparse/zero, but using the selected dates!
+            const dataPointsCount = Math.min(7, dates.length);
+            const step = Math.max(1, Math.floor(dates.length / dataPointsCount));
+            const mockSalesPattern = [4000, 3000, 2000, 2780, 1890, 2390, 3490];
+            
+            const fallbackData = [];
+            for (let i = 0; i < dataPointsCount; i++) {
+                const dateIndex = Math.min(i * step, dates.length - 1);
+                fallbackData.push({
+                    date: dates[dateIndex],
+                    sales: mockSalesPattern[i % mockSalesPattern.length]
+                });
+            }
+            setSalesData(fallbackData);
+        }
     };
 
     const handleProductSearch = (query) => {
