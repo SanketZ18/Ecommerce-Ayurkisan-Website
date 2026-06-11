@@ -84,22 +84,22 @@ const RetailerRegistration = ({ onClose, onSwitchToLogin }) => {
             <form onSubmit={handleSubmit}>
                 <div className="form-group" style={formGroupStyle}>
                     <label style={labelStyle}>Retailer Name</label>
-                    <input type="text" name="retailerName" value={formData.retailerName} onChange={handleChange} required placeholder="Ramesh" style={inputStyle} />
+                    <input type="text" name="retailerName" value={formData.retailerName} onChange={handleChange} required placeholder="Enter Retailer Name" style={inputStyle} />
                 </div>
 
                 <div className="form-group" style={formGroupStyle}>
                     <label style={labelStyle}>Firm/Business Name</label>
-                    <input type="text" name="firmName" value={formData.firmName} onChange={handleChange} required placeholder="Ramesh Agro" style={inputStyle} />
+                    <input type="text" name="firmName" value={formData.firmName} onChange={handleChange} required placeholder="Enter Firm/Business Name" style={inputStyle} />
                 </div>
 
                 <div className="form-group" style={formGroupStyle}>
                     <label style={labelStyle}>Registration ID / GST</label>
-                    <input type="text" name="registrationId" value={formData.registrationId} onChange={handleChange} required placeholder="REG123" style={inputStyle} />
+                    <input type="text" name="registrationId" value={formData.registrationId} onChange={handleChange} required placeholder="Enter Registration ID / GST" style={inputStyle} />
                 </div>
 
                 <div className="form-group" style={formGroupStyle}>
                     <label style={labelStyle}>Business Address (H.No, Building, Street, Landmark)</label>
-                    <input type="text" name="addressLine1" value={formData.addressLine1} onChange={handleChange} required placeholder="Shop No 5, Market Road" style={inputStyle} />
+                    <input type="text" name="addressLine1" value={formData.addressLine1} onChange={handleChange} required placeholder="Enter Address" style={inputStyle} />
                 </div>
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
@@ -133,12 +133,12 @@ const RetailerRegistration = ({ onClose, onSwitchToLogin }) => {
 
                 <div className="form-group" style={formGroupStyle}>
                     <label style={labelStyle}>Phone Number</label>
-                    <input type="tel" name="phoneNumber" value={formData.phoneNumber} onChange={handleChange} required placeholder="9876543210" style={inputStyle} pattern="[789][0-9]{9}" title="Phone number must start with 7, 8 or 9 and contain 10 digits" />
+                    <input type="tel" name="phoneNumber" value={formData.phoneNumber} onChange={handleChange} required placeholder="Enter Phone Number" style={inputStyle} pattern="[789][0-9]{9}" title="Phone number must start with 7, 8 or 9 and contain 10 digits" />
                 </div>
 
                 <div className="form-group" style={formGroupStyle}>
                     <label style={labelStyle}>Email Address</label>
-                    <input type="email" name="email" value={formData.email} onChange={handleChange} required placeholder="retailer@example.com" style={inputStyle} pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$" title="Please enter a valid email address" />
+                    <input type="email" name="email" value={formData.email} onChange={handleChange} required placeholder="Enter Email Address" style={inputStyle} pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$" title="Please enter a valid email address" />
                 </div>
 
                 <div className="form-group" style={{ ...formGroupStyle, position: 'relative' }}>
@@ -149,19 +149,19 @@ const RetailerRegistration = ({ onClose, onSwitchToLogin }) => {
                     </span>
                 </div>
 
-                <button 
-                    type="submit" 
-                    className="btn-primary" 
-                    style={{ 
-                        width: '100%', 
-                        marginTop: '1rem', 
-                        padding: '0.85rem', 
-                        fontSize: '1rem', 
+                <button
+                    type="submit"
+                    className="btn-primary"
+                    style={{
+                        width: '100%',
+                        marginTop: '1rem',
+                        padding: '0.85rem',
+                        fontSize: '1rem',
                         borderRadius: '12px',
                         backgroundColor: '#8b5cf6',
                         border: 'none',
                         boxShadow: '0 4px 14px 0 rgba(139, 92, 246, 0.2)'
-                    }} 
+                    }}
                     disabled={loading}
                 >
                     {loading ? 'Registering...' : 'Sign Up as Retailer'}
