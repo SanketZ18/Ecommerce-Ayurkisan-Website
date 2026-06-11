@@ -69,10 +69,37 @@ public class ReportService {
             // Sales by Region
             dto.setRegionBreakdown(getRegionBreakdown(dateCriteria));
 
+            // Sales Trend
+            dto.setSalesTrend(getSalesTrend(dateCriteria, statusCriteria));
+
             return dto;
         } catch (Exception e) {
             System.err.println("Error generating sales report: " + e.getMessage());
             return new SalesReportDTO();
+        }
+    }
+
+    private Map<String, Double> getSalesTrend(Criteria dateCriteria, Criteria statusCriteria) {
+        try {
+            Aggregation agg = newAggregation(
+                match(new Criteria().andOperator(dateCriteria, statusCriteria)),
+                project("totalDiscountedPrice")
+                    .and("createdAt").dateAsFormattedString("%Y-%m-%d").as("day"),
+                group("day")
+                    .sum("totalDiscountedPrice").as("sales"),
+                sort(org.springframework.data.domain.Sort.Direction.ASC, "_id")
+            );
+            AggregationResults<Map<String, Object>> results = mongoTemplate.aggregate(agg, "Orders", getMapClass());
+            Map<String, Double> trend = new LinkedHashMap<>();
+            for (Map<String, Object> m : results.getMappedResults()) {
+                String day = m.get("_id") != null ? m.get("_id").toString() : "UNKNOWN";
+                Double sales = m.get("sales") != null ? ((Number) m.get("sales")).doubleValue() : 0.0;
+                trend.put(day, sales);
+            }
+            return trend;
+        } catch (Exception e) {
+            System.err.println("Error getting sales trend: " + e.getMessage());
+            return new HashMap<>();
         }
     }
 

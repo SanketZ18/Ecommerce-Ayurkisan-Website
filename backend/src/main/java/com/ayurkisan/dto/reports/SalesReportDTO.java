@@ -12,6 +12,7 @@ public class SalesReportDTO {
     
     private Map<String, Long> statusBreakdown; // DELIVERED, PENDING, etc.
     private Map<String, Double> regionBreakdown; // Pune, Mumbai, etc.
+    private Map<String, Double> salesTrend;
 
     public static class RoleStats {
         private long orderCount;
@@ -38,4 +39,6 @@ public class SalesReportDTO {
     public void setStatusBreakdown(Map<String, Long> statusBreakdown) { this.statusBreakdown = statusBreakdown; }
     public Map<String, Double> getRegionBreakdown() { return regionBreakdown; }
     public void setRegionBreakdown(Map<String, Double> regionBreakdown) { this.regionBreakdown = regionBreakdown; }
+    public Map<String, Double> getSalesTrend() { return salesTrend; }
+    public void setSalesTrend(Map<String, Double> salesTrend) { this.salesTrend = salesTrend; }
 }
