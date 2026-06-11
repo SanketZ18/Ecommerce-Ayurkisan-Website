@@ -82,22 +82,22 @@ const CustomerRegistration = ({ onClose, onSwitchToLogin }) => {
             <form onSubmit={handleSubmit}>
                 <div className="form-group" style={formGroupStyle}>
                     <label style={labelStyle}>Full Name</label>
-                    <input type="text" name="name" value={formData.name} onChange={handleChange} required placeholder="John Doe" style={inputStyle} />
+                    <input type="text" name="name" value={formData.name} onChange={handleChange} required placeholder="Enter Name" style={inputStyle} />
                 </div>
 
                 <div className="form-group" style={formGroupStyle}>
                     <label style={labelStyle}>Email Address</label>
-                    <input type="email" name="email" value={formData.email} onChange={handleChange} required placeholder="john@example.com" style={inputStyle} pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$" title="Please enter a valid email address" />
+                    <input type="email" name="email" value={formData.email} onChange={handleChange} required placeholder="Enter Email Address" style={inputStyle} pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$" title="Please enter a valid email address" />
                 </div>
 
                 <div className="form-group" style={formGroupStyle}>
                     <label style={labelStyle}>Phone Number</label>
-                    <input type="tel" name="phoneNumber" value={formData.phoneNumber} onChange={handleChange} required placeholder="9876543210" style={inputStyle} pattern="[789][0-9]{9}" title="Phone number must start with 7, 8 or 9 and contain 10 digits" />
+                    <input type="tel" name="phoneNumber" value={formData.phoneNumber} onChange={handleChange} required placeholder="Enter Phone Number" style={inputStyle} pattern="[789][0-9]{9}" title="Phone number must start with 7, 8 or 9 and contain 10 digits" />
                 </div>
 
                 <div className="form-group" style={formGroupStyle}>
                     <label style={labelStyle}>Address Line 1 (H.No, Building, Street, Landmark)</label>
-                    <input type="text" name="addressLine1" value={formData.addressLine1} onChange={handleChange} required placeholder="House No 123, Green Valley" style={inputStyle} />
+                    <input type="text" name="addressLine1" value={formData.addressLine1} onChange={handleChange} required placeholder="Enter Address Line 1" style={inputStyle} />
                 </div>
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
@@ -138,19 +138,19 @@ const CustomerRegistration = ({ onClose, onSwitchToLogin }) => {
                     </span>
                 </div>
 
-                <button 
-                    type="submit" 
-                    className="btn-primary" 
-                    style={{ 
-                        width: '100%', 
-                        marginTop: '1rem', 
-                        padding: '0.85rem', 
-                        fontSize: '1rem', 
+                <button
+                    type="submit"
+                    className="btn-primary"
+                    style={{
+                        width: '100%',
+                        marginTop: '1rem',
+                        padding: '0.85rem',
+                        fontSize: '1rem',
                         borderRadius: '12px',
                         backgroundColor: '#059669',
                         border: 'none',
                         boxShadow: '0 4px 14px 0 rgba(5, 150, 105, 0.2)'
-                    }} 
+                    }}
                     disabled={loading}
                 >
                     {loading ? 'Registering...' : 'Sign Up as Customer'}
